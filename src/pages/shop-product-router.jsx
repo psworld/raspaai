@@ -15,7 +15,7 @@ const ShopProduct = props => {
   )
 }
 
-const ShopProductManager = props => {
+const ShopProductRouter = props => {
   return (
     <Router>
       <ShopProduct path="/shop/:shopUsername/product/:shopProductSlug/:shopProductId"></ShopProduct>
@@ -23,4 +23,4 @@ const ShopProductManager = props => {
   )
 }
 
-export default ShopProductManager
+export default ShopProductRouter
