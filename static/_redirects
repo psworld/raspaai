@@ -1,1 +1,3 @@
+/shop/:shopUsername/product/:productTitle/:shopProductId  /shopProduct 200
+
 /shop/*  /shop 200
