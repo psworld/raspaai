@@ -13,7 +13,7 @@ const ShopProduct = props => {
   )
 }
 
-const Product = () => {
+const ShopRouter = () => {
   return (
     <Router>
       <ShopProduct path="/shop/:shopUsername/product/:shopProductSlug/:shopProductId"></ShopProduct>
@@ -21,4 +21,4 @@ const Product = () => {
   )
 }
 
-export default Product
+export default ShopRouter
