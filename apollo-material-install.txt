@@ -1,0 +1,5 @@
+#1 apollo with react-hooks
+npm install apollo-boost @apollo/react-hooks graphql @material-ui/core @material-ui/icons gatsby-plugin-material-ui isomorphic-fetch
+
+#2 apollo with react-apollo components
+npm install apollo-boost react-apollo graphql @material-ui/core @material-ui/icons gatsby-plugin-material-ui isomorphic-fetch
