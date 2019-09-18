@@ -4,6 +4,7 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
+import Link from "../core/Link"
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -15,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const HeroUnit = () => {
+const HeroUnit = ({ location }) => {
   const classes = useStyles()
   return (
     <div className={classes.heroContent}>
@@ -36,12 +37,17 @@ const HeroUnit = () => {
           <Grid container spacing={2} justify="center">
             <Grid item>
               <Button variant="contained" color="primary">
-                Main call to action
+                {location.name}
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="outlined" color="primary">
-                Secondary action
+              <Button
+                component={Link}
+                to="/set-location"
+                variant="outlined"
+                color="primary"
+              >
+                set new location
               </Button>
             </Grid>
           </Grid>

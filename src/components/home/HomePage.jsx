@@ -6,30 +6,33 @@ import Home from "./Home"
 import ErrorPage from "../core/ErrorPage"
 
 const NEARBY_SHOP_PRODUCTS = gql`
-query ($lat: Float!, $lng: Float!) {
-  nearbyShopProducts(lat: $lat, lng: $lng, first: 10) {
-    pageInfo {
-      hasNextPage
-      hasPreviousPage
-      startCursor
-      endCursor
-    }
-    edges {
-      node {
-        id
-        product {
+  query($lat: Float!, $lng: Float!) {
+    nearbyShopProducts(lat: $lat, lng: $lng, first: 10) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        node {
           id
-          title
-          mrp
-          description
+          shop {
+            properties {
+              publicUsername
+            }
+          }
+          product {
+            title
+            mrp
+            description
+          }
+          offeredPrice
+          inStock
         }
-        offeredPrice
-        inStock
       }
     }
   }
-}
-
 `
 
 const HomePage = props => {
@@ -40,7 +43,12 @@ const HomePage = props => {
   if (loading) return <HomePageTemplate></HomePageTemplate>
   if (error) return <ErrorPage></ErrorPage>
   if (data) {
-    return <Home nearbyShopProducts={data.nearbyShopProducts.edges}></Home>
+    return (
+      <Home
+        location={location}
+        nearbyShopProducts={data.nearbyShopProducts.edges}
+      ></Home>
+    )
   }
 }
 

@@ -29,7 +29,10 @@ const useStyles = makeStyles(theme => ({
 const GridElement = props => {
   const {
     shopProduct: {
-      id,
+      id: shopProductId,
+      shop: {
+        properties: { publicUsername },
+      },
       product: { title, mrp, description },
     },
   } = props
@@ -38,7 +41,9 @@ const GridElement = props => {
   return (
     <Grid item xs={12} sm={6} md={4}>
       <Card className={classes.card}>
-        <Link to={`/shop/raspaai/product/${shopProductSlug}/${id}`}>
+        <Link
+          to={`/shop/${publicUsername}/product/${shopProductSlug}/${shopProductId}`}
+        >
           <CardMedia
             className={classes.cardMedia}
             image={gatsbyAstronaut}
