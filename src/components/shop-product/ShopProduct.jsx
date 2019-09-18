@@ -33,8 +33,6 @@ const ShopProduct = props => {
   })
   if (loading) return <h1>ShopProductTemplate</h1>
   if (error) {
-    console.log(error.message)
-
     return <ErrorPage></ErrorPage>
   }
   if (data && data.shopProduct) {
@@ -48,7 +46,6 @@ const ShopProduct = props => {
         },
       },
     } = data
-    console.log(id)
     return (
       <>
         <h1>{productTitle}</h1>

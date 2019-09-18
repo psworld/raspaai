@@ -34,7 +34,9 @@ const Map = props => {
   const [isLoaded, setIsLoaded] = React.useState(false)
   const [mapRef, setMapRef] = React.useState(null)
   const [center, setCenter] = React.useState(props.center)
-  const [markerPosition, setMarkerPosition] = React.useState(null)
+  const [markerPosition, setMarkerPosition] = React.useState(
+    props.automaticMarkerPosition
+  )
 
   if (markerPosition) {
     var savedLocation = {
@@ -62,7 +64,7 @@ const Map = props => {
           width: "100%",
         }}
         onLoad={() => setIsLoaded(true)}
-        zoom={15}
+        zoom={16}
         center={center}
         onClick={e => handleClick(e.latLng.lat(), e.latLng.lng())}
       >

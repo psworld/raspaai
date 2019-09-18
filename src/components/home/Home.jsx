@@ -26,7 +26,7 @@ export default function Home(props) {
         <Grid container spacing={4}>
           {nearbyShopProducts.map(shopProductNode => (
             <GridElement
-              key={shopProductNode.id}
+              key={shopProductNode.node.id}
               shopProduct={shopProductNode.node}
             ></GridElement>
           ))}

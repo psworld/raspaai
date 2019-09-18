@@ -59,7 +59,7 @@ const HeroUnit = () => {
           color="textSecondary"
           paragraph
         >
-          * Getting automatic location requires GPS.
+          * Getting accurate location automatically requires GPS.
         </Typography>
         <div className={classes.heroButtons}>
           <Grid container spacing={2} justify="center">
