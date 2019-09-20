@@ -68,7 +68,7 @@ const SIGNIN = gql`
 export default function SigninForm(props) {
   const classes = useStyles()
   const {
-    formik: { values, touched, errors, dirty, handleChange, handleBlur },
+    formik: { values, touched, errors, handleChange, handleBlur },
     message,
   } = props
   const { email, password } = values
