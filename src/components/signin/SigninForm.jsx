@@ -64,7 +64,7 @@ const SIGNIN = gql`
   }
 `
 
-function hasError(errors) {
+export function hasError(errors) {
   if (Object.keys(errors).length === 0 && errors.constructor === Object) {
     return false
   } else return true

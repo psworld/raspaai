@@ -14,8 +14,8 @@ import { Mutation } from "react-apollo"
 import { Formik } from "formik"
 import * as yup from "yup"
 import FormError from "../core/FormError"
-import { hasErrors } from "../core/HasError"
 import { navigate } from "gatsby"
+import { hasError } from "../signin/SigninForm"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -160,7 +160,7 @@ const VerificationCode = props => {
                                 color="primary"
                                 className={classes.submit}
                                 disabled={
-                                  hasErrors(errors) ||
+                                  hasError(errors) ||
                                   !dirty ||
                                   String(values.key).length !== 4
                                 }
