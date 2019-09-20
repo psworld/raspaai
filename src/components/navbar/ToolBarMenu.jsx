@@ -10,7 +10,7 @@ import NotificationsIcon from "@material-ui/icons/Notifications"
 import MenuItem from "@material-ui/core/MenuItem"
 import Menu from "@material-ui/core/Menu"
 
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery, useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
 import ToolBarMenuTemplate from "../templates/ToolBarMenuTemplate"
 
@@ -44,8 +44,20 @@ export const VIEWER = gql`
   }
 `
 
+const LOGOUT_USER = gql`
+  mutation {
+    logoutUser(input: {}) {
+      msg
+    }
+  }
+`
+
 const ToolBarMenu = props => {
   const { loading, error, data } = useQuery(VIEWER)
+  const [
+    logout,
+    { loading: logoutLoading, called, data: logoutData },
+  ] = useMutation(LOGOUT_USER, { refetchQueries: [{ query: VIEWER }] })
 
   const classes = useStyles()
 
@@ -87,6 +99,13 @@ const ToolBarMenu = props => {
         onClick={handleMenuClose}
       >{`${viewer.firstName} ${viewer.lastName}`}</MenuItem>
       <MenuItem onClick={handleMenuClose}>{viewer.email}</MenuItem>
+      <MenuItem onClick={logout}>
+        {!called
+          ? "Logout"
+          : logoutLoading
+          ? "Logging out"
+          : logoutData && "Logged out"}
+      </MenuItem>
     </Menu>
   )
 
@@ -145,7 +164,7 @@ const ToolBarMenu = props => {
               <NotificationsIcon />
             </Badge>
           </IconButton> */}
-          <Button component={Link} to="/sign-in" edge="end" color="inherit">
+          <Button component={Link} to="/signin" edge="end" color="inherit">
             Sign in
           </Button>
         </div>

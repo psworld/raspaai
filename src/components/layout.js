@@ -10,7 +10,7 @@ import PropTypes from "prop-types"
 import { useStaticQuery, graphql } from "gatsby"
 
 import NavBar from "./navbar/NavBar"
-import { CssBaseline } from "@material-ui/core"
+import CssBaseline from "@material-ui/core/CssBaseline"
 import Footer from "./Footer"
 
 const Layout = ({ children }) => {

@@ -1,9 +1,9 @@
 import React from "react"
 import { useQuery } from "react-apollo"
-import HomePageTemplate from "../templates/HomePageTemplate"
 import gql from "graphql-tag"
 import Home from "./Home"
 import ErrorPage from "../core/ErrorPage"
+import HomePageSkeleton from "../skeletons/HomePageSkeleton"
 
 const NEARBY_SHOP_PRODUCTS = gql`
   query($lat: Float!, $lng: Float!) {
@@ -40,7 +40,7 @@ const HomePage = props => {
   const { loading, error, data } = useQuery(NEARBY_SHOP_PRODUCTS, {
     variables: { lat: location.lat, lng: location.lng },
   })
-  if (loading) return <HomePageTemplate></HomePageTemplate>
+  if (loading) return <HomePageSkeleton></HomePageSkeleton>
   if (error) return <ErrorPage></ErrorPage>
   if (data) {
     return (

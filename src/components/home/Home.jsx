@@ -1,37 +1,30 @@
 import React from "react"
 import Grid from "@material-ui/core/Grid"
-import { makeStyles } from "@material-ui/core/styles"
-import Container from "@material-ui/core/Container"
 import HeroUnit from "./HeroUnit"
 import GridElement from "./GridElement"
-
-const useStyles = makeStyles(theme => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
-  },
-}))
+import Box from "@material-ui/core/Box"
+import Paper from "@material-ui/core/Paper"
 
 export default function Home(props) {
-  const classes = useStyles()
   const { nearbyShopProducts, location } = props
 
   return (
     <React.Fragment>
       <HeroUnit location={location}></HeroUnit>
-      <Container className={classes.cardGrid} maxWidth="md">
-        <Grid container spacing={4}>
-          {nearbyShopProducts.map(shopProductNode => (
-            <GridElement
-              key={shopProductNode.node.id}
-              shopProduct={shopProductNode.node}
-            ></GridElement>
-          ))}
-        </Grid>
-      </Container>
+      <Box overflow="hidden" clone>
+        <Paper>
+          <Box px={1}>
+            <Grid container>
+              {nearbyShopProducts.map(shopProductNode => (
+                <GridElement
+                  key={shopProductNode.node.id}
+                  shopProduct={shopProductNode.node}
+                ></GridElement>
+              ))}
+            </Grid>
+          </Box>
+        </Paper>
+      </Box>
     </React.Fragment>
   )
 }

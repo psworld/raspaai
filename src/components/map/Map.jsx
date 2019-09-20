@@ -3,9 +3,10 @@ import React from "react"
 import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api"
 
 import { makeStyles } from "@material-ui/core/styles"
-import { Typography } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
-import { Button } from "@material-ui/core"
+import Button from "@material-ui/core/Button"
+import { useApolloClient } from "react-apollo"
+import { navigate } from "gatsby"
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -29,7 +30,7 @@ const apikey = "AIzaSyAUGzly5dIhIJubgTw1aHoUOlrf9TtQi1I"
 
 const Map = props => {
   const classes = useStyles()
-
+  const client = useApolloClient()
   const [name, setName] = React.useState()
   const [isLoaded, setIsLoaded] = React.useState(false)
   const [mapRef, setMapRef] = React.useState(null)
@@ -91,7 +92,13 @@ const Map = props => {
             }}
           />
           <Button
-            onClick={() => localStorage.setItem("lla", btoa(encSavedLocation))}
+            onClick={() =>
+              localStorage.setItem("lla", btoa(encSavedLocation)) &
+              client.writeData({
+                data: { localSavedLocation: btoa(encSavedLocation) },
+              }) &
+              navigate("/")
+            }
             style={{ margin: 8 }}
             color="secondary"
             variant="contained"

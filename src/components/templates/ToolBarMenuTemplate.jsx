@@ -1,7 +1,8 @@
 import React from "react"
+import Skeleton from "@material-ui/lab/Skeleton"
 
 const ToolBarMenuTemplate = () => {
-  return <p>Menu Template</p>
+  return <Skeleton variant="circle" width={40} height={40} />
 }
 
 export default ToolBarMenuTemplate

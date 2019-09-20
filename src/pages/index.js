@@ -4,21 +4,21 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 
 import { gql } from "apollo-boost"
-import Link from "../components/core/Link"
 import { useQuery } from "react-apollo"
 import { VIEWER } from "../components/navbar/ToolBarMenu"
 import HomePage from "../components/home/HomePage"
-import HomePageTemplate from "../components/templates/HomePageTemplate"
 import ErrorPage from "../components/core/ErrorPage"
+import HomePageSkeleton from "../components/skeletons/HomePageSkeleton"
 
 // const lat, lng = 31.708067, 76.931357
 // eyJuYW1lIjoiTWFuZGkiLCJsYXQiOiIzMS43MDgwNjciLCJsbmciOiI3Ni45MzEzNTcifQ==
 
-const LOCAL_SAVED_LOCATION = gql`
+export const LOCAL_SAVED_LOCATION = gql`
   {
     localSavedLocation @client
   }
 `
+
 const ONLINE_SAVED_LOCATION = gql`
   {
     activeSavedLocation {
@@ -36,7 +36,7 @@ const OnlineSavedLocation = () => {
   const { loading, error, data: onlineSavedLocationData } = useQuery(
     ONLINE_SAVED_LOCATION
   )
-  if (loading) return <HomePageTemplate></HomePageTemplate>
+  if (loading) return <HomePageSkeleton></HomePageSkeleton>
   if (error) return <ErrorPage></ErrorPage>
   if (onlineSavedLocationData && onlineSavedLocationData.activeSavedLocation) {
     const activeSavedLocation = onlineSavedLocationData.activeSavedLocation[0]
@@ -57,9 +57,9 @@ const Index = props => {
 
   if (localSavedLocationData && localSavedLocationData.localSavedLocation) {
     const location = JSON.parse(atob(localSavedLocationData.localSavedLocation))
-    return <HomePage location={location} from="local location"></HomePage>
+    return <HomePage location={location}></HomePage>
   }
-  if (loading) return <HomePageTemplate></HomePageTemplate>
+  if (loading) return <HomePageSkeleton></HomePageSkeleton>
   if (error) return <ErrorPage></ErrorPage>
 
   // if a user is logged in then check for online saved locations
@@ -78,7 +78,6 @@ const IndexPage = () => {
         description="Raspaai.in | Buy anything from your local stores"
       ></SEO>
       <Index></Index>
-      <Link to="/page-2">Page 2</Link>
     </Layout>
   )
 }

@@ -15,4 +15,9 @@ exports.onCreatePage = async ({ page, actions }) => {
     // Update the page.
     createPage(page)
   }
+  if (page.path.match(/^\/search/)) {
+    page.matchPath = "/search/*"
+    // Update the page.
+    createPage(page)
+  }
 }

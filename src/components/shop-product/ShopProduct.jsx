@@ -2,6 +2,9 @@ import React from "react"
 import { useQuery } from "react-apollo"
 import gql from "graphql-tag"
 import ErrorPage from "../core/ErrorPage"
+import SEO from "../seo"
+
+// const seeThisOnGoogleMaps = "https://www.google.co.in/maps/place/31.708324,76.931868/@31.7082658,76.931412,16z/"
 
 const SHOP_PRODUCT = gql`
   query($shopProductId: ID!) {
@@ -48,6 +51,10 @@ const ShopProduct = props => {
     } = data
     return (
       <>
+        <SEO
+          title={`${productTitle} | ${publicUsername}`}
+          description={description}
+        ></SEO>
         <h1>{productTitle}</h1>
         <h2>mrp: Rs.{mrp}</h2>
         <h2>offered price: Rs.{offeredPrice}</h2>

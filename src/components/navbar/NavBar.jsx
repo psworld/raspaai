@@ -10,6 +10,9 @@ import MenuIcon from "@material-ui/icons/Menu"
 import SearchIcon from "@material-ui/icons/Search"
 import ToolBarMenu from "./ToolBarMenu"
 import Link from "../core/Link"
+import { useQuery } from "react-apollo"
+import { LOCAL_SAVED_LOCATION } from "../../pages"
+import { navigate } from "gatsby"
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -52,30 +55,25 @@ const useStyles = makeStyles(theme => ({
     color: "inherit",
   },
   inputInput: {
-    padding: theme.spacing(1, 1, 1, 7),
+    padding: theme.spacing(1, 1, 1, 1),
     transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("md")]: {
       width: 200,
     },
   },
-  sectionDesktop: {
-    display: "none",
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-    },
-  },
-  sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("md")]: {
-      display: "none",
-    },
-  },
 }))
 
 export default function NavBar() {
   const classes = useStyles()
+  const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION)
 
+  const [phrase, setPhrase] = React.useState("")
+  if (localSavedLocationData && localSavedLocationData.localSavedLocation) {
+    var { lat, lng } = JSON.parse(
+      atob(localSavedLocationData.localSavedLocation)
+    )
+  }
   return (
     <div className={classes.grow}>
       <AppBar position="static">
@@ -98,20 +96,29 @@ export default function NavBar() {
           >
             Raspaai
           </Typography>
-          {/* </Link> */}
+
           <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
             <InputBase
               placeholder="Search…"
+              onChange={e => setPhrase(e.target.value)}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
               inputProps={{ "aria-label": "search" }}
+              onKeyPress={e => {
+                if (phrase.replace(/\s/g, "").length > 1 && e.key === "Enter") {
+                  navigate(`/search/${phrase}/pg/1/@/${lat}/${lng}`)
+                }
+              }}
             />
           </div>
+          <SearchIcon
+            onClick={() =>
+              phrase.replace(/\s/g, "").length > 1 &&
+              navigate(`/search/${phrase}/pg/1/@/${lat}/${lng}`)
+            }
+          />
           <div className={classes.grow} />
           <ToolBarMenu></ToolBarMenu>
         </Toolbar>

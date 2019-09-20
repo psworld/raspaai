@@ -1,15 +1,11 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
-import Card from "@material-ui/core/Card"
-import CardActions from "@material-ui/core/CardActions"
-import CardContent from "@material-ui/core/CardContent"
-import CardMedia from "@material-ui/core/CardMedia"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import gatsbyAstronaut from "../../images/gatsby-astronaut.png"
 import slugGenerator from "../core/slugGenerator"
 import Link from "../core/Link"
+import Box from "@material-ui/core/Box"
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -33,39 +29,41 @@ const GridElement = props => {
       shop: {
         properties: { publicUsername },
       },
+      offeredPrice,
       product: { title, mrp, description },
     },
   } = props
   const classes = useStyles()
   const shopProductSlug = slugGenerator(title)
   return (
-    <Grid item xs={12} sm={6} md={4}>
-      <Card className={classes.card}>
+    <Grid item xs={6} sm={4} md={3} lg={2}>
+      <Box width={150} mx={0.5} my={2}>
         <Link
           to={`/shop/${publicUsername}/product/${shopProductSlug}/${shopProductId}`}
         >
-          <CardMedia
-            className={classes.cardMedia}
-            image={gatsbyAstronaut}
-            title={title}
+          <img
+            style={{ maxHeight: 200, maxWidth: 150 }}
+            alt={title}
+            src={gatsbyAstronaut}
           />
-
-          <CardContent className={classes.cardContent}>
-            <Typography gutterBottom variant="h5" component="h2">
-              {title}
-            </Typography>
-            <Typography>{description}</Typography>
-          </CardContent>
+          {/* <Box paddingRight={2}> */}
+          <Typography variant="body2">{title.substring(0, 30)}</Typography>
         </Link>
-        <CardActions>
-          <Button size="small" color="primary">
-            View
-          </Button>
-          <Button size="small" color="primary">
-            Edit
-          </Button>
-        </CardActions>
-      </Card>
+        <Typography display="block" variant="caption" color="textSecondary">
+          <Link
+            variant="contained"
+            to={`/shop/${publicUsername}`}
+            size="large"
+            color="primary"
+          >
+            {publicUsername}
+          </Link>
+        </Typography>
+        <Typography variant="body1" style={{ color: "green" }}>
+          &#8377; {offeredPrice}
+        </Typography>
+        {/* </Box> */}
+      </Box>
     </Grid>
   )
 }
