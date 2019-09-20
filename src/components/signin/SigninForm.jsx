@@ -17,9 +17,9 @@ import Loading from "../core/Loading"
 import { Mutation } from "react-apollo"
 import gql from "graphql-tag"
 import Link from "../core/Link"
-import { hasErrors } from "../core/HasError"
 import ErrorPage from "../core/ErrorPage"
 import { VIEWER } from "../navbar/ToolBarMenu"
+import HasError from "../core/HasError"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -127,7 +127,7 @@ export default function SigninForm(props) {
                     />
                     <Button
                       // type="submit"
-                      disabled={hasErrors(errors)}
+                      disabled={HasError(errors)}
                       onClick={signin}
                       fullWidth
                       variant="contained"

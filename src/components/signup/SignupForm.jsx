@@ -10,9 +10,9 @@ import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
 import EmailInput from "../core/input/EmailInput"
 import Link from "../core/Link"
-import { hasErrors } from "../core/HasError"
 import gql from "graphql-tag"
 import { Mutation } from "react-apollo"
+import HasError from "../core/HasError"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -202,7 +202,7 @@ export default function SignupForm(props) {
                     {error && <p style={{ color: "red" }}>{error.message}</p>}
                     <Button
                       onClick={sendEmailVerification}
-                      disabled={!dirty || hasErrors(errors)}
+                      disabled={!dirty || HasError(errors)}
                       fullWidth
                       variant="contained"
                       color="primary"
