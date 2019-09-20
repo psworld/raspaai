@@ -19,7 +19,6 @@ import gql from "graphql-tag"
 import Link from "../core/Link"
 import ErrorPage from "../core/ErrorPage"
 import { VIEWER } from "../navbar/ToolBarMenu"
-import HasError from "../core/HasError"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -64,6 +63,12 @@ const SIGNIN = gql`
     }
   }
 `
+
+function hasError(errors) {
+  if (Object.keys(errors).length === 0 && errors.constructor === Object) {
+    return false
+  } else return true
+}
 
 export default function SigninForm(props) {
   const classes = useStyles()
@@ -127,7 +132,7 @@ export default function SigninForm(props) {
                     />
                     <Button
                       // type="submit"
-                      disabled={HasError(errors)}
+                      disabled={hasError(errors)}
                       onClick={signin}
                       fullWidth
                       variant="contained"

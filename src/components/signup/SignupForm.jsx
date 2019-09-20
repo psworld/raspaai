@@ -12,7 +12,6 @@ import EmailInput from "../core/input/EmailInput"
 import Link from "../core/Link"
 import gql from "graphql-tag"
 import { Mutation } from "react-apollo"
-import HasError from "../core/HasError"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -60,6 +59,12 @@ const SEND_EMAIL_VERIFICATION = gql`
     }
   }
 `
+
+function hasError(errors) {
+  if (Object.keys(errors).length === 0 && errors.constructor === Object) {
+    return false
+  } else return true
+}
 
 export default function SignupForm(props) {
   const {
@@ -202,7 +207,7 @@ export default function SignupForm(props) {
                     {error && <p style={{ color: "red" }}>{error.message}</p>}
                     <Button
                       onClick={sendEmailVerification}
-                      disabled={!dirty || HasError(errors)}
+                      disabled={!dirty || hasError(errors)}
                       fullWidth
                       variant="contained"
                       color="primary"
