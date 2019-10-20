@@ -6,7 +6,6 @@ import Box from "@material-ui/core/Box"
 import Link from "../core/Link"
 
 import sq1 from "../../images/sq1.jpg"
-import sq2 from "../../images/sq2.png"
 
 const SquareElement = props => {
   const { title } = props

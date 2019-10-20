@@ -4,8 +4,6 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Box from "@material-ui/core/Box"
 
-import insta1 from "../../../images/insta1.png"
-import insta2 from "../../../images/insta2.png"
 import slugGenerator from "../../core/slugGenerator"
 import Link from "../../core/Link"
 import Button from "@material-ui/core/Button"
