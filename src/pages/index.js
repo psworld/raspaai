@@ -5,9 +5,11 @@ import SEO from "../components/seo"
 
 import { gql } from "apollo-boost"
 import { useQuery } from "react-apollo"
+
 import { VIEWER } from "../components/navbar/ToolBarMenu"
-import HomePage from "../components/home/HomePage"
 import ErrorPage from "../components/core/ErrorPage"
+import Home from "../components/home/Home"
+
 import HomePageSkeleton from "../components/skeletons/HomePageSkeleton"
 
 // const lat, lng = 31.708067, 76.931357
@@ -46,7 +48,7 @@ const OnlineSavedLocation = () => {
       lng: activeSavedLocation.geometry.coordinates[0],
     }
     localStorage.setItem("lla", btoa(JSON.stringify(location)))
-    return <HomePage location={location} from="online location"></HomePage>
+    return <Home location={location} from="online location"></Home>
   }
   return <h1>No location were found ONLINE</h1>
 }
@@ -57,7 +59,7 @@ const Index = props => {
 
   if (localSavedLocationData && localSavedLocationData.localSavedLocation) {
     const location = JSON.parse(atob(localSavedLocationData.localSavedLocation))
-    return <HomePage location={location}></HomePage>
+    return <Home location={location}></Home>
   }
   if (loading) return <HomePageSkeleton></HomePageSkeleton>
   if (error) return <ErrorPage></ErrorPage>

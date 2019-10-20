@@ -90,7 +90,8 @@ export default function NavBar() {
           <Typography
             component={Link}
             to="/"
-            className={classes.title}
+            style={{color:"white"}}
+            // className={classes.title}
             variant="h6"
             noWrap
           >

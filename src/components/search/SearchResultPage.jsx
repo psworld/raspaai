@@ -1,25 +1,17 @@
 import React from "react"
+
 import Grid from "@material-ui/core/Grid"
-import { makeStyles } from "@material-ui/core/styles"
-import Container from "@material-ui/core/Container"
 import Typography from "@material-ui/core/Typography"
-import GridElement from "../home/GridElement"
+import Button from "@material-ui/core/Button"
+
+import ErrorPage from "../core/ErrorPage"
+import { navigate } from "gatsby"
+
 import gql from "graphql-tag"
 import { useQuery } from "react-apollo"
-import ErrorPage from "../core/ErrorPage"
-import { Button } from "@material-ui/core"
-import { navigate } from "gatsby"
-import ProductGridSkeleton from "../skeletons/ProductGridSkeleton"
 
-const useStyles = makeStyles(theme => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
-  },
-}))
+import ProductGridSkeleton from "../skeletons/ProductGridSkeleton"
+import ShopProductGrid from "../templates/ShopProductGrid"
 
 const SHOP_PRODUCT_SEARCH = gql`
   query(
@@ -29,7 +21,7 @@ const SHOP_PRODUCT_SEARCH = gql`
     $rangeInKm: Int
     $endCursor: String
   ) {
-    shopProductsSearch(
+    productSearch(
       lat: $lat
       lng: $lng
       phrase: $phrase
@@ -66,7 +58,6 @@ const SHOP_PRODUCT_SEARCH = gql`
 `
 
 const SearchResultPage = props => {
-  const classes = useStyles()
   const { phrase, pageNo, endCursor, latitude, longitude } = props
   const lat = parseFloat(latitude)
   const lng = parseFloat(longitude)
@@ -74,30 +65,29 @@ const SearchResultPage = props => {
     variables: { phrase, endCursor, lat, lng, rangeInKm: 5 },
   })
 
-  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>
+  if (loading)
+    return (
+      <>
+        <Typography style={{ margin: 6 }} variant="h4">
+          Search results for {phrase}
+        </Typography>
+        <ProductGridSkeleton></ProductGridSkeleton>
+      </>
+    )
   if (error) return <ErrorPage></ErrorPage>
-  if (
-    data &&
-    data.shopProductsSearch &&
-    data.shopProductsSearch.pageInfo.startCursor
-  ) {
+  if (data && data.productSearch && data.productSearch.pageInfo.startCursor) {
     const {
       pageInfo: { hasNextPage, endCursor },
       edges: nearbyShopProducts,
-    } = data.shopProductsSearch
+    } = data.productSearch
     return (
-      <Container maxWidth="xl">
+      <>
         <Typography style={{ margin: 6 }} variant="h4">
           Search results for {phrase}
         </Typography>
 
         <Grid container>
-          {nearbyShopProducts.map(shopProductObj => (
-            <GridElement
-              key={shopProductObj.node.id}
-              shopProduct={shopProductObj.node}
-            ></GridElement>
-          ))}
+          <ShopProductGrid shopProducts={nearbyShopProducts}></ShopProductGrid>
         </Grid>
 
         <Button
@@ -122,7 +112,7 @@ const SearchResultPage = props => {
         >
           Back
         </Button>
-      </Container>
+      </>
     )
   }
   return (

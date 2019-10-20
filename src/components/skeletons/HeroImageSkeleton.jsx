@@ -4,14 +4,15 @@ import { makeStyles } from "@material-ui/core/styles"
 
 const useStyles = makeStyles(theme => ({
   cardMedia: {
+    marginTop: 0,
     // paddingTop: "56.25%", // 16:9
     paddingTop: "28.12%",
   },
 }))
 
-const HeroImageTemplate = () => {
+const HeroImageSkeleton = () => {
   const classes = useStyles()
   return <Skeleton className={classes.cardMedia}></Skeleton>
 }
 
-export default HeroImageTemplate
+export default HeroImageSkeleton

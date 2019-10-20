@@ -1,16 +1,20 @@
 import React from "react"
 import { Router } from "@reach/router"
-import ShopProduct from "../components/shop-product/ShopProduct"
 import Layout from "../components/layout"
-import Shop from "../components/shop/Shop"
-import ShopHome from "../components/shop/ShopHome"
+import ShopProduct from "../components/shop-product/ShopProduct"
+import ShopHomePage from "../components/shop/ShopHomePage"
+import CreateShop from "../components/shop/create-shop/CreateShop"
+import ShopApplicationStatus from "../components/shop/ShopApplicationStatus"
 
 const ShopRouter = () => {
   return (
     <Layout>
       <Router>
+        <ShopApplicationStatus path="/shop/application/:shopUsername"></ShopApplicationStatus>
+        <CreateShop path="/shop/create-shop"></CreateShop>
         <ShopProduct path="/shop/:shopUsername/product/:shopProductSlug/:shopProductId"></ShopProduct>
-        <ShopHome path="/shop/:shopUsername"></ShopHome>
+        <ShopHomePage path="/shop/:shopUsername/search/:phrase"></ShopHomePage>
+        <ShopHomePage path="/shop/:shopUsername"></ShopHomePage>
       </Router>
     </Layout>
   )

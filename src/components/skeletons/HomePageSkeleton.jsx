@@ -1,15 +1,20 @@
 import React from "react"
 
-import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
+import Typography from "@material-ui/core/Typography"
 import Container from "@material-ui/core/Container"
+import Grid from "@material-ui/core/Grid"
+import Skeleton from "@material-ui/lab/Skeleton"
 
 import ProductGridSkeleton from "./ProductGridSkeleton"
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
     backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 8),
+    padding: theme.spacing(8, 0, 6),
+  },
+  heroButtons: {
+    marginTop: theme.spacing(4),
   },
 }))
 
@@ -38,6 +43,16 @@ const HomePageSkeleton = () => {
             We are getting the best results please wait...
           </Typography>
         </Container>
+        <div className={classes.heroButtons}>
+          <Grid container justify="center">
+            <Grid item>
+              <Skeleton width="30%"></Skeleton>
+            </Grid>
+            <Grid item>
+              <Skeleton width="30%"></Skeleton>
+            </Grid>
+          </Grid>
+        </div>
       </div>
       <ProductGridSkeleton />
     </React.Fragment>

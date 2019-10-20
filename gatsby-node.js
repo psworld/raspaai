@@ -20,4 +20,19 @@ exports.onCreatePage = async ({ page, actions }) => {
     // Update the page.
     createPage(page)
   }
+  if (page.path.match(/^\/brand/)) {
+    page.matchPath = "/brand/*"
+    // Update the page.
+    createPage(page)
+  }
+  if (page.path.match(/^\/dashboard/)) {
+    page.matchPath = "/dashboard/*"
+    // Update the page.
+    createPage(page)
+  }
+  if (page.path.match(/^\/raspaai/)) {
+    page.matchPath = "/raspaai/*"
+    // Update the page.
+    createPage(page)
+  }
 }

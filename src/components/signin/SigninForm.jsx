@@ -85,7 +85,7 @@ export default function SigninForm(props) {
       refetchQueries={[{ query: VIEWER }]}
     >
       {(signin, { called, loading, error, data }) => {
-        if (!called) {
+        if (!called || error) {
           return (
             <>
               {message && (
@@ -99,7 +99,7 @@ export default function SigninForm(props) {
                   </Typography>
                 </code>
               )}
-              <Container component="main" maxWidth="xs">
+              <Container maxWidth="xs">
                 <div className={classes.paper}>
                   <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
@@ -123,6 +123,11 @@ export default function SigninForm(props) {
                       handleChange={handleChange}
                       handleBlur={handleBlur}
                     ></PasswordInput>
+                    {error && (
+                      <p style={{ color: "red" }}>
+                        {error.message.split(":")[1]}
+                      </p>
+                    )}
                     {errors.password && touched.password && (
                       <div className="input-feedback">{errors.password}</div>
                     )}
@@ -160,7 +165,6 @@ export default function SigninForm(props) {
           )
         }
         if (loading) return <Loading></Loading>
-        if (error) return <ErrorPage></ErrorPage>
         if (data) {
           !message && window.history.back()
           return <p style={{ color: "green" }}>Logged in Successfully</p>

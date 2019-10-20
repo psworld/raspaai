@@ -6,12 +6,9 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
-import Card from "@material-ui/core/Card"
-import CardActions from "@material-ui/core/CardActions"
-import CardContent from "@material-ui/core/CardContent"
-import CardMedia from "@material-ui/core/CardMedia"
-import slugGenerator from "../../components/core/slugGenerator"
-import gatsbyAstronaut from "../../images/gatsby-astronaut.png"
+import PopularPlaces from "../../components/map/PopularPlaces"
+import { useQuery } from "react-apollo"
+import { LOCAL_SAVED_LOCATION } from ".."
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -90,57 +87,20 @@ const HeroUnit = () => {
   )
 }
 
-const PopularPlacesGridItem = props => {
-  const {
-    shopProduct: {
-      id: shopProductId,
-      shop: {
-        properties: { publicUsername },
-      },
-      product: { title, mrp, description },
-    },
-  } = props
-  const classes = useStyles()
-  const shopProductSlug = slugGenerator(title)
-  return (
-    <Grid item xs={12} sm={6} md={4}>
-      <Card className={classes.card}>
-        <Link
-          to={`/shop/${publicUsername}/product/${shopProductSlug}/${shopProductId}`}
-        >
-          <CardMedia
-            className={classes.cardMedia}
-            image={gatsbyAstronaut}
-            title={title}
-          />
-
-          <CardContent className={classes.cardContent}>
-            <Typography gutterBottom variant="h5" component="h2">
-              {title}
-            </Typography>
-            <Typography>{description}</Typography>
-          </CardContent>
-        </Link>
-        <CardActions>
-          <Button size="small" color="primary">
-            View
-          </Button>
-          <Button size="small" color="primary">
-            Edit
-          </Button>
-        </CardActions>
-      </Card>
-    </Grid>
-  )
-}
-
 const SetLocation = () => {
+  const { data } = useQuery(LOCAL_SAVED_LOCATION)
+
+  const currentLocation = data && JSON.parse(atob(data.localSavedLocation))
+
   return (
     <Layout>
       <HeroUnit></HeroUnit>
       <Typography variant="h6" align="center">
         You can also choose from one of the popular places below.
       </Typography>
+      {data && data.localSavedLocation && (
+        <PopularPlaces currentLocation={currentLocation}></PopularPlaces>
+      )}
     </Layout>
   )
 }

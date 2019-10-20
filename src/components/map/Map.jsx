@@ -26,9 +26,11 @@ const useStyles = makeStyles(theme => ({
     width: 200,
   },
 }))
-const apikey = "AIzaSyAUGzly5dIhIJubgTw1aHoUOlrf9TtQi1I"
+const apikey = "AIzaSyD-ULA-6I-1_JnNRppIx2vzi5F6c_-4sdA"
 
 const Map = props => {
+  const { noSave = false } = props
+
   const classes = useStyles()
   const client = useApolloClient()
   const [name, setName] = React.useState()
@@ -38,6 +40,8 @@ const Map = props => {
   const [markerPosition, setMarkerPosition] = React.useState(
     props.automaticMarkerPosition
   )
+
+  const { setLocation } = props
 
   if (markerPosition) {
     var savedLocation = {
@@ -53,6 +57,7 @@ const Map = props => {
       lat: lat,
       lng: lng,
     }
+    setLocation(latLng)
     setMarkerPosition(latLng)
   }
 
@@ -74,7 +79,7 @@ const Map = props => {
           position={markerPosition}
         />
       </GoogleMap>
-      {isLoaded && (
+      {!noSave && isLoaded && (
         <form className={classes.container}>
           <TextField
             onChange={e => setName(e.target.value)}

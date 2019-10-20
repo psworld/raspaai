@@ -1,55 +1,27 @@
 import React from "react"
-import { useQuery } from "react-apollo"
-import gql from "graphql-tag"
-import Home from "./Home"
-import ErrorPage from "../core/ErrorPage"
-import HomePageSkeleton from "../skeletons/HomePageSkeleton"
+import Grid from "@material-ui/core/Grid"
+import HeroUnit from "./HeroUnit"
+import Box from "@material-ui/core/Box"
+import Paper from "@material-ui/core/Paper"
+import ShopProductGrid from "../templates/ShopProductGrid"
 
-const NEARBY_SHOP_PRODUCTS = gql`
-  query($lat: Float!, $lng: Float!) {
-    nearbyShopProducts(lat: $lat, lng: $lng, first: 10) {
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      edges {
-        node {
-          id
-          shop {
-            properties {
-              publicUsername
-            }
-          }
-          product {
-            title
-            mrp
-            description
-          }
-          offeredPrice
-          inStock
-        }
-      }
-    }
-  }
-`
+export default function HomePage(props) {
+  const { nearbyShopProducts, location } = props
 
-const HomePage = props => {
-  const { location } = props
-  const { loading, error, data } = useQuery(NEARBY_SHOP_PRODUCTS, {
-    variables: { lat: location.lat, lng: location.lng },
-  })
-  if (loading) return <HomePageSkeleton></HomePageSkeleton>
-  if (error) return <ErrorPage></ErrorPage>
-  if (data) {
-    return (
-      <Home
-        location={location}
-        nearbyShopProducts={data.nearbyShopProducts.edges}
-      ></Home>
-    )
-  }
+  return (
+    <React.Fragment>
+      <HeroUnit location={location}></HeroUnit>
+      <Box overflow="hidden" clone>
+        <Paper>
+          <Box px={0}>
+            <Grid container>
+              <ShopProductGrid
+                shopProducts={nearbyShopProducts}
+              ></ShopProductGrid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Box>
+    </React.Fragment>
+  )
 }
-
-export default HomePage

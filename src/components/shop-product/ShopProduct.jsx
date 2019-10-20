@@ -4,65 +4,91 @@ import gql from "graphql-tag"
 import ErrorPage from "../core/ErrorPage"
 import SEO from "../seo"
 
+import ShopProductSkeleton from "../skeletons/ShopProductSkeleton"
+import ProductDetails from "../templates/product-detail/ProductDetails"
+
 // const seeThisOnGoogleMaps = "https://www.google.co.in/maps/place/31.708324,76.931868/@31.7082658,76.931412,16z/"
 
 const SHOP_PRODUCT = gql`
   query($shopProductId: ID!) {
     shopProduct(id: $shopProductId) {
       id
-      shop {
-        properties {
-          publicUsername
-          title
-        }
-      }
       product {
         title
         mrp
         description
+        images {
+          edges {
+            node {
+              image
+            }
+          }
+        }
+        category {
+          name
+        }
+        type {
+          name
+        }
+        brand {
+          publicUsername
+        }
+        longDescription
+        isAvailable
+        technicalDetails
       }
       offeredPrice
       inStock
-      isAvailable
     }
   }
 `
 
-const ShopProduct = props => {
-  const { shopProductId } = props
+const ShopProductPage = props => {
+  const { shopProductId, shopUsername } = props
 
   const { loading, error, data } = useQuery(SHOP_PRODUCT, {
     variables: { shopProductId },
   })
-  if (loading) return <h1>ShopProductTemplate</h1>
+  if (loading) return <ShopProductSkeleton></ShopProductSkeleton>
   if (error) {
     return <ErrorPage></ErrorPage>
   }
   if (data && data.shopProduct) {
     const {
       shopProduct: {
-        id,
-        product: { title: productTitle, mrp, description },
+        product,
         offeredPrice,
-        shop: {
-          properties: { publicUsername, title: shopTitle },
+        inStock,
+        product: {
+          title: productTitle,
+          description,
+          brand: { publicUsername: brandPublicUsername },
         },
       },
     } = data
+
+    const shopProduct = {
+      offeredPrice,
+      inStock,
+    }
     return (
       <>
         <SEO
-          title={`${productTitle} | ${publicUsername}`}
+          title={`${productTitle} | ${shopUsername}`}
           description={description}
         ></SEO>
-        <h1>{productTitle}</h1>
-        <h2>mrp: Rs.{mrp}</h2>
-        <h2>offered price: Rs.{offeredPrice}</h2>
-        <h3>From {publicUsername}</h3>
-        <p>{description} </p>
+        {/* <Container maxWidth={false} style={{ paddingLeft: 2 }}> */}
+        <ProductDetails
+          product={product}
+          shopProduct={shopProduct}
+          brandPublicUsername={brandPublicUsername}
+          shopPublicUsername={shopUsername}
+          isShopProduct={true}
+        ></ProductDetails>
+        {/* </Container> */}
       </>
     )
   }
 }
 
-export default ShopProduct
+export default ShopProductPage
