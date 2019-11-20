@@ -2,21 +2,12 @@
 
 import React from "react"
 import Link from "@material-ui/core/Link"
-import { makeStyles } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
-import Title from "./Title"
 import gql from "graphql-tag"
 import { useQuery } from "react-apollo"
 
 import ErrorPage from "../../../core/ErrorPage"
 import Loading from "../../../core/Loading"
-import { CircularProgress } from "@material-ui/core"
-
-const useStyles = makeStyles({
-  depositContext: {
-    flex: 1,
-  },
-})
 
 const BRAND_PLAN_INFO = gql`
   query($publicBrandUsername: String!) {
@@ -27,6 +18,7 @@ const BRAND_PLAN_INFO = gql`
       planExpiryDate
       noOfProducts
       plan {
+        id
         planId
         price
         productSpace
@@ -45,6 +37,7 @@ const PLAN_INFO = gql`
         planIssuedAt
         planExpiryDate
         plan {
+          id
           planId
           name
           price
@@ -152,8 +145,6 @@ const ShopPlanInfo = ({ publicUsername }) => {
 }
 
 export default function PlanInfo({ publicUsername, isBrand }) {
-  const classes = useStyles()
-
   if (isBrand) {
     return <BrandPlanInfo publicUsername={publicUsername}></BrandPlanInfo>
   } else {

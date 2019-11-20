@@ -6,18 +6,16 @@ import styles from "react-responsive-carousel/lib/styles/carousel.min.css"
 
 const ProductImageCarousel = ({ imagesNodeList, alt }) => {
   const theme = useTheme()
-  const matches = useMediaQuery(theme.breakpoints.up("md"))
-
-  const imgPrefix = "http://localhost:8000/media"
+  const matches = useMediaQuery(theme.breakpoints.up("sm"))
 
   return (
     <Carousel showThumbs={matches} infiniteLoop showArrows={true}>
       {imagesNodeList.map(imgObj => {
-        const { image } = imgObj.node
+        const { id, image } = imgObj.node
         return (
-          <div>
+          <div key={id}>
             <img
-              src={`${imgPrefix}/${image}`}
+              src={`${process.env.GATSBY_IMG_URL_PRE}/${image}`}
               style={{ maxHeight: "56.25%", maxWidth: "100%" }}
               alt={alt}
             ></img>

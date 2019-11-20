@@ -1,42 +1,60 @@
-import React from "react"
+import React from 'react';
 
-import Button from "@material-ui/core/Button"
+import Button from '@material-ui/core/Button';
 
 const PaginationWithState = props => {
-  const {
-    hasNextPage,
-    currentPageEndCursor,
-    pageNo,
-    setPageNo,
-    pageInfo,
-    setPageInfo,
-  } = props
-  function handleNext(currentPageEndCursor, pageNo) {
-    const newPageInfo = pageInfo
-    newPageInfo[pageNo] = { startCursor: currentPageEndCursor }
-    setPageInfo(newPageInfo)
-    setPageNo(pageNo + 1)
-  }
+  const { fetchMore, pageInfo, ...other } = props;
+  const [loading, setLoading] = React.useState(false);
   return (
     <>
       <Button
-        disabled={!hasNextPage}
-        onClick={() => handleNext(currentPageEndCursor, pageNo)}
-        variant="contained"
-        color="secondary"
-      >
-        Next
+        disabled={!pageInfo.hasNextPage || loading}
+        onClick={() =>
+          fetchMore({
+            variables: {
+              endCursor: pageInfo.endCursor,
+              ...other
+            },
+            updateQuery: (previousResults, { loading, fetchMoreResult }) => {
+              console.info(fetchMoreResult);
+              if (loading) {
+                setLoading(true);
+              }
+              if (fetchMoreResult) {
+                const newData = Object.values(fetchMoreResult)[0];
+                const key = Object.keys(fetchMoreResult)[0];
+
+                const newEdges = newData.edges;
+
+                const prevEdges = Object.values(previousResults)[0].edges;
+
+                setLoading(false);
+                return newEdges.length
+                  ? {
+                      [key]: {
+                        ...newData,
+                        edges: [...prevEdges, ...newEdges]
+                      }
+                    }
+                  : previousResults;
+              }
+            }
+          })
+        }
+        variant='contained'
+        color='secondary'>
+        Load more
       </Button>
-      <Button
+      {/* <Button
         variant="contained"
         color="secondary"
         disabled={pageNo === 1}
         onClick={() => setPageNo(pageNo - 1)}
       >
         Back
-      </Button>
+      </Button> */}
     </>
-  )
-}
+  );
+};
 
-export default PaginationWithState
+export default PaginationWithState;

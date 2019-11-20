@@ -4,6 +4,7 @@ import ShopDashboardHomePage from "./ShopDashboardHomePage"
 import MyProductsPage from "./MyProductsPage"
 import DashboardLayout from "./components/DashboardLayout"
 import AddNewProduct from "./AddNewProduct"
+import OrderRouter from "./components/orders/OrderRouter"
 
 const ShopDashboard = props => {
   const { shopUsername } = props
@@ -32,6 +33,7 @@ const ShopDashboard = props => {
           shopUsername={shopUsername}
           path="products/search/:phrase"
         ></MyProductsPage>
+        <OrderRouter shopUsername={shopUsername} path="orders/*"></OrderRouter>
       </Router>
     </DashboardLayout>
   )

@@ -1,8 +1,8 @@
-import React from "react"
-import HeroImageSkeleton from "./HeroImageSkeleton"
-import ProductGridSkeleton from "./ProductGridSkeleton"
-import Skeleton from "@material-ui/lab/Skeleton"
-import { Divider } from "@material-ui/core"
+import React from 'react';
+import HeroImageSkeleton from './HeroImageSkeleton';
+import ProductGridSkeleton from './ProductGridSkeleton';
+import Skeleton from '@material-ui/lab/Skeleton';
+import { Divider } from '@material-ui/core';
 
 const BrandShopHomeSkeleton = () => {
   return (
@@ -10,10 +10,9 @@ const BrandShopHomeSkeleton = () => {
       <HeroImageSkeleton></HeroImageSkeleton>
       <Skeleton height={40}></Skeleton>
       <Divider></Divider>
-      <Skeleton></Skeleton>
       <ProductGridSkeleton></ProductGridSkeleton>
     </>
-  )
-}
+  );
+};
 
-export default BrandShopHomeSkeleton
+export default BrandShopHomeSkeleton;

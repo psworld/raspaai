@@ -1,9 +1,6 @@
 import React from "react"
 
-import { makeStyles } from "@material-ui/core/styles"
-import Toolbar from "@material-ui/core/Toolbar"
 import Typography from "@material-ui/core/Typography"
-import Link from "@material-ui/core/Link"
 import Grid from "@material-ui/core/Grid"
 import Box from "@material-ui/core/Box"
 
@@ -19,29 +16,6 @@ import MainFeaturedPost from "../templates/MainFeaturedPost"
 import PaginationWithState from "../templates/PaginationWithState"
 import BrandProductGrid from "../templates/BrandProductGrid"
 import BrandShopHomeSkeleton from "../skeletons/BrandShopHomeSkeleton"
-
-const useStyles = makeStyles(theme => ({
-  toolbarSecondary: {
-    justifyContent: "space-between",
-    overflowX: "auto",
-  },
-  toolbarLink: {
-    padding: theme.spacing(1),
-    flexShrink: 0,
-  },
-}))
-const sections = [
-  "Technology",
-  "Design",
-  "Culture",
-  "Business",
-  "Politics",
-  "Opinion",
-  "Science",
-  "Health",
-  "Style",
-  "Travel",
-]
 
 export const BRAND_PRODUCTS = gql`
   query(
@@ -70,6 +44,7 @@ export const BRAND_PRODUCTS = gql`
           thumb
           description
           brand @include(if: $withBrand) {
+            id
             publicUsername
             title
           }
@@ -78,15 +53,6 @@ export const BRAND_PRODUCTS = gql`
     }
   }
 `
-const json = {
-  title: "Whip cream",
-  publisher: "bharti bhawan",
-  "author(s)": "Hc verma",
-  edition: "17",
-  "Publication Year": "2019",
-  format: "paperback",
-  "No of pages": "350",
-}
 
 export const ProductGrid = props => {
   const { phrase, publicBrandUsername, isBrandDashboardProduct } = props
@@ -157,7 +123,6 @@ const BRAND = gql`
 `
 
 const BrandHomePage = props => {
-  const classes = useStyles()
   const { brandUsername: publicBrandUsername, phrase } = props
 
   const [searchPhrase, setSearchPhrase] = React.useState("")
@@ -171,15 +136,16 @@ const BrandHomePage = props => {
 
   if (data && data.brand) {
     const {
-      brand: { id, title, heroImage },
+      brand: { title, heroImage },
     } = data
 
     return (
       <>
-        <SEO title={publicBrandUsername}></SEO>
+        <SEO title={title}></SEO>
         <MainFeaturedPost
           img={heroImage}
-          title={publicBrandUsername}
+          title={title}
+          alt={title}
         ></MainFeaturedPost>
         <TitleAndSearchToolbar
           title={title}
@@ -188,24 +154,6 @@ const BrandHomePage = props => {
           setSearchPhrase={setSearchPhrase}
           isBrand={true}
         ></TitleAndSearchToolbar>
-        <Toolbar
-          component="nav"
-          variant="dense"
-          className={classes.toolbarSecondary}
-        >
-          {sections.map(section => (
-            <Link
-              color="inherit"
-              noWrap
-              key={section}
-              variant="body2"
-              href="#"
-              className={classes.toolbarLink}
-            >
-              {section}
-            </Link>
-          ))}
-        </Toolbar>
         <Box overflow="hidden" px={0}>
           <ProductGrid
             phrase={phrase}

@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core"
 import { useTheme } from "@material-ui/core/styles"
 import { makeStyles } from "@material-ui/core/styles"
+import MainFeaturedPost from "../../templates/MainFeaturedPost"
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -88,8 +89,6 @@ const REVIEW_APPLICATION = gql`
 
 const BrandPage = ({ brandUsername }) => {
   const classes = useStyles()
-  const theme = useTheme()
-  const matches = useMediaQuery(theme.breakpoints.up("sm"))
 
   const [
     review,
@@ -105,7 +104,6 @@ const BrandPage = ({ brandUsername }) => {
   if (error) return <ErrorPage></ErrorPage>
   if (data) {
     const {
-      id,
       owner: { email, firstName, lastName },
       publicUsername,
       title: brandName,
@@ -114,12 +112,10 @@ const BrandPage = ({ brandUsername }) => {
     } = data.brand
     return (
       <>
-        <Card className={classes.card}>
-          <CardMedia
-            className={matches ? classes.cardMediaTv : classes.cardMediaMobile}
-            image={`http://localhost:8000/media/${heroImage}`}
-          ></CardMedia>
-        </Card>
+        <MainFeaturedPost
+          img={heroImage}
+          title={publicUsername}
+        ></MainFeaturedPost>
         <Container maxWidth="md">
           <List>
             <ListItem>

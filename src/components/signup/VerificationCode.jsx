@@ -10,12 +10,10 @@ import Container from "@material-ui/core/Container"
 import { ListItem, ListItemText, TextField } from "@material-ui/core"
 import AccountCircle from "@material-ui/icons/AccountCircle"
 import gql from "graphql-tag"
-import { Mutation } from "react-apollo"
+import { useQuery, useMutation } from "react-apollo"
 import { Formik } from "formik"
 import * as yup from "yup"
-import FormError from "../core/FormError"
 import { navigate } from "gatsby"
-import { hasError } from "../signin/SigninForm"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -56,9 +54,16 @@ const CREATE_USER = gql`
       input: { jwtEncodedStr: $jwtEncodedStr, keyCode: $keyCode, email: $email }
     ) {
       user {
+        id
         email
       }
     }
+  }
+`
+
+const JWT_ENC_STR = gql`
+  {
+    enc @client
   }
 `
 
@@ -67,7 +72,11 @@ const VerificationCode = props => {
 
   const { email, prevStep } = props
 
-  const jwtEncodedStr = sessionStorage.getItem("enc")
+  const {
+    data: { enc: jwtEncodedStr },
+  } = useQuery(JWT_ENC_STR)
+
+  const [createUser, { loading, error }] = useMutation(CREATE_USER)
   return (
     <React.Fragment>
       <code className={classes.sent}>
@@ -88,22 +97,41 @@ const VerificationCode = props => {
               initialValues={{ key: null }}
               validationSchema={yup.object().shape({
                 key: yup
-                  .number("Invalid key")
-                  .positive("Invalid key")
-                  .integer("Invalid key")
+                  .string("Invalid key")
+                  .length(4, "key must be 4 digit long")
                   .required("Required"),
               })}
+              onSubmit={(values, { setSubmitting }) => {
+                const { key: keyCode } = values
+                createUser({
+                  variables: {
+                    jwtEncodedStr,
+                    keyCode,
+                    email,
+                  },
+                })
+                  .then(() =>
+                    navigate("/signin", {
+                      state: {
+                        message: "Account created successfully",
+                        redirectUrl: "/",
+                      },
+                    })
+                  )
+                  .catch(err => {
+                    setTimeout(() => prevStep(), 1000)
+                  })
+              }}
             >
               {props => {
                 const {
                   values,
                   touched,
                   errors,
-                  dirty,
                   isSubmitting,
                   handleChange,
                   handleBlur,
-                  handleReset,
+                  handleSubmit,
                 } = props
                 return (
                   <>
@@ -119,17 +147,19 @@ const VerificationCode = props => {
                           margin="normal"
                           required
                           fullWidth
+                          error={errors.key && touched.key}
                           name="key"
-                          label="4 Digit Key"
-                          type="text"
+                          value={values.key}
+                          label={
+                            errors.key && touched.key
+                              ? errors.key
+                              : "4 Digit Key"
+                          }
+                          type="number"
                           id="key"
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
-                        <FormError
-                          errors={errors.key}
-                          touched={touched.key}
-                        ></FormError>
                       </Grid>
                       <Grid item xs={12}>
                         <ListItem>
@@ -142,54 +172,22 @@ const VerificationCode = props => {
                         </ListItem>
                       </Grid>
                     </Grid>
-                    <Mutation
-                      mutation={CREATE_USER}
-                      variables={{ jwtEncodedStr, keyCode: values.key, email }}
+
+                    {error && (
+                      <p style={{ color: "red" }}>
+                        An error occurred. Please try again
+                      </p>
+                    )}
+                    <Button
+                      onClick={handleSubmit}
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                      disabled={isSubmitting || loading}
                     >
-                      {(createUser, { called, loading, error, data }) => {
-                        if (!called || error) {
-                          return (
-                            <>
-                              {error && (
-                                <p style={{ color: "red" }}>{error.message}</p>
-                              )}
-                              <Button
-                                onClick={createUser}
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.submit}
-                                disabled={
-                                  hasError(errors) ||
-                                  !dirty ||
-                                  String(values.key).length !== 4
-                                }
-                              >
-                                Continue
-                              </Button>
-                            </>
-                          )
-                        }
-                        if (loading)
-                          return (
-                            <Button fullWidth className={classes.submit}>
-                              Loading...
-                            </Button>
-                          )
-                        if (data) {
-                          return (
-                            <>
-                              {navigate("/signin", {
-                                state: {
-                                  message: "Account created successfully",
-                                },
-                              })}
-                            </>
-                            // {/* {data.createUser.user.email} */}
-                          )
-                        }
-                      }}
-                    </Mutation>
+                      Continue
+                    </Button>
 
                     <Button
                       onClick={prevStep}
@@ -204,14 +202,6 @@ const VerificationCode = props => {
                 )
               }}
             </Formik>
-
-            {/* <Grid container justify='flex-end'>
-              <Grid item>
-                <Link to='/login' variant='body2'>
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid> */}
           </form>
         </div>
       </Container>

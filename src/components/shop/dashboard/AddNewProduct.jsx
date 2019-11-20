@@ -26,6 +26,7 @@ const PRODUCTS = gql`
           mrp
           thumb
           brand @include(if: $withBrand) {
+            id
             publicUsername
             title
           }
@@ -91,7 +92,7 @@ const AddNewProduct = ({ phrase, shopUsername }) => {
   return (
     <>
       <SEO title="Dashboard Add Products"></SEO>
-      <h1>Add New products to your shop.</h1>
+      <h1>Add new products to your shop.</h1>
       <SearchBar
         searchPhrase={searchPhrase}
         setSearchPhrase={setSearchPhrase}

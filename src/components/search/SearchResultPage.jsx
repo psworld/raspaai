@@ -39,12 +39,15 @@ const SHOP_PRODUCT_SEARCH = gql`
         node {
           id
           shop {
+            id
             properties {
               publicUsername
             }
           }
           product {
+            id
             title
+            thumb
             mrp
             description
           }
@@ -58,9 +61,10 @@ const SHOP_PRODUCT_SEARCH = gql`
 `
 
 const SearchResultPage = props => {
-  const { phrase, pageNo, endCursor, latitude, longitude } = props
-  const lat = parseFloat(latitude)
-  const lng = parseFloat(longitude)
+  const { phrase, pageNo, endCursor, savedLocation } = props
+
+  const { lat, lng } = savedLocation
+
   const { loading, error, data } = useQuery(SHOP_PRODUCT_SEARCH, {
     variables: { phrase, endCursor, lat, lng, rangeInKm: 5 },
   })

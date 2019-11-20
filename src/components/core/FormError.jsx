@@ -1,7 +1,6 @@
 import React from "react"
 
-const FormError = props => {
-  const { errors, touched } = props
+const FormError = ({ errors, touched }) => {
   return (
     <>{errors && touched && <div style={{ color: "red" }}>{errors}</div>}</>
   )

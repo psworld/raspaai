@@ -10,8 +10,6 @@ import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
 import EmailInput from "../core/input/EmailInput"
 import Link from "../core/Link"
-import gql from "graphql-tag"
-import { Mutation } from "react-apollo"
 
 const useStyles = makeStyles(theme => ({
   "@global": {
@@ -38,51 +36,28 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const SEND_EMAIL_VERIFICATION = gql`
-  mutation(
-    $firstName: String!
-    $lastName: String!
-    $email: String!
-    $password1: String!
-    $password2: String!
-  ) {
-    signupEmailVerification(
-      input: {
-        firstName: $firstName
-        lastName: $lastName
-        email: $email
-        password1: $password1
-        password2: $password2
-      }
-    ) {
-      jwtEncodedStr
-    }
-  }
-`
-
-function hasError(errors) {
-  if (Object.keys(errors).length === 0 && errors.constructor === Object) {
-    return false
-  } else return true
-}
-
-export default function SignupForm(props) {
+export default function SignupForm({ formik, loading, error }) {
   const {
     values,
     touched,
     errors,
-    dirty,
     isSubmitting,
     handleChange,
     handleBlur,
-    handleReset,
-  } = props.formik
-
-  const { nextStep } = props
+    handleSubmit,
+  } = formik
 
   const { email, lastName, firstName, password1, password2 } = values
 
   const classes = useStyles()
+
+  function hasError(id, bool) {
+    if (touched[id] && errors[id]) {
+      return bool ? true : errors[id]
+    } else {
+      return false
+    }
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -103,18 +78,19 @@ export default function SignupForm(props) {
                 variant="outlined"
                 required
                 fullWidth
+                error={hasError("firstName", true)}
                 id="firstName"
-                label="First Name"
+                placeholder="First Name"
+                label={
+                  hasError("firstName", true)
+                    ? hasError("firstName")
+                    : "First Name"
+                }
                 // autoFocus
                 onBlur={handleBlur}
                 onChange={handleChange}
-                defaultValue={firstName}
+                value={firstName}
               />
-              {errors.firstName && touched.firstName && (
-                <div style={{ color: "red" }} className="input-feedback">
-                  {errors.firstName}
-                </div>
-              )}
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -122,31 +98,29 @@ export default function SignupForm(props) {
                 required
                 fullWidth
                 id="lastName"
-                label="Last Name"
+                error={hasError("lastName", true)}
+                label={
+                  hasError("lastName", true)
+                    ? hasError("lastName")
+                    : "Last Name"
+                }
+                placeholder="Last Name"
                 name="lastName"
                 autoComplete="lname"
                 onBlur={handleBlur}
                 onChange={handleChange}
                 defaultValue={lastName}
               />
-              {errors.lastName && touched.lastName && (
-                <div style={{ color: "red" }} className="input-feedback">
-                  {errors.lastName}
-                </div>
-              )}
             </Grid>
             <Grid item xs={12}>
               <EmailInput
                 handleBlur={handleBlur}
                 handleChange={handleChange}
-                defaultValue={email}
+                value={email}
+                touched={touched.email}
+                errors={errors.email}
                 autoFocus={false}
               ></EmailInput>
-              {errors.email && touched.email && (
-                <div style={{ color: "red" }} className="input-feedback">
-                  {errors.email}
-                </div>
-              )}
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -155,19 +129,19 @@ export default function SignupForm(props) {
                 required
                 fullWidth
                 name="password1"
-                label="Password"
                 type="password"
                 id="password1"
+                error={hasError("password1", true)}
+                label={
+                  hasError("password1", true)
+                    ? hasError("password1")
+                    : "Password"
+                }
                 autoComplete="current-password"
-                defaultValue={password1}
+                value={password1}
                 onBlur={handleBlur}
                 onChange={handleChange}
               />
-              {errors.password1 && touched.password1 && (
-                <div style={{ color: "red" }} className="input-feedback">
-                  {errors.password1}
-                </div>
-              )}
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -176,19 +150,19 @@ export default function SignupForm(props) {
                 required
                 fullWidth
                 name="password2"
-                label="Password Confirm"
                 type="password"
                 id="password2"
+                error={hasError("password2", true)}
+                label={
+                  hasError("password2", true)
+                    ? hasError("password2")
+                    : "Password Confirm"
+                }
                 autoComplete="current-password"
-                defaultValue={password2}
+                value={password2}
                 onBlur={handleBlur}
                 onChange={handleChange}
               />
-              {errors.password2 && touched.password2 && (
-                <div style={{ color: "red" }} className="input-feedback">
-                  {errors.password2}
-                </div>
-              )}
             </Grid>
             <Grid item xs={12}>
               <code>
@@ -196,44 +170,18 @@ export default function SignupForm(props) {
               </code>
             </Grid>
           </Grid>
-          <Mutation
-            mutation={SEND_EMAIL_VERIFICATION}
-            variables={{ firstName, lastName, email, password1, password2 }}
-          >
-            {(sendEmailVerification, { called, loading, error, data }) => {
-              if (!called || error) {
-                return (
-                  <>
-                    {error && <p style={{ color: "red" }}>{error.message}</p>}
-                    <Button
-                      onClick={sendEmailVerification}
-                      disabled={!dirty || hasError(errors)}
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      className={classes.submit}
-                    >
-                      Sign Up
-                    </Button>
-                  </>
-                )
-              }
-              if (loading)
-                return (
-                  <Button fullWidth className={classes.submit}>
-                    Loading...
-                  </Button>
-                )
 
-              if (data) {
-                sessionStorage.setItem(
-                  "enc",
-                  data.signupEmailVerification.jwtEncodedStr
-                )
-                return <>{nextStep()}</>
-              }
-            }}
-          </Mutation>
+          {error && <p style={{ color: "red" }}>{error.message}</p>}
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || isSubmitting}
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            Sign Up
+          </Button>
 
           <Grid container justify="flex-end">
             <Grid item>

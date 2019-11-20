@@ -2,7 +2,9 @@ import React from "react"
 import TextField from "@material-ui/core/TextField"
 
 const EmailInput = props => {
-  const { handleBlur, handleChange, defaultValue, autoFocus } = props
+  const { handleBlur, handleChange, value, autoFocus, errors, touched } = props
+  const error = touched && errors
+
   return (
     <TextField
       variant="outlined"
@@ -10,11 +12,12 @@ const EmailInput = props => {
       required
       fullWidth
       id="email"
-      label="Email Address"
+      label={error ? errors : "Email Address"}
+      error={error}
       name="email"
       autoComplete="email"
       autoFocus={autoFocus}
-      defaultValue={defaultValue}
+      value={value}
       onBlur={handleBlur}
       onChange={handleChange}
     />

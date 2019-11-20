@@ -2,7 +2,8 @@ import React from "react"
 import TextField from "@material-ui/core/TextField"
 
 const PasswordInput = props => {
-  const { handleBlur, handleChange } = props
+  const { handleBlur, handleChange, value, errors, touched } = props
+  const error = touched && errors
   return (
     <TextField
       variant="outlined"
@@ -10,7 +11,9 @@ const PasswordInput = props => {
       required
       fullWidth
       name="password"
-      label="Password"
+      value={value}
+      label={error ? errors : "Password"}
+      error={error}
       type="password"
       id="password"
       autoComplete="current-password"

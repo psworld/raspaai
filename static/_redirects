@@ -1,3 +1,9 @@
 /shop/:shopUsername/product/:productTitle/:shopProductId  /shop 200
-
 /shop/*  /shop 200
+
+/brand/:brandUsername/product/:productSlug/:productId /brand 200
+/brand/* /brand 200
+
+/dashboard/* /dashboard 200
+
+/search/* /search 200

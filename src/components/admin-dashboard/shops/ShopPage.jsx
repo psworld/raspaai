@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core"
 import { useTheme } from "@material-ui/core/styles"
 import { makeStyles } from "@material-ui/core/styles"
+import MainFeaturedPost from "../../templates/MainFeaturedPost"
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -132,12 +133,10 @@ const ShopPage = ({ shopUsername }) => {
     } = data.shop
     return (
       <>
-        <Card className={classes.card}>
-          <CardMedia
-            className={matches ? classes.cardMediaTv : classes.cardMediaMobile}
-            image={`http://localhost:8000/media/${heroImage}`}
-          ></CardMedia>
-        </Card>
+        <MainFeaturedPost
+          img={heroImage}
+          title={publicUsername}
+        ></MainFeaturedPost>
         <Container maxWidth="md">
           <List>
             <ListItem>

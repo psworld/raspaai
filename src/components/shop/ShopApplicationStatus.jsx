@@ -5,9 +5,6 @@ import Loading from "../core/Loading"
 import ErrorPage from "../core/ErrorPage"
 
 import {
-  Card,
-  CardMedia,
-  useMediaQuery,
   Container,
   Avatar,
   Typography,
@@ -22,9 +19,9 @@ import {
 
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined"
 
-import { useTheme } from "@material-ui/core/styles"
 import { makeStyles } from "@material-ui/core/styles"
 import Link from "../core/Link"
+import MainFeaturedPost from "../templates/MainFeaturedPost"
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -81,8 +78,6 @@ const SHOP = gql`
 
 const ShopApplicationStatus = ({ shopUsername }) => {
   const classes = useStyles()
-  const theme = useTheme()
-  const matches = useMediaQuery(theme.breakpoints.up("sm"))
 
   const { loading, error, data } = useQuery(SHOP, {
     variables: { shopUsername },
@@ -128,13 +123,7 @@ const ShopApplicationStatus = ({ shopUsername }) => {
             </ListItem>
           </List>
         </Container>
-        <Card component="span" className={classes.card}>
-          <CardMedia
-            className={matches ? classes.cardMediaTv : classes.cardMediaMobile}
-            image={`http://localhost:8000/media/${heroImage}`}
-            title={shopName}
-          />
-        </Card>
+        <MainFeaturedPost img={heroImage} title={shopName}></MainFeaturedPost>
         <Container maxWidth="md">
           <div className={classes.paper}>
             <Avatar className={classes.avatar}>

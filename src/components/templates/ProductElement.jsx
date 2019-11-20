@@ -7,6 +7,7 @@ import Box from "@material-ui/core/Box"
 import slugGenerator from "../core/slugGenerator"
 import Link from "../core/Link"
 import { Button } from "@material-ui/core"
+import ProductThumb from "./ProductThumb"
 
 const ProductElement = ({
   id,
@@ -27,13 +28,15 @@ const ProductElement = ({
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box width={"100%"} px={1} my={2}>
         <Link to={isBrand ? brandProduct : shopProduct}>
-          <img
-            style={{ height: "80%", width: "100%" }}
-            alt={title}
-            src={`http://localhost:8000/media/${thumb}`}
-          />
-          <Typography variant="body2" color="textPrimary">
+          <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
+          <Typography
+            title={title}
+            placeholder={title}
+            variant="body2"
+            color="textPrimary"
+          >
             {title.substring(0, 30)}
+            {title.length > 30 && "..."}
           </Typography>
         </Link>
         <Typography display="block" variant="caption" color="primary">

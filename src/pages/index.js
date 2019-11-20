@@ -12,7 +12,7 @@ import Home from "../components/home/Home"
 
 import HomePageSkeleton from "../components/skeletons/HomePageSkeleton"
 
-// const lat, lng = 31.708067, 76.931357
+// const lat, lng = 31.708141, 76.931657
 // eyJuYW1lIjoiTWFuZGkiLCJsYXQiOiIzMS43MDgwNjciLCJsbmciOiI3Ni45MzEzNTcifQ==
 
 export const LOCAL_SAVED_LOCATION = gql`
@@ -72,14 +72,22 @@ const Index = props => {
   return <h1>No saved location were found at any place</h1>
 }
 
+// for now we will offer only a single location. This will be written on local storage
+// and available through LOCAL_SAVED_LOCATION query.
+
 const IndexPage = () => {
+  const { loading, data } = useQuery(LOCAL_SAVED_LOCATION)
+
   return (
     <Layout>
       <SEO
-        title="Raspaai"
+        title="Online shopping: Shop online for books at best price"
         description="Raspaai.in | Buy anything from your local stores"
       ></SEO>
-      <Index></Index>
+      {loading && <HomePageSkeleton></HomePageSkeleton>}
+      {data && data.localSavedLocation && (
+        <Home location={JSON.parse(atob(data.localSavedLocation))}></Home>
+      )}
     </Layout>
   )
 }

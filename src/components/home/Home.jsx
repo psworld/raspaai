@@ -19,12 +19,15 @@ const NEARBY_SHOP_PRODUCTS = gql`
         node {
           id
           shop {
+            id
             properties {
               publicUsername
             }
           }
           product {
+            id
             title
+            thumb
             mrp
             description
           }

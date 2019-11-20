@@ -36,7 +36,6 @@ const Image = ({ name }) => {
   const image = data.images.edges.filter(
     image => image.node.relativePath === name
   )[0]
-  // console.info("image", image)
   return <Img fluid={image.node.childImageSharp.fluid} />
 }
 

@@ -86,7 +86,7 @@ const TitleAndSearchToolbar = props => {
           {!isBrand && (
             <Typography align="center">
               <a
-                href={`https://www.google.co.in/maps/place/${lat},${lng}/@${lat},${lng},17z/`}
+                href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

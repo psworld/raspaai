@@ -10,21 +10,11 @@ import DashboardShopProductGrid from "../../templates/dashboard/DashboardShopPro
 import Grid from "@material-ui/core/Grid"
 
 const ProductGrid = ({ phrase, publicShopUsername }) => {
-  // Required for pagination
-  const [pageInfo, setPageInfo] = React.useState([
-    {
-      startCursor: null,
-    },
-  ])
-  const [pageNo, setPageNo] = React.useState(1)
-  // Pagination requirements end
-
-  const { loading, error, data } = useQuery(SHOP_PRODUCTS, {
+  const { loading, error, data, fetchMore } = useQuery(SHOP_PRODUCTS, {
     variables: {
       publicShopUsername,
       phrase,
       withBrand: true,
-      endCursor: pageInfo[pageNo - 1].startCursor,
     },
   })
 
@@ -32,10 +22,7 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
   if (error) return <ErrorPage></ErrorPage>
 
   if (data && data.shopProducts.pageInfo.startCursor) {
-    const {
-      edges: shopProducts,
-      pageInfo: { hasNextPage, endCursor: currentPageEndCursor },
-    } = data.shopProducts
+    const { edges: shopProducts, pageInfo } = data.shopProducts
     return (
       <>
         <DashboardShopProductGrid
@@ -44,12 +31,8 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
 
         <Grid item>
           <PaginationWithState
-            pageNo={pageNo}
-            setPageNo={setPageNo}
+            fetchMore={fetchMore}
             pageInfo={pageInfo}
-            setPageInfo={setPageInfo}
-            currentPageEndCursor={currentPageEndCursor}
-            hasNextPage={hasNextPage}
           ></PaginationWithState>
         </Grid>
       </>

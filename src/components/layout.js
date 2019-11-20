@@ -19,6 +19,11 @@ const Layout = ({ children }) => {
       site {
         siteMetadata {
           title
+          social {
+            twitter
+            facebook
+            instagram
+          }
         }
       }
     }
@@ -29,7 +34,7 @@ const Layout = ({ children }) => {
       <CssBaseline></CssBaseline>
       <NavBar siteTitle={data.site.siteMetadata.title} />
       <main>{children}</main>
-      <Footer></Footer>
+      <Footer social={data.site.siteMetadata.social}></Footer>
     </>
   )
 }

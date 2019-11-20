@@ -1,9 +1,18 @@
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+})
+
 module.exports = {
   siteMetadata: {
     title: `Raspaai`,
     description: `Raspaai.in | Order from local shops, electronics, food and much more`,
-    siteUrl: `https://www.codewithps.tk`,
-    author: `@codewithps`,
+    siteUrl: `https://www.raspaai.in`,
+    author: `@ps_worlds`,
+    social: {
+      twitter: `raspaai`,
+      facebook: `raspaai`,
+      instagram: `raspaai.in`,
+    },
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
@@ -32,7 +41,7 @@ module.exports = {
         background_color: `#663399`,
         theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        icon: `src/images/raspaai4.png`, // This path is relative to the root of the site.
       },
     },
     // this (optional) plugin enables Progressive Web App + Offline functionality

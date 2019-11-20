@@ -70,7 +70,7 @@ const REGISTER_SHOP = gql`
   }
 `
 
-const CreateShopForm = ({ handleBack, formikProps, handleFileChange, img }) => {
+const CreateShopForm = ({ handleBack, formikProps, handleFileChange, img, localLocation }) => {
   const {
     values: { shopName, shopUsername, shopAddress, shopContactNumber },
     touched,
@@ -79,10 +79,7 @@ const CreateShopForm = ({ handleBack, formikProps, handleFileChange, img }) => {
     handleBlur,
   } = formikProps
 
-  const [location, setLocation] = React.useState(false)
-  console.log("location", location)
-
-  console.info("img", img)
+  const [location, setLocation] = React.useState(localLocation)
 
   const shopRegisterApplicationInput = {
     publicUsername: shopUsername,

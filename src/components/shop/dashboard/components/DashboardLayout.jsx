@@ -1,119 +1,121 @@
-import React from "react"
-import clsx from "clsx"
-import { makeStyles } from "@material-ui/core/styles"
-import CssBaseline from "@material-ui/core/CssBaseline"
-import Drawer from "@material-ui/core/Drawer"
-import AppBar from "@material-ui/core/AppBar"
-import Toolbar from "@material-ui/core/Toolbar"
-import List from "@material-ui/core/List"
-import Divider from "@material-ui/core/Divider"
-import IconButton from "@material-ui/core/IconButton"
-import Badge from "@material-ui/core/Badge"
-import MenuIcon from "@material-ui/icons/Menu"
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import NotificationsIcon from "@material-ui/icons/Notifications"
-import { mainListItems, secondaryListItems } from "./listItems"
-import SearchBar from "../../../templates/dashboard/SearchBar"
-import { useQuery } from "react-apollo"
-import ErrorPage from "../../../core/ErrorPage"
-import { VIEWER } from "../../../navbar/ToolBarMenu"
+import React from 'react';
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Drawer from '@material-ui/core/Drawer';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import { mainListItems } from './listItems';
+import SearchBar from '../../../templates/dashboard/SearchBar';
+import { useQuery } from 'react-apollo';
+import ErrorPage from '../../../core/ErrorPage';
+import { VIEWER } from '../../../navbar/ToolBarMenu';
+import { Redirect } from '@reach/router';
+import { navigate } from 'gatsby';
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: "flex",
+    display: 'flex'
   },
   container: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(4),
     paddingLeft: 3,
-    paddingRight: 3,
+    paddingRight: 3
   },
   toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
+    paddingRight: 24 // keep right padding when drawer closed
   },
   toolbarIcon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    padding: "0 8px",
-    ...theme.mixins.toolbar,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '0 8px',
+    ...theme.mixins.toolbar
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(["width", "margin"], {
+    transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
+      duration: theme.transitions.duration.leavingScreen
+    })
   },
   appBarShift: {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
+    transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+      duration: theme.transitions.duration.enteringScreen
+    })
   },
   menuButton: {
-    marginRight: 36,
+    marginRight: 36
   },
   menuButtonHidden: {
-    display: "none",
+    display: 'none'
   },
   title: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   drawerPaper: {
-    position: "relative",
-    whiteSpace: "nowrap",
+    position: 'relative',
+    whiteSpace: 'nowrap',
     width: drawerWidth,
-    transition: theme.transitions.create("width", {
+    transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+      duration: theme.transitions.duration.enteringScreen
+    })
   },
   drawerPaperClose: {
-    overflowX: "hidden",
-    transition: theme.transitions.create("width", {
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.leavingScreen
     }),
     width: theme.spacing(7),
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9),
-    },
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9)
+    }
   },
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: "100vh",
-    overflow: "auto",
-  },
-}))
+    height: '100vh',
+    overflow: 'auto'
+  }
+}));
 
 const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
-  const classes = useStyles()
+  const classes = useStyles();
 
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
   const handleDrawerOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
   const handleDrawerClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
-  const { loading, error, data } = useQuery(VIEWER)
+  const { loading, error, data } = useQuery(VIEWER);
 
-  if (loading) return <p>Loading</p>
-  if (error) return <ErrorPage></ErrorPage>
+  if (loading) return <p>Loading</p>;
+  if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.viewer) {
-    const { viewer } = data
+    const { viewer } = data;
 
     const userRegisteredPublicUsername = isBrand
       ? viewer.isBrandOwner && viewer.brand.publicUsername
-      : viewer.isShopOwner && viewer.shop.properties.publicUsername
+      : viewer.isShopOwner && viewer.shop.properties.publicUsername;
 
     if (userRegisteredPublicUsername === publicUsername || viewer.isSuperuser) {
       return (
@@ -121,20 +123,18 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
           <CssBaseline />
           <div className={classes.root}>
             <AppBar
-              position="absolute"
-              className={clsx(classes.appBar, open && classes.appBarShift)}
-            >
+              position='absolute'
+              className={clsx(classes.appBar, open && classes.appBarShift)}>
               <Toolbar className={classes.toolbar}>
                 <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="open drawer"
+                  edge='start'
+                  color='inherit'
+                  aria-label='open drawer'
                   onClick={handleDrawerOpen}
                   className={clsx(
                     classes.menuButton,
                     open && classes.menuButtonHidden
-                  )}
-                >
+                  )}>
                   <MenuIcon />
                 </IconButton>
                 {/* <Typography
@@ -148,25 +148,23 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
             </Typography> */}
                 <SearchBar
                   isBrand={isBrand}
-                  publicUsername={publicUsername}
-                ></SearchBar>
-                <IconButton color="inherit">
-                  <Badge badgeContent={4} color="secondary">
+                  publicUsername={publicUsername}></SearchBar>
+                <IconButton color='inherit'>
+                  <Badge badgeContent={4} color='secondary'>
                     <NotificationsIcon />
                   </Badge>
                 </IconButton>
               </Toolbar>
             </AppBar>
             <Drawer
-              variant="permanent"
+              variant='permanent'
               classes={{
                 paper: clsx(
                   classes.drawerPaper,
                   !open && classes.drawerPaperClose
-                ),
+                )
               }}
-              open={open}
-            >
+              open={open}>
               <div className={classes.toolbarIcon}>
                 <IconButton onClick={handleDrawerClose}>
                   <ChevronLeftIcon />
@@ -175,21 +173,21 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
               <Divider />
               <List>{mainListItems(publicUsername, isBrand)}</List>
               <Divider />
-              <List>{secondaryListItems}</List>
+              {/* <List>{secondaryListItems}</List> */}
             </Drawer>
             <main className={classes.content}>
               <div className={classes.appBarSpacer} />
-              {/* <Container maxWidth="xl" className={classes.container}> */}
               {children}
-              {/* </Container> */}
             </main>
           </div>
         </>
-      )
+      );
     } else {
-      return <h1>You are not authorized to access this page.</h1>
+      return <h1>You are not authorized to access this page.</h1>;
     }
+  } else {
+    return <>{navigate('/signin')}</>;
   }
-}
+};
 
-export default DashboardLayout
+export default DashboardLayout;

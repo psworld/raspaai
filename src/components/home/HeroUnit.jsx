@@ -7,6 +7,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
 
 import Link from "../core/Link"
+import { Divider } from "@material-ui/core"
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -21,21 +22,28 @@ const useStyles = makeStyles(theme => ({
 const HeroUnit = ({ location }) => {
   const classes = useStyles()
   return (
-    <div className={classes.heroContent}>
-      <Container maxWidth="sm">
-        <Typography
-          component="h1"
-          variant="h2"
-          align="center"
-          color="textPrimary"
-          gutterBottom
-        >
-          Raspaai
-        </Typography>
-        <Typography variant="h5" align="center" color="textSecondary" paragraph>
-          Raspaai | Buy anything from local stores
-        </Typography>
-        <div className={classes.heroButtons}>
+    <>
+      <div className={classes.heroContent}>
+        <Container maxWidth="sm">
+          <Typography
+            component="h1"
+            variant="h2"
+            align="center"
+            color="textPrimary"
+            gutterBottom
+          >
+            Raspaai
+          </Typography>
+          <Typography
+            variant="h5"
+            align="center"
+            color="textSecondary"
+            paragraph
+          >
+            {/* Raspaai | Buy anything from local stores */}
+            Raspaai | Buy books at best price
+          </Typography>
+          {/* <div className={classes.heroButtons}>
           <Grid container spacing={2} justify="center">
             <Grid item>
               <Button variant="contained" color="primary">
@@ -53,9 +61,11 @@ const HeroUnit = ({ location }) => {
               </Button>
             </Grid>
           </Grid>
-        </div>
-      </Container>
-    </div>
+        </div> */}
+        </Container>
+      </div>
+      <Divider></Divider>
+    </>
   )
 }
 

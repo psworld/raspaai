@@ -18,6 +18,8 @@ import Checkbox from "@material-ui/core/Checkbox"
 import { useMutation } from "react-apollo"
 import gql from "graphql-tag"
 import { SHOP_PRODUCTS } from "../../shop/ShopHomePage"
+import GraphqlErrorMessage from "../../core/GraphqlErrorMessage"
+import ProductThumb from "../ProductThumb"
 
 const MODIFY_SHOP_PRODUCT = gql`
   mutation(
@@ -27,7 +29,6 @@ const MODIFY_SHOP_PRODUCT = gql`
     $inStock: Boolean
     $withBrand: Boolean = false
     $withProduct: Boolean = true
-    $withShop: Boolean = true
     $action: String!
   ) {
     modifyShopProduct(
@@ -42,16 +43,20 @@ const MODIFY_SHOP_PRODUCT = gql`
       shopProduct {
         id
         product @include(if: $withProduct) {
+          id
           title
           mrp
           description
+          thumb
           brand @include(if: $withBrand) {
+            id
             publicUsername
             title
           }
         }
         offeredPrice
-        shop @include(if: $withShop) {
+        shop {
+          id
           properties {
             publicUsername
           }
@@ -119,11 +124,7 @@ const DashboardProductElement = props => {
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box width="100%" px={1} my={2}>
         <Link to={isBrand || addShopProduct ? brandProduct : shopProduct}>
-          <img
-            style={{ height: "80%", width: "100%" }}
-            alt={title}
-            src={`http://localhost:8000/media/${thumb}`}
-          />
+          <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
           <Typography variant="body2">{title.substring(0, 30)}</Typography>
         </Link>
         <Typography display="block" variant="caption" color="textSecondary">
@@ -202,7 +203,11 @@ const DashboardProductElement = props => {
                   <span style={{ color: "red" }}>Invalid Input</span>
                 )}
 
-              {error && <>{error.message}</>}
+              {error && (
+                <GraphqlErrorMessage
+                  message={error.message}
+                ></GraphqlErrorMessage>
+              )}
             </>
           )}
         </Typography>
@@ -244,41 +249,25 @@ const DashboardProductElement = props => {
                         withShop: false,
                         action: "delete",
                       },
-                      // update(cache) {
-                      //   const { shopProducts } = cache.readQuery({
-                      //     query: SHOP_PRODUCTS,
-                      //     variables: {
-                      //       publicShopUsername: publicUsername,
-                      //       endCursor: null,
-                      //       withBrand: false,
-                      //     },
-                      //   })
-                      //   const updatedShopProducts = shopProducts.edges.filter(
-                      //     e => e.node.id !== id
-                      //   )
-                      //   shopProducts.edges = updatedShopProducts
-                      //   cache.writeQuery({
-                      //     query: SHOP_PRODUCTS,
-                      //     variables: {
-                      //       publicShopUsername: publicUsername,
-                      //       endCursor: null,
-                      //       withBrand: false,
-                      //     },
-                      //     data: shopProducts,
-                      //   })
-                      //   console.log(shopProducts)
-                      // },
+                      update(cache) {
+                        const { shopProducts } = cache.readQuery({
+                          query: SHOP_PRODUCTS,
+                        })
 
-                      // refetchQueries: [
-                      //   {
-                      //     query: SHOP_PRODUCTS,
-                      //     variables: {
-                      //       publicShopUsername: publicUsername,
-                      //       endCursor: null,
-                      //       withBrand: false,
-                      //     },
-                      //   },
-                      // ],
+                        const updatedShopProducts = shopProducts.edges.filter(
+                          e => e.node.id !== id
+                        )
+
+                        cache.writeQuery({
+                          query: SHOP_PRODUCTS,
+                          data: {
+                            shopProducts: {
+                              ...shopProducts,
+                              edges: updatedShopProducts,
+                            },
+                          },
+                        })
+                      },
                     })
                   }
                   color="secondary"
@@ -302,16 +291,35 @@ const DashboardProductElement = props => {
                       action: "add",
                       withBrand: true,
                     },
-                    refetchQueries: [
+                    update(
+                      store,
                       {
+                        data: {
+                          modifyShopProduct: { shopProduct: newShopProduct },
+                        },
+                      }
+                    ) {
+                      let { shopProducts } = store.readQuery({
                         query: SHOP_PRODUCTS,
                         variables: {
                           publicShopUsername: publicUsername,
-                          endCursor: null,
-                          withBrand: false,
+                          withBrand: true,
                         },
-                      },
-                    ],
+                      })
+
+                      const newEdges = [newShopProduct, ...shopProducts.edges]
+
+                      store.writeQuery({
+                        query: SHOP_PRODUCTS,
+                        variables: {
+                          publicShopUsername: publicUsername,
+                          withBrand: true,
+                        },
+                        data: {
+                          shopProducts: { ...shopProducts, edges: newEdges },
+                        },
+                      })
+                    },
                   })
                 }
               >
@@ -322,9 +330,6 @@ const DashboardProductElement = props => {
         </Grid>
         {showMutationResp && data && (
           <span style={{ color: "green" }}>Saved successfully</span>
-        )}
-        {error && (
-          <span style={{ color: "red" }}>An error occurred. Try again</span>
         )}
       </Box>
     </Grid>

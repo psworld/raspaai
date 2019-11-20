@@ -5,6 +5,9 @@ import CreateShopForm from "./CreateShopForm"
 
 import * as yup from "yup"
 import { Formik } from "formik"
+import { gql } from "apollo-boost"
+import { useQuery } from "react-apollo"
+
 
 const CreateShop = () => {
   const [step, setStep] = React.useState(1)
@@ -16,13 +19,17 @@ const CreateShop = () => {
   const prevStep = () => {
     setStep(step - 1)
   }
-
+const LOCAL_SAVED_LOCATION = gql`
+  {
+    localSavedLocation @client
+  }
+`
   const [showThumbs, setShowThumbs] = React.useState(true)
   const [invalidImages, setInvalidImages] = React.useState(false)
-
+  const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION)
   // files
   const [img, setImg] = React.useState(false)
-
+console.info(JSON.parse(atob(localSavedLocationData.localSavedLocation)))
   const handleFileChange = files => {
     const file = files[0]
 
@@ -63,7 +70,7 @@ const CreateShop = () => {
           })
           .required("Required")
           .min(5, "Username must be 5 characters long")
-          .max(30, "Username can be max 50 characters long"),
+          .max(30, "Username can be max 30 characters long"),
         shopAddress: yup
           .string()
           .required("Required")
@@ -88,6 +95,7 @@ const CreateShop = () => {
                 img={img}
                 formikProps={props}
                 handleBack={prevStep}
+				localLocation={JSON.parse(atob(localSavedLocationData.localSavedLocation))}
               ></CreateShopForm>
             )
         }

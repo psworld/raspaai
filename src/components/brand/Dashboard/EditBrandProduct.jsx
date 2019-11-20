@@ -64,44 +64,48 @@ const CATEGORIES = gql`
   }
 `
 
-const ADD_BRAND_PRODUCT = gql`
-  mutation($data: AddBrandProductInput!) {
-    addBrandProduct(input: $data) {
+const MODIFY_BRAND_PRODUCT = gql`
+  mutation($data: ModifyBrandProductInput!) {
+    modifyBrandProduct(input: $data) {
       product {
         id
         title
         mrp
         description
         longDescription
-        technicalDetails
-        category {
-          id
-          name
-        }
       }
     }
   }
 `
 
-export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
+export const ModifyBrandProduct = ({
+  product,
+  brandUsername,
+  action,
+  imgNodeList,
+}) => {
   const classes = useStyles()
 
-  const [invalidImages, setInvalidImages] = React.useState(false)
-  const [showThumbs, setShowThumbs] = React.useState(true)
-
   const {
+    id,
     title: productTitle,
     mrp,
     description,
     longDescription,
-    images: { edges: imagesNodeList },
-    category: { id: categoryId, name: categoryName },
-    type: { id: typeId, name: typeName },
-    isAvailable,
+    category: { id: categoryId },
+    type: { id: typeId },
+    // isAvailable,
     technicalDetails: technicalDetailsJsonString,
   } = product
 
-  const [imageFiles, setImageFiles] = React.useState(false)
+  const [images, setImages] = React.useState({
+    imagesList: imgNodeList,
+    delete: [],
+    invalidImages: false,
+    imageFiles: false,
+    showThumbs: true,
+  })
+  const { imagesList, invalidImages, showThumbs } = images
 
   const [values, setValues] = React.useState({
     productTitle: "",
@@ -110,6 +114,12 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
     categoryId,
     typeId,
   })
+
+  const [currentImageNewPosition, setCurrentImageNewPosition] = React.useState(
+    1
+  )
+
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0)
 
   const { data: categoriesData } = useQuery(CATEGORIES)
 
@@ -137,7 +147,6 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
   // category types filtering end
 
   const [technicalDetailsValues, setTechnicalDetailsValues] = React.useState({})
-  console.info("technicalDetailsValue", technicalDetailsValues)
 
   const handleTechnicalDetailChanges = key => event => {
     setTechnicalDetailsValues({
@@ -156,29 +165,63 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
         }
       : {}
 
-  // This images64 list will be used for new images and uploading to server
-  const images64 = []
+  // handle image delete
 
-  imageFiles &&
-    imageFiles.forEach(img => {
-      const image = {
-        name: img.file.name,
-        base64: img.base64,
-      }
-      images64.push(JSON.stringify(image))
+  const handleImageDelete = () => {
+    const imgId = imagesList[currentImageIndex].node.id
+    if (imgId.includes("blob")) {
+      setImages({
+        ...images,
+        imagesList: imagesList.filter(e => e.node.id !== imgId),
+      })
+    } else {
+      let deletedList = images64.delete
+      deletedList.push(imgId)
+      setImages({
+        ...images,
+        delete: deletedList,
+        imagesList: imagesList.filter(e => e.node.id !== imgId),
+      })
+    }
+  }
+
+  const handlePositionChange = () => {
+    const newPosition = currentImageNewPosition - 1
+
+    const currentImagePosition = imagesList[currentImageIndex].node.position
+
+    const newImagesList = [...imagesList]
+
+    // img that is already at new position swap the positions
+    // sometimes there is no image at new position
+    // so only swap when both parties are available
+    if (imagesList.find(e => e.node.position === newPosition)) {
+      newImagesList.find(
+        e => e.node.position === newPosition
+      ).node.position = currentImagePosition
+    }
+
+    newImagesList[currentImageIndex].node.position = newPosition
+    newImagesList.sort((a, b) => a.node.position - b.node.position)
+
+    setImages({
+      ...images,
+      imagesList: newImagesList,
     })
+  }
 
   // Images files handling
   const handleFileChange = files => {
     const filesArray = Array.from(files)
-    const images = []
+    const newImageFiles = []
 
     validateImages()
     function validateImages() {
       let allInvalidImages = new Promise(resolveAllInvalidImages => {
+        const imagesListLength = imagesList.length
         const invalidImages = []
         let i = 0
-        filesArray.forEach(file => {
+        filesArray.forEach((file, index) => {
           const reader = new FileReader()
           const img = new Image()
           const imgSrc = URL.createObjectURL(file)
@@ -192,17 +235,19 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
 
                 const image = {
                   url: img.src,
+                  position: imagesListLength + index,
                   width,
                   height,
                   base64,
                   ratio: Math.round((width / height) * 100),
-                  file,
+                  name: file.name,
+                  size: file.size,
                 }
 
                 if (image.ratio !== 80 || image.size / 1000 > 100) {
                   resolveInvalidImg(image)
                 } else {
-                  images.push(image)
+                  newImageFiles.push(image)
                   resolveInvalidImg(false)
                 }
                 i++
@@ -215,6 +260,7 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
             }
             if (filesArray.length === i) {
               resolveAllInvalidImages(invalidImages)
+              setImages({ ...images, showThumbs: false })
             }
           })
         })
@@ -222,12 +268,33 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
 
       allInvalidImages.then(invalidImages => {
         if (invalidImages.length !== 0) {
-          setImageFiles(false)
-          setInvalidImages(invalidImages)
+          setImages({
+            ...images,
+            invalidImages: invalidImages,
+          })
         } else {
-          setInvalidImages(false)
-          setShowThumbs(true)
-          setImageFiles(images)
+          let modifiedImageFiles = []
+          newImageFiles.forEach(img => {
+            const image = {
+              node: {
+                id: img.url,
+                name: img.name,
+                base64: img.base64,
+                position: img.position,
+              },
+            }
+            modifiedImageFiles.push(image)
+          })
+
+          modifiedImageFiles.sort((a, b) => a.node.position - b.node.position)
+          let newImagesList = imagesList.concat(modifiedImageFiles)
+
+          setImages({
+            ...images,
+            imagesList: newImagesList,
+            invalidImages: false,
+            showThumbs: true,
+          })
         }
       })
     }
@@ -236,7 +303,7 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
 
   // handleValuesChange
   const handleChange = name => event => {
-    if (name === "mrp") {
+    if (name === "mrp" || name === "currentImageNewPosition") {
       setValues({
         ...values,
         [name]: parseInt(event.target.value),
@@ -247,41 +314,55 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
         [name]: event.target.value,
       })
     }
-
-    if (name === "categoryId") {
-      // const newCategory = event.target.value
-      // setValues({ ...values, typeId: null })
-    }
   }
 
   // only add fields in mutation input which are changed
+  const serverImages = imagesList.filter(e => !e.node.id.includes("blob"))
 
-  const addBrandProductInput = {}
+  const positionToChange = []
+  serverImages.forEach(img => {
+    if (
+      img.node.id !==
+      imgNodeList.find(e => e.node.position === img.node.position).node.id
+    ) {
+      positionToChange.push({
+        id: img.node.id,
+        newPosition: img.node.position,
+      })
+    }
+  })
+
+  const newImagesToAdd = imagesList.filter(e => e.node.id.includes("blob"))
+
+  const images64 = {
+    add: newImagesToAdd,
+    delete: images.delete,
+    change: positionToChange,
+  }
+  const modifyBrandProductInput = {
+    productId: id,
+    images64: JSON.stringify(images64),
+  }
 
   Object.keys(values).forEach((key, index) => {
     const value = values[key]
     if (key === "categoryId" && value === categoryId) {
     } else if (key === "typeId" && value === typeId) {
     } else if (value !== "") {
-      addBrandProductInput[key] = value
+      modifyBrandProductInput[key] = value
     }
   })
 
   if (JSON.stringify(technicalDetailsValues) !== "{}") {
-    addBrandProductInput["technicalDetails"] = JSON.stringify(
+    modifyBrandProductInput["technicalDetails"] = JSON.stringify(
       technicalDetailsValues
     )
   }
-  if (images64.length !== 0) {
-    addBrandProductInput["images64"] = images64
-  }
-
-  console.info("addBrandProductInput", addBrandProductInput)
 
   // modify product
-  const [addProduct, { called, loading, error, data }] = useMutation(
-    ADD_BRAND_PRODUCT,
-    { variables: { data: addBrandProductInput } }
+  const [modifyProduct, { loading, error, data }] = useMutation(
+    MODIFY_BRAND_PRODUCT,
+    { variables: { data: modifyBrandProductInput } }
   )
 
   return (
@@ -295,13 +376,7 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
               </Typography>
             </ListItem>
             {invalidImages.map((img, index) => {
-              const {
-                url,
-                width,
-                height,
-                ratio,
-                file: { name, size },
-              } = img
+              const { url, width, height, ratio, name, size } = img
               return (
                 <ListItem key={index}>
                   <a href={url} target="_blank" rel="noopener noreferrer">
@@ -316,46 +391,80 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
             })}
           </List>
         )}
-        {images64.length !== 0 || true ? (
+        {imagesList.length !== 0 ? (
           <>
-            <Carousel showThumbs={showThumbs} infiniteLoop showArrows={true}>
-              {!imageFiles
-                ? imagesNodeList.map((imgObj, index) => {
-                    const { image: src } = imgObj.node
-                    return (
-                      <div key={index}>
-                        <img
-                          src={`http://localhost:8000/media/${src}`}
-                          style={{ maxHeight: "56.25%", maxWidth: "100%" }}
-                          alt={productTitle}
-                        ></img>
-                      </div>
-                    )
-                  })
-                : images64.map((img, index) => {
-                    const { base64: src, name } = JSON.parse(img)
-                    return (
-                      <div key={index}>
-                        <img
-                          src={src}
-                          style={{ maxHeight: "56.25%", maxWidth: "100%" }}
-                          alt={name}
-                        ></img>
-                      </div>
-                    )
-                  })}
+            <Carousel
+              selectedItem={currentImageIndex}
+              onChange={currentPosition =>
+                setCurrentImageIndex(currentPosition)
+              }
+              showThumbs={showThumbs}
+              infiniteLoop
+              showArrows={true}
+            >
+              {imagesList.map((imgObj, index) => {
+                const { base64: src } = imgObj.node
+                return (
+                  <div key={index}>
+                    <img
+                      src={src}
+                      style={{ maxHeight: "56.25%", maxWidth: "100%" }}
+                      alt={productTitle}
+                    ></img>
+                  </div>
+                )
+              })}
             </Carousel>
-            <List>
-              <InputLabel htmlFor="raised-button-file">
+
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <InputLabel htmlFor="add-product-image">
+                  <Button color="primary" variant="contained" component="span">
+                    Add
+                  </Button>
+                </InputLabel>
+              </Grid>
+              <Grid item xs={6}>
                 <Button
-                  onClick={() => setShowThumbs(false)}
+                  onClick={() => handleImageDelete()}
+                  color="secondary"
                   variant="contained"
                   component="span"
                 >
-                  Re Upload
+                  Delete
                 </Button>
-              </InputLabel>
-            </List>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  type="number"
+                  error={
+                    currentImageNewPosition < 1 ||
+                    currentImageNewPosition > imagesList.length
+                  }
+                  defaultValue={currentImageNewPosition}
+                  variant="outlined"
+                  onChange={e => setCurrentImageNewPosition(e.target.value)}
+                  placeholder="Enter the position"
+                ></TextField>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  onClick={() => handlePositionChange()}
+                  color="primary"
+                  variant="outlined"
+                >
+                  Set Position
+                </Button>
+              </Grid>
+              <Button
+                // onClick={() => setShowThumbs(false)}
+                variant="outlined"
+                color="secondary"
+                component="span"
+              >
+                Delete all
+              </Button>
+            </Grid>
           </>
         ) : (
           <List>
@@ -369,7 +478,7 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
               ></ListItemText>
             </ListItem>
             <ListItem>
-              <InputLabel htmlFor="raised-button-file">
+              <InputLabel htmlFor="add-product-image">
                 <Button variant="contained" component="span">
                   Upload
                 </Button>
@@ -389,7 +498,7 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
           accept="image/jpeg, image/png"
           onChange={e => handleFileChange(e.target.files)}
           style={{ display: "none" }}
-          id="raised-button-file"
+          id="add-product-image"
           multiple
           type="file"
         />
@@ -531,7 +640,9 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
               <TableCell component="th" scope="row">
                 title
               </TableCell>
-              <TableCell>{productTitle}</TableCell>
+              <TableCell>
+                {values.productTitle ? values.productTitle : productTitle}
+              </TableCell>
             </TableRow>
             {Object.keys(technicalDetails).map((key, index) => {
               const value = technicalDetails[key]
@@ -562,7 +673,13 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
             <Button
               color="primary"
               variant="contained"
-              // onClick={addProduct}
+              onClick={() =>
+                modifyProduct({
+                  variables: {
+                    data: { ...modifyBrandProductInput, action: "edit" },
+                  },
+                })
+              }
             >
               {loading ? "Saving" : "Save"}
             </Button>
@@ -577,7 +694,13 @@ export const ModifyBrandProduct = ({ product, brandUsername, action }) => {
             <Button
               color="secondary"
               variant="contained"
-              // onClick={addProduct}
+              onClick={() =>
+                modifyProduct({
+                  variables: {
+                    data: { ...modifyBrandProductInput, action: "delete" },
+                  },
+                })
+              }
             >
               {loading ? "Saving" : "Delete"}
             </Button>
@@ -598,10 +721,31 @@ const EditBrandProduct = ({ id: productId, brandUsername }) => {
 
   if (data) {
     const { product } = data
+    const {
+      images: { edges: imgNodeList },
+    } = product
+
+    let modifiedImgNodeList = []
+
+    imgNodeList.forEach(imgObj => {
+      const { id, image: url, position } = imgObj.node
+      const image = {
+        node: {
+          id,
+          base64: `http://localhost:8000/media/${url}`,
+          position,
+        },
+      }
+      modifiedImgNodeList.push(image)
+    })
+
+    modifiedImgNodeList.sort((a, b) => a.node.position - b.node.position)
+
     return (
       <ModifyBrandProduct
         product={product}
         brandUsername={brandUsername}
+        imgNodeList={modifiedImgNodeList}
         action="edit"
       ></ModifyBrandProduct>
     )
