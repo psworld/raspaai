@@ -1,21 +1,21 @@
-import React from "react"
+import React from 'react';
 
-import Typography from "@material-ui/core/Typography"
-import Grid from "@material-ui/core/Grid"
-import Box from "@material-ui/core/Box"
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
 
-import gql from "graphql-tag"
-import { useQuery } from "react-apollo"
-import ErrorPage from "../core/ErrorPage"
-import SEO from "../seo"
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
+import ErrorPage from '../core/ErrorPage';
+import SEO from '../seo';
 
-import ProductGridSkeleton from "../skeletons/ProductGridSkeleton"
+import ProductGridSkeleton from '../skeletons/ProductGridSkeleton';
 
-import TitleAndSearchToolbar from "../templates/TitleAndSearchToolbar"
-import MainFeaturedPost from "../templates/MainFeaturedPost"
-import PaginationWithState from "../templates/PaginationWithState"
-import BrandProductGrid from "../templates/BrandProductGrid"
-import BrandShopHomeSkeleton from "../skeletons/BrandShopHomeSkeleton"
+import TitleAndSearchToolbar from '../templates/TitleAndSearchToolbar';
+import MainFeaturedPost from '../templates/MainFeaturedPost';
+import PaginationWithState from '../templates/PaginationWithState';
+import BrandProductGrid from '../templates/BrandProductGrid';
+import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
 
 export const BRAND_PRODUCTS = gql`
   query(
@@ -29,7 +29,7 @@ export const BRAND_PRODUCTS = gql`
       phrase: $phrase
       first: 10
       after: $endCursor
-    ) {
+    ) @connection(key: "brandProducts", filter: ["publicBrandUsername"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -52,17 +52,17 @@ export const BRAND_PRODUCTS = gql`
       }
     }
   }
-`
+`;
 
 export const ProductGrid = props => {
-  const { phrase, publicBrandUsername, isBrandDashboardProduct } = props
+  const { phrase, publicBrandUsername, isBrandDashboardProduct } = props;
   // Required for pagination
   const [pageInfo, setPageInfo] = React.useState([
     {
-      startCursor: null,
-    },
-  ])
-  const [pageNo, setPageNo] = React.useState(1)
+      startCursor: null
+    }
+  ]);
+  const [pageNo, setPageNo] = React.useState(1);
   // Pagination requirements end
 
   const { loading, error, data } = useQuery(BRAND_PRODUCTS, {
@@ -70,17 +70,17 @@ export const ProductGrid = props => {
       publicBrandUsername,
       phrase,
       withBrand: false,
-      endCursor: pageInfo[pageNo - 1].startCursor,
-    },
-  })
-  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>
-  if (error) return <ErrorPage></ErrorPage>
+      endCursor: pageInfo[pageNo - 1].startCursor
+    }
+  });
+  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
+  if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.brandProducts.pageInfo.startCursor) {
     const {
       edges: brandProducts,
-      pageInfo: { hasNextPage, endCursor: currentPageEndCursor },
-    } = data.brandProducts
+      pageInfo: { hasNextPage, endCursor: currentPageEndCursor }
+    } = data.brandProducts;
 
     return (
       <>
@@ -88,8 +88,9 @@ export const ProductGrid = props => {
           <BrandProductGrid
             publicBrandUsername={publicBrandUsername}
             brandProducts={brandProducts}
-            isBrandDashboardProduct={isBrandDashboardProduct}
-          ></BrandProductGrid>
+            isBrandDashboardProduct={
+              isBrandDashboardProduct
+            }></BrandProductGrid>
         </Grid>
         <Grid item>
           <PaginationWithState
@@ -98,18 +99,17 @@ export const ProductGrid = props => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             currentPageEndCursor={currentPageEndCursor}
-            hasNextPage={hasNextPage}
-          ></PaginationWithState>
+            hasNextPage={hasNextPage}></PaginationWithState>
         </Grid>
       </>
-    )
+    );
   }
   return (
-    <Typography style={{ margin: 8 }} variant="h4">
+    <Typography style={{ margin: 8 }} variant='h4'>
       We could not find any result <code>{phrase}</code>
     </Typography>
-  )
-}
+  );
+};
 
 const BRAND = gql`
   query($publicBrandUsername: String!) {
@@ -120,24 +120,24 @@ const BRAND = gql`
       heroImage
     }
   }
-`
+`;
 
 const BrandHomePage = props => {
-  const { brandUsername: publicBrandUsername, phrase } = props
+  const { brandUsername: publicBrandUsername, phrase } = props;
 
-  const [searchPhrase, setSearchPhrase] = React.useState("")
+  const [searchPhrase, setSearchPhrase] = React.useState('');
   const { loading, error, data } = useQuery(BRAND, {
-    variables: { publicBrandUsername },
-  })
+    variables: { publicBrandUsername }
+  });
 
-  if (loading) return <BrandShopHomeSkeleton></BrandShopHomeSkeleton>
+  if (loading) return <BrandShopHomeSkeleton></BrandShopHomeSkeleton>;
 
-  if (error) return <ErrorPage></ErrorPage>
+  if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.brand) {
     const {
-      brand: { title, heroImage },
-    } = data
+      brand: { title, heroImage }
+    } = data;
 
     return (
       <>
@@ -145,25 +145,22 @@ const BrandHomePage = props => {
         <MainFeaturedPost
           img={heroImage}
           title={title}
-          alt={title}
-        ></MainFeaturedPost>
+          alt={title}></MainFeaturedPost>
         <TitleAndSearchToolbar
           title={title}
           searchPhrase={searchPhrase}
           publicUsername={publicBrandUsername}
           setSearchPhrase={setSearchPhrase}
-          isBrand={true}
-        ></TitleAndSearchToolbar>
-        <Box overflow="hidden" px={0}>
+          isBrand={true}></TitleAndSearchToolbar>
+        <Box overflow='hidden' px={0}>
           <ProductGrid
             phrase={phrase}
-            publicBrandUsername={publicBrandUsername}
-          ></ProductGrid>
+            publicBrandUsername={publicBrandUsername}></ProductGrid>
         </Box>
       </>
-    )
+    );
   }
-  return <h1>Nothing from early</h1>
-}
+  return <h1>Nothing from early</h1>;
+};
 
-export default BrandHomePage
+export default BrandHomePage;

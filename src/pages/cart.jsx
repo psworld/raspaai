@@ -296,6 +296,7 @@ const Cart = () => {
 
   return (
     <Layout>
+      <SEO title='Shopping Cart' description='Shopping Cart'></SEO>
       <UserCheck withViewerProp={false}>
         {loading && <Loading></Loading>}
         {error && <ErrorPage></ErrorPage>}

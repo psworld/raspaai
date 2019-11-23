@@ -1,6 +1,7 @@
 #user
 .vscode
 .prettierrc
+.prettierignore
 apollo-material-install.txt
 
 # Logs

@@ -32,7 +32,7 @@ export const mainListItems = (publicUsername, isBrand) => {
       </ListItem>
       <ListItem component={MenuItemLink} to={'/'} button>
         <ListItemIcon>
-          <img height='24' width='24' src={RaspaaiIcon}></img>
+          <img alt='Raspaai' height='24' width='24' src={RaspaaiIcon}></img>
         </ListItemIcon>
         <ListItemText primary='Raspaai' />
       </ListItem>
@@ -58,33 +58,37 @@ export const mainListItems = (publicUsername, isBrand) => {
         </ListItemIcon>
         <ListItemText primary='Add product' />
       </ListItem>
-      <ListItem
-        button
-        component={MenuItemLink}
-        to={`${baseUrl}/orders/pending`}>
-        <ListItemIcon>
-          <HourglassEmptyIcon style={{ color: yellow[900] }} />
-        </ListItemIcon>
-        <ListItemText primary='Pending Orders' />
-      </ListItem>
-      <ListItem
-        button
-        component={MenuItemLink}
-        to={`${baseUrl}/orders/fulfilled`}>
-        <ListItemIcon>
-          <ShoppingCartIcon style={{ color: 'green' }} />
-        </ListItemIcon>
-        <ListItemText primary='Successful Orders' />
-      </ListItem>
-      <ListItem
-        button
-        component={MenuItemLink}
-        to={`${baseUrl}/orders/cancelled`}>
-        <ListItemIcon>
-          <RemoveShoppingCartIcon color='secondary' />
-        </ListItemIcon>
-        <ListItemText primary='Unsuccessful Orders' />
-      </ListItem>
+      {!isBrand && (
+        <>
+          <ListItem
+            button
+            component={MenuItemLink}
+            to={`${baseUrl}/orders/pending`}>
+            <ListItemIcon>
+              <HourglassEmptyIcon style={{ color: yellow[900] }} />
+            </ListItemIcon>
+            <ListItemText primary='Pending Orders' />
+          </ListItem>
+          <ListItem
+            button
+            component={MenuItemLink}
+            to={`${baseUrl}/orders/fulfilled`}>
+            <ListItemIcon>
+              <ShoppingCartIcon style={{ color: 'green' }} />
+            </ListItemIcon>
+            <ListItemText primary='Successful Orders' />
+          </ListItem>
+          <ListItem
+            button
+            component={MenuItemLink}
+            to={`${baseUrl}/orders/cancelled`}>
+            <ListItemIcon>
+              <RemoveShoppingCartIcon color='secondary' />
+            </ListItemIcon>
+            <ListItemText primary='Unsuccessful Orders' />
+          </ListItem>
+        </>
+      )}
       {/*
       <ListItem button>
         <ListItemIcon>
