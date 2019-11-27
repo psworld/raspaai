@@ -57,6 +57,7 @@ const useStyles = makeStyles(theme => ({
 const SIGNIN = gql`
   mutation($email: String!, $password: String!) {
     loginUser(input: { email: $email, password: $password }) {
+      token
       user {
         id
         email
@@ -130,7 +131,7 @@ export default function SigninForm({ message, redirectUrl }) {
             store,
             {
               data: {
-                loginUser: { user }
+                loginUser: {token, user}
               }
             }
           ) {
