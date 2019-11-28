@@ -138,7 +138,6 @@ export default function NavBar() {
     { loading: logoutLoading, called, data: logoutData }
   ] = useMutation(LOGOUT_USER, {
     variables: { id: data && data.viewer && data.viewer.id },
-    onCompleted: () => handleMenuClose(),
     update: (
       cache,
       {
@@ -151,7 +150,8 @@ export default function NavBar() {
         query: VIEWER,
         data: { viewer: null }
       });
-    }
+    },
+    onCompleted: () => localStorage.removeItem('token') & handleMenuClose()
   });
 
   // drawer

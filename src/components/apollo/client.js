@@ -1,11 +1,19 @@
-import ApolloClient from "apollo-boost"
-import { fetch } from "isomorphic-fetch"
+import ApolloClient from 'apollo-boost';
+import { fetch } from 'isomorphic-fetch';
 
 const client = new ApolloClient({
- uri: "http://raspaai-env.peyxbuq9rs.ap-south-1.elasticbeanstalk.com/graphql/",
-// uri: "http://localhost:8000/graphql",
-  credentials: "include",
-  fetch,
-})
+  uri: 'https://raspaai-env.peyxbuq9rs.ap-south-1.elasticbeanstalk.com/graphql/',
+  // uri: "http://localhost:8000/graphql",
+  request: operation => {
+    const token = localStorage.getItem('token');
+    operation.setContext({
+      headers: {
+        authorization: token ? `JWT ${token}` : ''
+      }
+    });
+  },
+  credentials: 'include',
+  fetch
+});
 
-export default client
+export default client;

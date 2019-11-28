@@ -103,7 +103,25 @@ export function hasError(errors) {
 export default function SigninForm({ message, redirectUrl }) {
   const classes = useStyles();
 
-  const [signin, { called, loading, error, data }] = useMutation(SIGNIN);
+  const [signin, { called, loading, error, data }] = useMutation(SIGNIN, {
+    update(
+      store,
+      {
+        data: {
+          loginUser: { user }
+        }
+      }
+    ) {
+      store.writeQuery({
+        query: VIEWER,
+        data: { viewer: user }
+      });
+      redirectUrl ? navigate(redirectUrl) : window.history.back();
+    },
+    onCompleted: data => {
+      localStorage.setItem('token', data.loginUser.token);
+    }
+  });
 
   return (
     <Formik
@@ -126,21 +144,7 @@ export default function SigninForm({ message, redirectUrl }) {
         const { email, password } = values;
 
         signin({
-          variables: { email, password },
-          update(
-            store,
-            {
-              data: {
-                loginUser: {token, user}
-              }
-            }
-          ) {
-            store.writeQuery({
-              query: VIEWER,
-              data: { viewer: user }
-            });
-            redirectUrl ? navigate(redirectUrl) : window.history.back();
-          }
+          variables: { email, password }
         });
         setSubmitting(false);
       }}>
