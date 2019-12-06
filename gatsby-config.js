@@ -6,7 +6,7 @@ module.exports = {
   siteMetadata: {
     title: `Raspaai`,
     description: `Raspaai.in | Order from local shops, electronics, food and much more`,
-    siteUrl: `https://www.raspaai.in`,
+    siteUrl: `https://www.raspaai.tk`,
     author: `@ps_worlds`,
     social: {
       twitter: `raspaai`,

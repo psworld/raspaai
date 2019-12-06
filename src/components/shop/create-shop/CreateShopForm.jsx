@@ -18,7 +18,6 @@ import { makeStyles } from "@material-ui/core/styles"
 
 import Link from "../../core/Link"
 import Map from "../../map/Map"
-import { hasError } from "../../signin/SigninForm"
 import gql from "graphql-tag"
 import { useMutation } from "react-apollo"
 
@@ -69,6 +68,13 @@ const REGISTER_SHOP = gql`
     }
   }
 `
+
+function hasError(errors) {
+    if (Object.keys(errors).length === 0 && errors.constructor === Object) {
+      return false;
+    } else return true;
+  }
+  
 
 const CreateShopForm = ({ handleBack, formikProps, handleFileChange, img, localLocation }) => {
   const {

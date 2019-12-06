@@ -1,45 +1,58 @@
-import React from "react"
-import SEO from "../../seo"
-import ProductGridSkeleton from "../../skeletons/ProductGridSkeleton"
-import ErrorPage from "../../core/ErrorPage"
-import { useQuery } from "react-apollo"
-import { SHOP_PRODUCTS } from "../ShopHomePage"
-import PaginationWithState from "../../templates/PaginationWithState"
-import DashboardShopProductGrid from "../../templates/dashboard/DashboardShopProductGrid"
+import React from 'react';
+import SEO from '../../seo';
+import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
+import ErrorPage from '../../core/ErrorPage';
+import { useQuery } from 'react-apollo';
+import { SHOP_PRODUCTS } from '../ShopHomePage';
+import PaginationWithState from '../../templates/PaginationWithState';
+import DashboardShopProductGrid from '../../templates/dashboard/DashboardShopProductGrid';
 
-import Grid from "@material-ui/core/Grid"
+import Grid from '@material-ui/core/Grid';
+import { Typography } from '@material-ui/core';
+import Link from '../../core/Link';
 
 const ProductGrid = ({ phrase, publicShopUsername }) => {
   const { loading, error, data, fetchMore } = useQuery(SHOP_PRODUCTS, {
     variables: {
       publicShopUsername,
       phrase,
-      withBrand: true,
-    },
-  })
+      withBrand: true
+    }
+  });
 
-  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>
-  if (error) return <ErrorPage></ErrorPage>
+  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
+  if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.shopProducts.pageInfo.startCursor) {
-    const { edges: shopProducts, pageInfo } = data.shopProducts
+    const { edges: shopProducts, pageInfo } = data.shopProducts;
     return (
       <>
         <DashboardShopProductGrid
-          shopProducts={shopProducts}
-        ></DashboardShopProductGrid>
+          shopProducts={shopProducts}></DashboardShopProductGrid>
 
         <Grid item>
           <PaginationWithState
             fetchMore={fetchMore}
-            pageInfo={pageInfo}
-          ></PaginationWithState>
+            pageInfo={pageInfo}></PaginationWithState>
         </Grid>
       </>
-    )
+    );
   }
-  return <h1>You do not have any products in your shop</h1>
-}
+  return (
+    <div>
+      <Typography variant='h4' align='center'>
+        You do not have any products in your shop
+      </Typography>
+      <br></br>
+      <Typography
+        variant='h5'
+        component={Link}
+        to={`${window.location.pathname}/add`}>
+        Add Products
+      </Typography>
+    </div>
+  );
+};
 
 const MyProductsPage = ({ phrase, shopUsername }) => {
   return (
@@ -47,10 +60,9 @@ const MyProductsPage = ({ phrase, shopUsername }) => {
       <SEO title={`Dashboard Products`}></SEO>
       <ProductGrid
         phrase={phrase}
-        publicShopUsername={shopUsername}
-      ></ProductGrid>
+        publicShopUsername={shopUsername}></ProductGrid>
     </>
-  )
-}
+  );
+};
 
-export default MyProductsPage
+export default MyProductsPage;

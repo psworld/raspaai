@@ -1,11 +1,11 @@
-import React from "react"
-import { useQuery } from "react-apollo"
-import gql from "graphql-tag"
-import ErrorPage from "../core/ErrorPage"
-import SEO from "../seo"
+import React from 'react';
+import { useQuery } from 'react-apollo';
+import gql from 'graphql-tag';
+import ErrorPage from '../core/ErrorPage';
+import SEO from '../seo';
 
-import ShopProductSkeleton from "../skeletons/ShopProductSkeleton"
-import ProductDetails from "../templates/product-detail/ProductDetails"
+import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
+import ProductDetails from '../templates/product-detail/ProductDetails';
 
 // const seeThisOnGoogleMaps = "https://www.google.co.in/maps/place/31.708324,76.931868/@31.7082658,76.931412,16z/"
 
@@ -53,24 +53,25 @@ const SHOP_PRODUCT = gql`
           title
           address
           contactNumber
+          returnRefundPolicy
         }
       }
       offeredPrice
       inStock
     }
   }
-`
+`;
 
 const ShopProductPage = props => {
-  const { shopProductId, shopUsername } = props
+  const { shopProductId, shopUsername } = props;
 
   const { loading, error, data } = useQuery(SHOP_PRODUCT, {
-    variables: { shopProductId },
-  })
-  if (loading) return <ShopProductSkeleton></ShopProductSkeleton>
+    variables: { shopProductId }
+  });
+  if (loading) return <ShopProductSkeleton></ShopProductSkeleton>;
   if (error) {
     // return <ErrorPage></ErrorPage>
-    return <p>{error.message}</p>
+    return <p>{error.message}</p>;
   }
   if (data && data.shopProduct) {
     const {
@@ -82,36 +83,34 @@ const ShopProductPage = props => {
         product: {
           title: productTitle,
           description,
-          brand: { publicUsername: brandPublicUsername },
+          brand: { publicUsername: brandPublicUsername }
         },
-        shop,
-      },
-    } = data
+        shop
+      }
+    } = data;
 
     const shopProduct = {
       id,
       offeredPrice,
       inStock,
-      shop,
-    }
+      shop
+    };
     return (
       <>
         <SEO
           title={`${productTitle} | ${shopUsername}`}
-          description={description}
-        ></SEO>
+          description={description}></SEO>
         {/* <Container maxWidth={false} style={{ paddingLeft: 2 }}> */}
         <ProductDetails
           product={product}
           shopProduct={shopProduct}
           brandPublicUsername={brandPublicUsername}
           shopPublicUsername={shopUsername}
-          isShopProduct={true}
-        ></ProductDetails>
+          isShopProduct={true}></ProductDetails>
         {/* </Container> */}
       </>
-    )
+    );
   }
-}
+};
 
-export default ShopProductPage
+export default ShopProductPage;

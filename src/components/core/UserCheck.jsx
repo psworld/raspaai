@@ -3,7 +3,6 @@ import { useQuery } from 'react-apollo';
 import { VIEWER } from '../navbar/ToolBarMenu';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
-import { Redirect } from '@reach/router';
 import { navigate } from 'gatsby';
 
 const UserCheck = ({ children, withViewerProp = true }) => {

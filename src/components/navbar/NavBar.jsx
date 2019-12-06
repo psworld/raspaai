@@ -151,7 +151,10 @@ export default function NavBar() {
         data: { viewer: null }
       });
     },
-    onCompleted: () => localStorage.removeItem('token') & handleMenuClose()
+    onCompleted: () =>
+      localStorage.removeItem('token') &
+      sessionStorage.removeItem('token') &
+      handleMenuClose()
   });
 
   // drawer
@@ -213,7 +216,9 @@ export default function NavBar() {
           onClick={
             handleMenuClose
           }>{`${viewer.firstName} ${viewer.lastName}`}</MenuItem> */}
-        <MenuItem onClick={handleMenuClose}>{viewer.email}</MenuItem>
+        <MenuItem component={MenuItemLink} to='/profile/user'>
+          {`${viewer.firstName} ${viewer.lastName}`}
+        </MenuItem>
         {viewer.isSuperuser && (
           <MenuItem component={MenuItemLink} to={`/raspaai/dashboard`}>
             Admin Dashboard
@@ -226,7 +231,7 @@ export default function NavBar() {
               component={MenuItemLink}
               to={
                 viewer.shop
-                  ? viewer.shop.properties.isApplication
+                  ? viewer.shop.properties.application
                     ? `/shop/application/${viewer.shop.properties.publicUsername}`
                     : `/shop/${viewer.shop.properties.publicUsername}`
                   : '/shop/create-shop'

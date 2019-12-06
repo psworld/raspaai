@@ -1,176 +1,174 @@
-import React from "react"
-import gql from "graphql-tag"
-import { useQuery, useMutation } from "react-apollo"
-import ErrorPage from "../../core/ErrorPage"
+import React from 'react';
+import gql from 'graphql-tag';
+import { useQuery, useMutation } from 'react-apollo';
+import ErrorPage from '../../core/ErrorPage';
 import {
-  Card,
-  CardMedia,
-  useMediaQuery,
   Container,
   List,
   ListItem,
   ListItemText,
   Grid,
   Button,
-} from "@material-ui/core"
-import { useTheme } from "@material-ui/core/styles"
-import { makeStyles } from "@material-ui/core/styles"
-import MainFeaturedPost from "../../templates/MainFeaturedPost"
+  Typography
+} from '@material-ui/core';
+import MainFeaturedPost from '../../templates/MainFeaturedPost';
+import { navigate } from 'gatsby';
+import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 
-const useStyles = makeStyles(theme => ({
-  card: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(2),
-  },
-  cardMediaMobile: {
-    // paddingTop: "56.25%", // 16:9
-    paddingTop: "75%", // 4:3
-  },
-  cardMediaTv: {
-    // paddingTop: "56.25%", // 16:9
-    paddingTop: "37.5%", // 4:3
-  },
-
-  form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-}))
-
-const BRAND = gql`
-  query($publicBrandUsername: String!) {
-    brand(publicBrandUsername: $publicBrandUsername) {
+const BRAND_APPLICATION = gql`
+  query($applicationId: ID!) {
+    brandApplication(id: $applicationId) {
       id
-      owner {
-        email
-        firstName
-        lastName
+      brand {
+        id
+        owner {
+          id
+          email
+          firstName
+          lastName
+        }
+        publicUsername
+        title
+        heroImage
       }
-      publicUsername
-      title
-      heroImage
-      applicationStatus {
+      submittedAt
+      status {
+        id
         statusCode
         title
         description
       }
     }
   }
-`
+`;
 
 const REVIEW_APPLICATION = gql`
   mutation(
-    $publicUsername: String!
+    $applicationId: ID!
     $hasError: Boolean = false
     $errors: JSONString
-    $freeStarter: Boolean = false
   ) {
     reviewBrandApplication(
       input: {
-        publicUsername: $publicUsername
+        applicationId: $applicationId
         hasError: $hasError
         errors: $errors
-        freeStarter: $freeStarter
       }
     ) {
       brand {
         id
-        isApplication
-        applicationStatus {
-          statusCode
-          title
-        }
+        publicUsername
       }
     }
   }
-`
+`;
 
-const BrandPage = ({ brandUsername }) => {
-  const classes = useStyles()
-
+const BrandPage = ({ brandUsername, applicationId }) => {
   const [
     review,
-    { called, error: reviewError, data: reviewData },
+    { called, error: reviewError, data: reviewData, loading: reviewLoading }
   ] = useMutation(REVIEW_APPLICATION, {
-    variables: { publicUsername: brandUsername, freeStarter: true },
-  })
+    variables: { applicationId },
+    onCompleted: data => {
+      const {
+        reviewBrandApplication: {
+          brand: { publicUsername }
+        }
+      } = data;
+      navigate(`/brand/${publicUsername}`);
+    }
+  });
 
-  const { loading, error, data } = useQuery(BRAND, {
-    variables: { publicBrandUsername: brandUsername },
-  })
-  if (loading) return <h1>Loading</h1>
-  if (error) return <ErrorPage></ErrorPage>
+  const { loading, error, data } = useQuery(BRAND_APPLICATION, {
+    variables: { applicationId }
+  });
+  if (loading) return <h1>Loading</h1>;
+  if (error) return <ErrorPage></ErrorPage>;
   if (data) {
     const {
-      owner: { email, firstName, lastName },
-      publicUsername,
-      title: brandName,
-      heroImage,
-      applicationStatus: { statusCode, title, description },
-    } = data.brand
+      brand: {
+        owner: { email, firstName, lastName },
+        publicUsername,
+        title: brandName,
+        heroImage
+      },
+      status: { statusCode, title, description }
+    } = data.brandApplication;
     return (
       <>
         <MainFeaturedPost
           img={heroImage}
-          title={publicUsername}
-        ></MainFeaturedPost>
-        <Container maxWidth="md">
+          title={publicUsername}></MainFeaturedPost>
+        <Container maxWidth='md'>
           <List>
             <ListItem>
-              <ListItemText
-                primary="Application Status"
-                secondary={<>{title}</>}
-              ></ListItemText>
+              <Typography variant='h4'>Application Details</Typography>
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="Brand General Details"
-                secondary={
-                  <>
-                    {publicUsername}
-                    <br></br>
-                    {brandName}
-                  </>
-                }
-              ></ListItemText>
+                primary='Status'
+                secondary={<>{title}</>}></ListItemText>
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="Owner"
-                secondary={
-                  <>
-                    {email}
-                    <br></br>
-                    {firstName} {lastName}
-                  </>
-                }
-              ></ListItemText>
+                primary='Status Code'
+                secondary={<>{statusCode}</>}></ListItemText>
+            </ListItem>
+
+            <ListItem>
+              <Typography variant='h4'>Brand General Details</Typography>
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary='Username'
+                secondary={publicUsername}></ListItemText>
+            </ListItem>
+            <ListItem>
+              <ListItemText primary='Name' secondary={brandName}></ListItemText>
+            </ListItem>
+
+            <ListItem>
+              <Typography variant='h4'>Owner Details</Typography>
+            </ListItem>
+            <ListItem>
+              <ListItemText primary='Email' secondary={email}></ListItemText>
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary='Name'
+                secondary={`${firstName} ${lastName}`}></ListItemText>
+            </ListItem>
+            <ListItem>
+              {reviewError && (
+                <GraphqlErrorMessage error={reviewError}></GraphqlErrorMessage>
+              )}
             </ListItem>
           </List>
-          <Grid container justify="center">
-            <Grid item xs={6} sm={4} justify="center">
-              <Button onClick={review} color="primary" variant="contained">
-                {!called && <>Accept</>}
-                {reviewData && <>Done</>}
+          <Grid container justify='center'>
+            <Grid item xs={6} sm={4} justify='center'>
+              <Button
+                disabled={reviewLoading}
+                onClick={review}
+                color='primary'
+                variant='contained'>
+                {reviewData ? <>Done</> : <>Accept</>}
               </Button>
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Button color="secondary" variant="contained">
+              <Button color='secondary' variant='contained'>
                 Return with error
               </Button>
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Button color="secondary" variant="contained">
+              <Button color='secondary' variant='contained'>
                 Ban
               </Button>
             </Grid>
           </Grid>
         </Container>
       </>
-    )
+    );
   }
-}
+};
 
-export default BrandPage
+export default BrandPage;

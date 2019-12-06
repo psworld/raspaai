@@ -3,15 +3,15 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Chart from './Chart';
 import Orders from './Orders';
 import PlanInfo from './PlanInfo';
+import ShopReturnRefundPolicy from './ShopReturnRefundPolicy';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
-    overflow: 'auto',
+    // overflow: 'auto',
     flexDirection: 'column'
   },
   fixedHeight: {
@@ -25,13 +25,15 @@ export default function Dashboard({ publicUsername, isBrand = false }) {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={2}>
       {/* Chart */}
-      <Grid item xs={12} md={8} lg={9}>
-        <Paper className={fixedHeightPaper}>
-          <Chart />
-        </Paper>
-      </Grid>
+      {!isBrand && (
+        <Grid item xs={12} md={8} lg={9}>
+          <Paper>
+            <ShopReturnRefundPolicy publicUsername={publicUsername} />
+          </Paper>
+        </Grid>
+      )}
       {/* Recent Deposits */}
       <Grid item xs={12} md={4} lg={3}>
         <Paper className={fixedHeightPaper}>

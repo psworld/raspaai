@@ -24,6 +24,7 @@ import { CART_ITEMS } from '../../../pages/cart';
 import { VIEWER } from '../../navbar/ToolBarMenu';
 import { green } from '@material-ui/core/colors';
 import { navigate } from 'gatsby';
+import { getJsonFriendlyString } from '../../shop/dashboard/components/ShopReturnRefundPolicy';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -69,7 +70,12 @@ const ProductDetails = props => {
       inStock,
       shop: {
         geometry: { coordinates },
-        properties: { title: shopName, address, contactNumber }
+        properties: {
+          title: shopName,
+          address,
+          contactNumber,
+          returnRefundPolicy
+        }
       }
     } = shopProduct;
   }
@@ -279,9 +285,10 @@ const ProductDetails = props => {
 
             {data && (
               <Typography align='center' style={{ color: green[600] }}>
-                Item added successfully
+                Item added successfully to cart
               </Typography>
             )}
+            <Divider></Divider>
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Contact Details
             </Typography>
@@ -298,18 +305,22 @@ const ProductDetails = props => {
               </a>
             </Typography>
             <br></br>
+            <Typography variant='body1'>
+              <a
+                href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                // style={{ color: 'inherit', textDecorationLine: 'none' }}
+              >
+                Click here to see address on map
+              </a>
+            </Typography>
+            <br></br>
             <Typography variant='h6'>Phone</Typography>
             <Typography variant='body1'>
               <a href={`tel: +91${contactNumber}`}>{contactNumber}</a>
             </Typography>
-            <br></br>
-            <a
-              href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
-              target='_blank'
-              rel='noopener noreferrer'
-              style={{ color: 'inherit', textDecorationLine: 'none' }}>
-              <Button color='primary'>See this on map</Button>
-            </a>
+
             <br></br>
             <Typography variant='h6'>Share on</Typography>
             <a
@@ -319,6 +330,21 @@ const ProductDetails = props => {
               rel='noopener noreferrer'>
               Whats app
             </a>
+            <br></br>
+            <br></br>
+            <Divider></Divider>
+            <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
+              Return Refund Policy
+            </Typography>
+            <br></br>
+            {JSON.parse(getJsonFriendlyString(returnRefundPolicy)).map(
+              (policy, index) => (
+                <ListItem>
+                  <Typography variant='body1'>{policy}</Typography>
+                </ListItem>
+              )
+            )}
+            <br></br>
           </Grid>
         ) : (
           <></>

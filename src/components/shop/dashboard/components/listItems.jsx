@@ -52,7 +52,7 @@ export const mainListItems = (publicUsername, isBrand) => {
         </ListItemIcon>
         <ListItemText primary='My Products' />
       </ListItem>
-      <ListItem component={MenuItemLink} to={`${baseUrl}/product/add`} button>
+      <ListItem component={MenuItemLink} to={`${baseUrl}/products/add`} button>
         <ListItemIcon>
           <LibraryAddIcon></LibraryAddIcon>
         </ListItemIcon>

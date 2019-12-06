@@ -1,16 +1,16 @@
-import React from "react"
+import React from 'react';
 
-import MoreIcon from "@material-ui/icons/MoreVert"
-import IconButton from "@material-ui/core/IconButton"
-import Badge from "@material-ui/core/Badge"
-import AccountCircle from "@material-ui/icons/AccountCircle"
-import ShoppingCart from "@material-ui/icons/ShoppingCart"
+import MoreIcon from '@material-ui/icons/MoreVert';
+import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import ShoppingCart from '@material-ui/icons/ShoppingCart';
 
-import { useQuery } from "@apollo/react-hooks"
-import { gql } from "apollo-boost"
+import { useQuery } from '@apollo/react-hooks';
+import { gql } from 'apollo-boost';
 
-import { MenuItemLink } from "../core/Link"
-import { CART_ITEMS } from "../../pages/cart"
+import { MenuItemLink } from '../core/Link';
+import { CART_ITEMS } from '../../pages/cart';
 
 export const VIEWER = gql`
   {
@@ -20,87 +20,91 @@ export const VIEWER = gql`
       firstName
       lastName
       isShopOwner
+      isBrandOwner
       isSuperuser
       totalCartItems
       brand {
         id
         publicUsername
-        isApplication
-        applicationStatus {
+        application {
           id
-          statusCode
-          title
-        }
-      }
-      shop {
-        id
-        properties {
-          publicUsername
-          isApplication
-          applicationStatus {
+          submittedAt
+          updatedAt
+          status {
             id
             statusCode
             title
           }
         }
       }
-      isBrandOwner
+      shop {
+        id
+        properties {
+          publicUsername
+          application {
+            id
+            submittedAt
+            updatedAt
+            status {
+              id
+              statusCode
+              title
+            }
+          }
+        }
+      }
     }
   }
-`
+`;
 
 export const UserToolBar = ({
   classes,
   menuId,
   mobileMenuId,
   handleMobileMenuOpen,
-  handleProfileMenuOpen,
+  handleProfileMenuOpen
 }) => {
-  const { data } = useQuery(CART_ITEMS)
+  const { data } = useQuery(CART_ITEMS);
 
   return (
     <>
       <div className={classes.sectionDesktop}>
         <IconButton
           component={MenuItemLink}
-          to="/cart"
-          aria-label="cart items"
-          color="inherit"
-        >
+          to='/cart'
+          aria-label='cart items'
+          color='inherit'>
           <Badge
             badgeContent={data ? data.cartItems.length : 0}
-            color="secondary"
-          >
+            color='secondary'>
             <ShoppingCart />
           </Badge>
         </IconButton>
         <IconButton
-          edge="end"
-          aria-label="account of current user"
+          edge='end'
+          aria-label='account of current user'
           aria-controls={menuId}
-          aria-haspopup="true"
+          aria-haspopup='true'
           onClick={handleProfileMenuOpen}
-          color="inherit"
-        >
+          color='inherit'>
           <AccountCircle />
         </IconButton>
       </div>
       <div className={classes.sectionMobile}>
         <IconButton
-          aria-label="show more"
+          aria-label='show more'
           aria-controls={mobileMenuId}
-          aria-haspopup="true"
+          aria-haspopup='true'
           onClick={handleMobileMenuOpen}
-          color="inherit"
-        >
+          color='inherit'>
           <MoreIcon />
         </IconButton>
       </div>
     </>
-  )
-}
+  );
+};
 
 const ToolBarMenu = props => {
-  return
-}
-export default ToolBarMenu
+  return;
+};
+export default ToolBarMenu;

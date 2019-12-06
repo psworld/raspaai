@@ -1,17 +1,17 @@
-import React from "react"
+import React from 'react';
 
-import Grid from "@material-ui/core/Grid"
-import Typography from "@material-ui/core/Typography"
-import Button from "@material-ui/core/Button"
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
-import ErrorPage from "../core/ErrorPage"
-import { navigate } from "gatsby"
+import ErrorPage from '../core/ErrorPage';
+import { navigate } from 'gatsby';
 
-import gql from "graphql-tag"
-import { useQuery } from "react-apollo"
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
-import ProductGridSkeleton from "../skeletons/ProductGridSkeleton"
-import ShopProductGrid from "../templates/ShopProductGrid"
+import ProductGridSkeleton from '../skeletons/ProductGridSkeleton';
+import ShopProductGrid from '../templates/ShopProductGrid';
 
 const SHOP_PRODUCT_SEARCH = gql`
   query(
@@ -58,36 +58,36 @@ const SHOP_PRODUCT_SEARCH = gql`
       }
     }
   }
-`
+`;
 
 const SearchResultPage = props => {
-  const { phrase, pageNo, endCursor, savedLocation } = props
+  const { phrase, pageNo, endCursor, savedLocation } = props;
 
-  const { lat, lng } = savedLocation
+  const { lat, lng } = savedLocation;
 
   const { loading, error, data } = useQuery(SHOP_PRODUCT_SEARCH, {
-    variables: { phrase, endCursor, lat, lng, rangeInKm: 5 },
-  })
+    variables: { phrase, endCursor, lat, lng, rangeInKm: 5 }
+  });
 
   if (loading)
     return (
       <>
-        <Typography style={{ margin: 6 }} variant="h4">
+        <Typography style={{ margin: 6 }} variant='h4'>
           Search results for {phrase}
         </Typography>
         <ProductGridSkeleton></ProductGridSkeleton>
       </>
-    )
-  if (error) return <ErrorPage></ErrorPage>
+    );
+  if (error) return <ErrorPage></ErrorPage>;
   if (data && data.productSearch && data.productSearch.pageInfo.startCursor) {
     const {
       pageInfo: { hasNextPage, endCursor },
-      edges: nearbyShopProducts,
-    } = data.productSearch
+      edges: nearbyShopProducts
+    } = data.productSearch;
     return (
       <>
-        <Typography style={{ margin: 6 }} variant="h4">
-          Search results for {phrase}
+        <Typography style={{ margin: 6 }} variant='h4'>
+          Search results for <code>{phrase}</code>
         </Typography>
 
         <Grid container>
@@ -96,34 +96,32 @@ const SearchResultPage = props => {
 
         <Button
           disabled={!hasNextPage}
-          variant="contained"
-          color="secondary"
-          title={hasNextPage ? "See next page" : "No more results."}
+          variant='contained'
+          color='secondary'
+          title={hasNextPage ? 'See next page' : 'No more results.'}
           onClick={() =>
             navigate(
               `/search/${phrase}/pg/${parseInt(pageNo) +
                 1}/@/${lat}/${lng}/${endCursor}`
             )
-          }
-        >
+          }>
           Next
         </Button>
         <Button
-          variant="contained"
-          color="secondary"
-          disabled={pageNo === "1"}
-          onClick={() => window.history.back(-1)}
-        >
+          variant='contained'
+          color='secondary'
+          disabled={pageNo === '1'}
+          onClick={() => window.history.back(-1)}>
           Back
         </Button>
       </>
-    )
+    );
   }
   return (
-    <Typography style={{ margin: 4 }} variant="h2">
-      No results found for <code>{phrase}</code>.
+    <Typography style={{ margin: 4 }} variant='h4'>
+      No results found for <code>{phrase}</code>
     </Typography>
-  )
-}
+  );
+};
 
-export default SearchResultPage
+export default SearchResultPage;

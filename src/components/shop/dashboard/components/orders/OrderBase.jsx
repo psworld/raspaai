@@ -91,7 +91,7 @@ export const SHOP_ORDERS = gql`
       first: 10
       orderBy: "order__created"
       clientTrackingId: $shopOrderTrackingId
-    ) {
+    ) @connection(key: "shop", filter: ["status"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -278,6 +278,13 @@ export const ShopOrder = ({
             status: currentShopOrderStatus
           }
         });
+
+        // getting the shop order whose status has been changed
+        const statusChangedShopOrder = oldStatusShopOrders.edges.find(
+          e => e.node.id === shopOrderId
+        );
+
+        // removing the order whose status has been changed, from the old status order list
         store.writeQuery({
           query: SHOP_ORDERS,
           variables: {
@@ -293,10 +300,6 @@ export const ShopOrder = ({
             }
           }
         });
-
-        const statusChangedShopOrder = oldStatusShopOrders.edges.find(
-          e => e.node.id === shopOrderId
-        );
 
         try {
           const { shopOrders: newStatusShopOrders } = store.readQuery({
@@ -455,7 +458,9 @@ export const ShopOrder = ({
                 <ListItem>
                   <ListItemText
                     primary='Phone'
-                    secondary={<a>{userPhone}</a>}></ListItemText>
+                    secondary={
+                      <a href={`tel:+91${userPhone}`}>{userPhone}</a>
+                    }></ListItemText>
                 </ListItem>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -522,7 +527,7 @@ const OrderBase = ({ status }) => {
     phrase: '',
     shopOrderTrackingId: null
   });
-  console.info(search);
+
   const { phrase, shopOrderTrackingId } = search;
 
   const { loading, error, data, fetchMore } = useQuery(SHOP_ORDERS, {
@@ -575,7 +580,7 @@ const OrderBase = ({ status }) => {
         handleClose={handleResponseSnackbarClose}
         variant='success'
         message='Status changed successfully'></ResponseSnackbar>
-      {shopOrdersEdges && (
+      {shopOrdersEdges && shopOrdersEdges.length !== 0 && (
         <Paper className={classes.searchRoot}>
           <InputBase
             className={classes.input}

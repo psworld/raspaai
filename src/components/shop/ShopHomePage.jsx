@@ -16,17 +16,21 @@ import PaginationWithState from '../templates/PaginationWithState';
 import ShopProductGrid from '../templates/ShopProductGrid';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
 import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
+import { Toolbar } from '@material-ui/core';
+import Link from '../core/Link';
 
-// const useStyles = makeStyles(theme => ({
-//   toolbarSecondary: {
-//     justifyContent: "space-between",
-//     overflowX: "auto",
-//   },
-//   toolbarLink: {
-//     padding: theme.spacing(1),
-//     flexShrink: 0,
-//   },
-// }))
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+  toolbarSecondary: {
+    justifyContent: 'space-between',
+    overflowX: 'auto'
+  },
+  toolbarLink: {
+    padding: theme.spacing(1),
+    flexShrink: 0
+  }
+}));
 
 export const SHOP_PRODUCTS = gql`
   query(
@@ -103,10 +107,20 @@ const ProductGrid = ({ publicShopUsername, phrase }) => {
       </>
     );
   }
+
+  if (phrase) {
+    return (
+      <Typography style={{ margin: 8 }} variant='h4'>
+        We could not find any result for <code>{phrase}</code>
+      </Typography>
+    );
+  }
   return (
-    <Typography style={{ margin: 8 }} variant='h4'>
-      We could not find any result for <code>{phrase}</code>
-    </Typography>
+    <>
+      <Typography variant='h4' align='center'>
+        No products here
+      </Typography>
+    </>
   );
 };
 
@@ -126,6 +140,13 @@ const SHOP = gql`
   }
 `;
 
+const sections = [
+  { id: 'About', url: '' },
+  { id: 'Address', url: '#address' },
+  { id: 'Contact', url: '#contact' },
+  { id: 'Return refund policy', url: '#return-refund-policy' }
+];
+
 const ShopHomePage = props => {
   const { shopUsername: publicShopUsername, phrase } = props;
   // The setSearchPhrase will add searchPhrase at the end of the
@@ -133,6 +154,8 @@ const ShopHomePage = props => {
   // as `:phrase` in the props of the component. Then it will be sent to
   // grid.
   const [searchPhrase, setSearchPhrase] = React.useState('');
+
+  const classes = useStyles();
 
   const { loading, error, data } = useQuery(SHOP, {
     variables: { publicShopUsername }
@@ -165,23 +188,22 @@ const ShopHomePage = props => {
           setSearchPhrase={setSearchPhrase}
           lat={lat}
           lng={lng}></TitleAndSearchToolbar>
-        {/* <Toolbar
-          component="nav"
-          variant="dense"
-          className={classes.toolbarSecondary}
-        >
+        <Toolbar
+          component='nav'
+          variant='dense'
+          className={classes.toolbarSecondary}>
           {sections.map(section => (
             <Link
-              color="inherit"
+              key={section.id}
+              to={`${window.location.pathname}/about/${section.url}`}
+              color='inherit'
               noWrap
-              key={section}
-              variant="body2"
-              className={classes.toolbarLink}
-            >
-              {section}
+              variant='body2'
+              className={classes.toolbarLink}>
+              {section.id}
             </Link>
           ))}
-        </Toolbar> */}
+        </Toolbar>
         <Box overflow='hidden' px={0}>
           <ProductGrid
             phrase={phrase}
@@ -192,12 +214,12 @@ const ShopHomePage = props => {
   } else {
     return (
       <>
-        <Typography component='h1' variant='h2' align='center'>
+        <Typography component='h1' variant='h3' align='center'>
           No shop found with username{' '}
           <span style={{ color: 'blue' }}>{publicShopUsername}</span>
         </Typography>
         <br></br>
-        <Typography component='h3' variant='h3' color='primary' align='center'>
+        <Typography variant='h4' color='primary' align='center'>
           Check the username and try again.
         </Typography>
       </>

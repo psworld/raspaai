@@ -18,6 +18,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Link from '../../core/Link';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
+import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -81,15 +82,19 @@ const SUBMIT_BRAND_APPLICATION = gql`
         brandName: $brandName
       }
     ) {
-      brand {
+      brandApplication {
         id
-        publicUsername
-        isApplication
-        applicationDate
-        applicationStatus {
-          statusCode
-          title
-          description
+        brand {
+          publicUsername
+          application {
+            id
+            status {
+              id
+              statusCode
+              title
+              description
+            }
+          }
         }
       }
     }
@@ -243,9 +248,14 @@ const AddNewBrand = () => {
                   placeholder='Brand Username'
                   fullWidth></TextField>
               </Grid>
-
+              <Grid item md={12} xs={12}>
+                {error && (
+                  <GraphqlErrorMessage
+                    error={error}></GraphqlErrorMessage>
+                )}
+              </Grid>
               <Button
-                // disabled={hasError(errors)}
+                disabled={loading || data}
                 onClick={submitApplication}
                 fullWidth
                 variant='contained'
@@ -253,7 +263,10 @@ const AddNewBrand = () => {
                 className={classes.submit}>
                 {data ? 'Done' : 'Submit Application'}
               </Button>
-              <Grid item xs>
+              <br></br>
+
+              <br></br>
+              {/* <Grid item>
                 <Link to='/brand-register' variant='body2'>
                   Need Help ?
                 </Link>
@@ -262,7 +275,7 @@ const AddNewBrand = () => {
                 <a href='/signup' variant='body2'>
                   Watch a video on how to register
                 </a>
-              </Grid>
+              </Grid> */}
             </Grid>
           </form>
         </div>

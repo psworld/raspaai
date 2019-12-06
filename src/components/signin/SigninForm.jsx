@@ -55,50 +55,55 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SIGNIN = gql`
-  mutation($email: String!, $password: String!) {
-    loginUser(input: { email: $email, password: $password }) {
+  mutation($email: String!, $password: String!, $rememberMe: Boolean) {
+    loginUser(
+      input: { email: $email, password: $password, rememberMe: $rememberMe }
+    ) {
       token
+      rememberMe
       user {
         id
         email
         firstName
         lastName
         isShopOwner
+        isBrandOwner
         isSuperuser
         totalCartItems
         brand {
           id
           publicUsername
-          isApplication
-          applicationStatus {
+          application {
             id
-            statusCode
-            title
-          }
-        }
-        shop {
-          id
-          properties {
-            publicUsername
-            isApplication
-            applicationStatus {
+            submittedAt
+            updatedAt
+            status {
               id
               statusCode
               title
             }
           }
         }
-        isBrandOwner
+        shop {
+          id
+          properties {
+            publicUsername
+            application {
+              id
+              submittedAt
+              updatedAt
+              status {
+                id
+                statusCode
+                title
+              }
+            }
+          }
+        }
       }
     }
   }
 `;
-
-export function hasError(errors) {
-  if (Object.keys(errors).length === 0 && errors.constructor === Object) {
-    return false;
-  } else return true;
-}
 
 export default function SigninForm({ message, redirectUrl }) {
   const classes = useStyles();
@@ -118,16 +123,18 @@ export default function SigninForm({ message, redirectUrl }) {
       });
       redirectUrl ? navigate(redirectUrl) : window.history.back();
     },
-    onCompleted: data => {
-      localStorage.setItem('token', data.loginUser.token);
-    }
+    onCompleted: data => localStorage.setItem('token', data.loginUser.token)
+    // data.loginUser.rememberMe
+    //   ? localStorage.setItem('token', data.loginUser.token)
+    //   : sessionStorage.setItem('token', data.loginUser.token)
   });
 
   return (
     <Formik
       initialValues={{
         email: '',
-        password: ''
+        password: '',
+        rememberMe: true
       }}
       validationSchema={yup.object().shape({
         email: yup
@@ -138,19 +145,21 @@ export default function SigninForm({ message, redirectUrl }) {
           .string()
           .min(8, 'Too short!')
           .max(16, 'Too long!')
-          .required('Required')
+          .required('Required'),
+        rememberMe: yup.bool()
       })}
       onSubmit={(values, { setSubmitting }) => {
-        const { email, password } = values;
+        const { email, password, rememberMe } = values;
 
         signin({
-          variables: { email, password }
+          variables: { email, password, rememberMe }
         });
+
         setSubmitting(false);
       }}>
       {formik => {
         const {
-          values: { email, password },
+          values: { email, password, rememberMe },
           handleBlur,
           handleChange,
           touched,
@@ -158,7 +167,6 @@ export default function SigninForm({ message, redirectUrl }) {
           handleSubmit,
           isSubmitting
         } = formik;
-
         return (
           <>
             {message && (
@@ -199,10 +207,19 @@ export default function SigninForm({ message, redirectUrl }) {
                       message={error.message}
                       critical={true}></GraphqlErrorMessage>
                   )}
-                  <FormControlLabel
-                    control={<Checkbox value='remember' color='primary' />}
+                  {/* <FormControlLabel
+                    control={
+                      <Checkbox
+                        value={rememberMe}
+                        checked={rememberMe}
+                        id='rememberMe'
+                        name='rememberMe'
+                        onChange={handleChange}
+                        color='primary'
+                      />
+                    }
                     label='Remember me'
-                  />
+                  /> */}
                   <Button
                     // type="submit"
                     disabled={loading || isSubmitting}

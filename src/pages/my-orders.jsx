@@ -8,7 +8,8 @@ import {
   List,
   Paper,
   Collapse,
-  Divider
+  Divider,
+  Button
 } from '@material-ui/core';
 import SEO from '../components/seo';
 import gql from 'graphql-tag';
@@ -372,25 +373,35 @@ const OrderList = ({ viewer, classes }) => {
       userOrders: { pageInfo, edges: orders }
     } = data;
     return (
-      <div>
-        <Typography align='center' component='h1' variant='h4'>
-          Your Orders
-        </Typography>
-        <Grid container>
-          {orders.map(orderNodeObj => {
-            return (
+      <Grid container>
+        {orders.length === 0 ? (
+          <div>
+            <Typography variant='h4' align='center'>
+              You do not have any orders right now ...
+            </Typography>
+            <br></br>
+            <Button color='primary' component={Link} to='/' variant='contained'>
+              Continue Shopping
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Typography align='center' component='h1' variant='h4'>
+              Your Orders
+            </Typography>
+            {orders.map(orderNodeObj => (
               <Grid key={orderNodeObj.node.id} item xs={12}>
                 <List>
                   <Order classes={classes} orderNodeObj={orderNodeObj}></Order>
                 </List>
               </Grid>
-            );
-          })}
-        </Grid>
-        <PaginationWithState
-          fetchMore={fetchMore}
-          pageInfo={pageInfo}></PaginationWithState>
-      </div>
+            ))}
+            <PaginationWithState
+              fetchMore={fetchMore}
+              pageInfo={pageInfo}></PaginationWithState>
+          </>
+        )}
+      </Grid>
     );
   }
   return <Typography>No orders found</Typography>;

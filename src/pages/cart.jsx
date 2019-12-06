@@ -419,9 +419,15 @@ const Cart = () => {
           </>
         )}
         {data && data.cartItems && sortedCartItems.length === 0 && (
-          <Typography variant='h2' align='center'>
-            You do not have any item in your cart.
-          </Typography>
+          <>
+            <Typography variant='h3' align='center'>
+              You do not have any item in your cart.
+            </Typography>
+            <br></br>
+            <Button color='primary' component={Link} to='/' variant='contained'>
+              Continue Shopping
+            </Button>
+          </>
         )}
       </UserCheck>
     </Layout>

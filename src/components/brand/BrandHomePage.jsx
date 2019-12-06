@@ -16,6 +16,8 @@ import MainFeaturedPost from '../templates/MainFeaturedPost';
 import PaginationWithState from '../templates/PaginationWithState';
 import BrandProductGrid from '../templates/BrandProductGrid';
 import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
+import { Button } from '@material-ui/core';
+import Link from '../core/Link';
 
 export const BRAND_PRODUCTS = gql`
   query(
@@ -104,10 +106,28 @@ export const ProductGrid = props => {
       </>
     );
   }
+  if (phrase) {
+    return (
+      <Typography style={{ margin: 8 }} variant='h4'>
+        We could not find any result for <code>{phrase}</code>
+      </Typography>
+    );
+  }
   return (
-    <Typography style={{ margin: 8 }} variant='h4'>
-      We could not find any result <code>{phrase}</code>
-    </Typography>
+    <>
+      <Typography variant='h4' align='center'>
+        No products here
+      </Typography>
+      <br></br>
+      {isBrandDashboardProduct && (
+        <Button
+          component={Link}
+          variant='contained'
+          to={`/dashboard/brand/${publicBrandUsername}/product/add`}>
+          Add products
+        </Button>
+      )}
+    </>
   );
 };
 

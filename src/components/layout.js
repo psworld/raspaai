@@ -23,6 +23,7 @@ const Layout = ({ children }) => {
             twitter
             facebook
             instagram
+            youtube
           }
         }
       }

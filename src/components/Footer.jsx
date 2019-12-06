@@ -2,7 +2,7 @@ import React from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import Link from './core/Link';
+import Link, { MenuItemLink } from './core/Link';
 import { Container, Grid, Box } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -55,41 +55,66 @@ const Footer = ({ social }) => {
   const footers = [
     {
       title: 'Company',
-      description: ['Team', 'History', 'Contact us', 'Locations']
+      description: [
+        {
+          id: 'contact-us',
+          value: <MenuItemLink to='/contact-us'>Contact us</MenuItemLink>
+        }
+      ]
     },
     {
       title: 'Features',
       description: [
-        'Cool stuff',
-        'Random feature',
-        'Team feature',
-        'Developer stuff',
-        'Another one'
+        {
+          id: 'shop-owner',
+          value: (
+            <MenuItemLink to='/register-with-us/shop-owner'>
+              Shop Owner ?
+            </MenuItemLink>
+          )
+        },
+        {
+          id: 'brand-owner',
+          value: (
+            <MenuItemLink to='/register-with-us/brand-owner'>
+              A Brand ?
+            </MenuItemLink>
+          )
+        }
       ]
     },
     {
       title: 'Legal',
-      description: ['Privacy policy', 'Terms of use']
+      description: [
+        {
+          id: 'privacy-policy',
+          value: (
+            <MenuItemLink to='/privacy-policy'>Privacy policy</MenuItemLink>
+          )
+        },
+        {
+          id: 'terms-of-use',
+          value: <MenuItemLink to='/terms-of-use'>Terms of use</MenuItemLink>
+        }
+      ]
     }
   ];
 
-  const footersList = {
-    social: [
-      { title: 'Twitter', url: `https://twitter.com/${social.twitter}` },
-      {
-        title: 'Facebook',
-        url: `https://www.facebook.com/${social.facebook}/`
-      },
-      {
-        title: 'Instagram',
-        url: `https://www.instagram.com/${social.instagram}/`
-      },
-      {
-        title: 'Youtube',
-        url: `https://www.youtube.com/channel/${social.youtube}/`
-      }
-    ]
-  };
+  const socialHandleList = [
+    {
+      title: 'Facebook',
+      url: `https://www.facebook.com/${social.facebook}/`
+    },
+    {
+      title: 'Instagram',
+      url: `https://www.instagram.com/${social.instagram}/`
+    },
+    {
+      title: 'Youtube',
+      url: `https://www.youtube.com/channel/${social.youtube}/`
+    },
+    { title: 'Twitter', url: `https://twitter.com/${social.twitter}` }
+  ];
 
   return (
     <Container component='footer' className={classes.footer}>
@@ -101,9 +126,7 @@ const Footer = ({ social }) => {
             </Typography>
             <ul>
               {footer.description.map(item => (
-                <li key={item}>
-                  <Typography>{item}</Typography>
-                </li>
+                <li key={item.id}>{item.value}</li>
               ))}
             </ul>
           </Grid>
@@ -113,7 +136,7 @@ const Footer = ({ social }) => {
             Social
           </Typography>
           <ul>
-            {footersList.social.map(item => (
+            {socialHandleList.map(item => (
               <li key={item.title}>
                 <Typography>
                   <a
@@ -129,6 +152,12 @@ const Footer = ({ social }) => {
           </ul>
         </Grid>
       </Grid>
+      <br></br>
+      <Typography variant='caption' align='center'>
+        By using our site you agree to our{' '}
+        <Link to='/privacy-policy'>privacy policy</Link> and{' '}
+        <Link to='/terms-of-use'>terms and conditions</Link>.
+      </Typography>
       <Box mt={5}>
         <Copyright />
       </Box>
