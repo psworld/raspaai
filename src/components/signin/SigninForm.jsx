@@ -204,7 +204,7 @@ export default function SigninForm({ message, redirectUrl }) {
                     value={password}></PasswordInput>
                   {error && (
                     <GraphqlErrorMessage
-                      message={error.message}
+                      error={error}
                       critical={true}></GraphqlErrorMessage>
                   )}
                   {/* <FormControlLabel
