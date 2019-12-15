@@ -8,7 +8,8 @@ import { useQuery } from 'react-apollo';
 const Search = () => {
   const { data } = useQuery(LOCAL_SAVED_LOCATION);
 
-  const pathname = window.location.pathname;
+  const browser = typeof window !== 'undefined' && window;
+  const pathname = browser ? window.location.pathname : '';
 
   return (
     <Layout searchPhrase={decodeURI(pathname.split('/')[2])}>
