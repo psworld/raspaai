@@ -18,6 +18,7 @@ import BrandProductGrid from '../templates/BrandProductGrid';
 import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
 import { Button } from '@material-ui/core';
 import Link from '../core/Link';
+import { navigate } from 'gatsby';
 
 export const BRAND_PRODUCTS = gql`
   query(
@@ -31,7 +32,11 @@ export const BRAND_PRODUCTS = gql`
       phrase: $phrase
       first: 10
       after: $endCursor
-    ) @connection(key: "brandProducts", filter: ["publicBrandUsername"]) {
+    )
+      @connection(
+        key: "brandProducts"
+        filter: ["publicBrandUsername", "phrase"]
+      ) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -58,31 +63,19 @@ export const BRAND_PRODUCTS = gql`
 
 export const ProductGrid = props => {
   const { phrase, publicBrandUsername, isBrandDashboardProduct } = props;
-  // Required for pagination
-  const [pageInfo, setPageInfo] = React.useState([
-    {
-      startCursor: null
-    }
-  ]);
-  const [pageNo, setPageNo] = React.useState(1);
-  // Pagination requirements end
 
-  const { loading, error, data } = useQuery(BRAND_PRODUCTS, {
+  const { loading, error, data, fetchMore } = useQuery(BRAND_PRODUCTS, {
     variables: {
       publicBrandUsername,
       phrase,
-      withBrand: false,
-      endCursor: pageInfo[pageNo - 1].startCursor
+      withBrand: false
     }
   });
   if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
   if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.brandProducts.pageInfo.startCursor) {
-    const {
-      edges: brandProducts,
-      pageInfo: { hasNextPage, endCursor: currentPageEndCursor }
-    } = data.brandProducts;
+    const { edges: brandProducts, pageInfo } = data.brandProducts;
 
     return (
       <>
@@ -96,20 +89,16 @@ export const ProductGrid = props => {
         </Grid>
         <Grid item>
           <PaginationWithState
-            pageNo={pageNo}
-            setPageNo={setPageNo}
             pageInfo={pageInfo}
-            setPageInfo={setPageInfo}
-            currentPageEndCursor={currentPageEndCursor}
-            hasNextPage={hasNextPage}></PaginationWithState>
+            fetchMore={fetchMore}></PaginationWithState>
         </Grid>
       </>
     );
   }
   if (phrase) {
     return (
-      <Typography style={{ margin: 8 }} variant='h4'>
-        We could not find any result for <code>{phrase}</code>
+      <Typography style={{ margin: 8 }} variant='h5'>
+        We could not find any result for <b>{phrase}</b>
       </Typography>
     );
   }
@@ -145,10 +134,15 @@ const BRAND = gql`
 const BrandHomePage = props => {
   const { brandUsername: publicBrandUsername, phrase } = props;
 
-  const [searchPhrase, setSearchPhrase] = React.useState('');
+  const [searchPhrase, setSearchPhrase] = React.useState(phrase ? phrase : '');
   const { loading, error, data } = useQuery(BRAND, {
     variables: { publicBrandUsername }
   });
+
+  const handleClearSearch = () => {
+    setSearchPhrase('');
+    navigate(`/brand/${publicBrandUsername}`);
+  };
 
   if (loading) return <BrandShopHomeSkeleton></BrandShopHomeSkeleton>;
 
@@ -171,6 +165,7 @@ const BrandHomePage = props => {
           searchPhrase={searchPhrase}
           publicUsername={publicBrandUsername}
           setSearchPhrase={setSearchPhrase}
+          handleClearSearch={handleClearSearch}
           isBrand={true}></TitleAndSearchToolbar>
         <Box overflow='hidden' px={0}>
           <ProductGrid
@@ -180,7 +175,7 @@ const BrandHomePage = props => {
       </>
     );
   }
-  return <h1>Nothing from early</h1>;
+  return <h1>No brand found</h1>;
 };
 
 export default BrandHomePage;

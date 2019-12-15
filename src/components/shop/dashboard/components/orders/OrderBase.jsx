@@ -33,7 +33,7 @@ import Link from '../../../../core/Link';
 import ProductThumb from '../../../../templates/ProductThumb';
 import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../../../../core/Loading';
-import ResponseSnackbar from './ResponseSnackbars';
+import ResponseSnackbar from './ResponseSnackbar';
 import PaginationWithState from '../../../../templates/PaginationWithState';
 
 const useStyles = makeStyles(theme => ({
@@ -111,6 +111,7 @@ export const SHOP_ORDERS = gql`
             userFullName
             userPhone
             user {
+              id
               email
             }
           }
@@ -126,6 +127,10 @@ export const SHOP_ORDERS = gql`
                   product {
                     id
                     thumb
+                    brand {
+                      id
+                      publicUsername
+                    }
                   }
                 }
               }
@@ -137,8 +142,10 @@ export const SHOP_ORDERS = gql`
   }
 `;
 export const MODIFY_ORDER_STATUS = gql`
-  mutation($shopOrderId: ID!, $status: String!) {
-    modifyOrderStatus(input: { shopOrderId: $shopOrderId, status: $status }) {
+  mutation($shopOrderId: ID!, $shopId: ID!, $status: String!) {
+    modifyOrderStatus(
+      input: { shopOrderId: $shopOrderId, shopId: $shopId, status: $status }
+    ) {
       shopOrder {
         id
         status
@@ -153,40 +160,64 @@ export const OrderItem = ({
   shopUsername,
   shopName
 }) => {
-  const {
-    productTitle,
-    item: {
+  const { productTitle, item, quantity, unitPrice } = orderItemObj.node;
+
+  // if  'item'  is null that means the shop-product have been deleted
+  // for which the order was placed.
+
+  // Also check if the brand has deleted its product or not. This is to be done.
+  if (item) {
+    var {
       id: shopProductId,
-      product: { thumb }
-    },
-    quantity,
-    unitPrice
-  } = orderItemObj.node;
+      product: {
+        thumb,
+        brand: { publicUsername: brandPublicUsername }
+      }
+    } = item;
+  }
 
   const productSlug = slugGenerator(productTitle);
   return (
     <Grid container>
       <Grid item xs={2} sm={2} md={1}>
-        <Link
-          to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
-          <ProductThumb
-            src={thumb}
-            alt={productTitle}
-            title={productTitle}></ProductThumb>
-        </Link>
+        {item && (
+          <Link
+            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
+            <ProductThumb
+              src={thumb}
+              alt={productTitle}
+              title={productTitle}></ProductThumb>
+          </Link>
+        )}
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
         <div style={{ paddingLeft: 6 }}>
-          <Typography
-            component={Link}
-            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
-            variant='subtitle1'>
-            {productTitle.substring(0, 60)}
-            {productTitle.length > 60 && '...'}
-          </Typography>
+          {item ? (
+            <Typography
+              component={Link}
+              to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
+              variant='subtitle1'>
+              {productTitle.substring(0, 60)}
+              {productTitle.length > 60 && '...'}
+            </Typography>
+          ) : (
+            <Typography variant='subtitle1'>
+              {productTitle.substring(0, 60)}
+              {productTitle.length > 60 && '...'}
+            </Typography>
+          )}
           <br></br>
           <Typography variant='caption'>
-            By <Link to={`/shop/${shopUsername}`}>Brand</Link>
+            {item ? (
+              <>
+                By{' '}
+                <Link to={`/brand/${brandPublicUsername}`}>
+                  {brandPublicUsername}
+                </Link>
+              </>
+            ) : (
+              <>This product was deleted.</>
+            )}
           </Typography>
           <Grid container>
             <Grid item xs={4} md={4}>
@@ -260,7 +291,7 @@ export const ShopOrder = ({
   const [modifyOrderStatus, { loading, error, data }] = useMutation(
     MODIFY_ORDER_STATUS,
     {
-      variables: { shopOrderId },
+      variables: { shopOrderId, shopId },
       update: (
         store,
         {

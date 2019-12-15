@@ -72,8 +72,8 @@ const SearchResultPage = props => {
   if (loading)
     return (
       <>
-        <Typography style={{ margin: 6 }} variant='h4'>
-          Search results for {phrase}
+        <Typography align='center' style={{ margin: 6 }} variant='h5'>
+          Searching ...
         </Typography>
         <ProductGridSkeleton></ProductGridSkeleton>
       </>
@@ -86,8 +86,8 @@ const SearchResultPage = props => {
     } = data.productSearch;
     return (
       <>
-        <Typography style={{ margin: 6 }} variant='h4'>
-          Search results for <code>{phrase}</code>
+        <Typography style={{ margin: 6 }} variant='h5'>
+          Search results for <b>{phrase}</b>
         </Typography>
 
         <Grid container>
@@ -118,9 +118,15 @@ const SearchResultPage = props => {
     );
   }
   return (
-    <Typography style={{ margin: 4 }} variant='h4'>
-      No results found for <code>{phrase}</code>
-    </Typography>
+    <div>
+      <Typography align='center' style={{ margin: 4 }} variant='h5'>
+        No results found for - <b>{phrase}</b>
+      </Typography>
+      <br></br>
+      <Typography style={{ marginTop: 25 }} align='center'>
+        Click here to send a request to add <b>{phrase}</b> to raspaai.
+      </Typography>
+    </div>
   );
 };
 

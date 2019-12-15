@@ -106,8 +106,8 @@ const RecentOrders = ({ viewer }) => {
         </Table>
       )}
       <div className={classes.seeMore}>
-        <Link color='primary' to={`orders`}>
-          See more orders
+        <Link color='primary' to={`${window.location.pathname}/orders/pending`}>
+          See pending orders
         </Link>
       </div>
     </React.Fragment>

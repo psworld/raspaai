@@ -16,10 +16,11 @@ import PaginationWithState from '../templates/PaginationWithState';
 import ShopProductGrid from '../templates/ShopProductGrid';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
 import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
-import { Toolbar } from '@material-ui/core';
+import { Toolbar, Divider } from '@material-ui/core';
 import Link from '../core/Link';
 
 import { makeStyles } from '@material-ui/core/styles';
+import { navigate } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   toolbarSecondary: {
@@ -44,7 +45,11 @@ export const SHOP_PRODUCTS = gql`
       phrase: $phrase
       first: 20
       after: $endCursor
-    ) @connection(key: "shopProducts") {
+    )
+      @connection(
+        key: "shopProducts"
+        filter: ["phrase", "publicShopUsername"]
+      ) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -110,15 +115,15 @@ const ProductGrid = ({ publicShopUsername, phrase }) => {
 
   if (phrase) {
     return (
-      <Typography style={{ margin: 8 }} variant='h4'>
-        We could not find any result for <code>{phrase}</code>
+      <Typography align='center' style={{ margin: 4 }} variant='h5'>
+        No results found for - <b>{phrase}</b>
       </Typography>
     );
   }
   return (
     <>
-      <Typography variant='h4' align='center'>
-        No products here
+      <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
+        This shop do not have any product right now.
       </Typography>
     </>
   );
@@ -153,7 +158,7 @@ const ShopHomePage = props => {
   // of the url eg. abc/search/${searchPhrase} it will be available
   // as `:phrase` in the props of the component. Then it will be sent to
   // grid.
-  const [searchPhrase, setSearchPhrase] = React.useState('');
+  const [searchPhrase, setSearchPhrase] = React.useState(phrase ? phrase : '');
 
   const classes = useStyles();
 
@@ -169,6 +174,11 @@ const ShopHomePage = props => {
     );
 
   if (error) return <ErrorPage></ErrorPage>;
+
+  const handleClearSearch = () => {
+    setSearchPhrase('');
+    navigate(`/shop/${publicShopUsername}`);
+  };
 
   if (data && data.shop) {
     const {
@@ -186,6 +196,7 @@ const ShopHomePage = props => {
           searchPhrase={searchPhrase}
           publicUsername={publicShopUsername}
           setSearchPhrase={setSearchPhrase}
+          handleClearSearch={handleClearSearch}
           lat={lat}
           lng={lng}></TitleAndSearchToolbar>
         <Toolbar
@@ -204,6 +215,7 @@ const ShopHomePage = props => {
             </Link>
           ))}
         </Toolbar>
+        <Divider></Divider>
         <Box overflow='hidden' px={0}>
           <ProductGrid
             phrase={phrase}

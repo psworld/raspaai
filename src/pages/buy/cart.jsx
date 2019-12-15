@@ -9,29 +9,24 @@ import {
   StepLabel,
   Button,
   Container,
-  FormControlLabel,
   Grid,
   TextField,
-  Checkbox,
   List,
   ListItem,
-  FormControl,
-  NativeSelect,
   Divider
 } from '@material-ui/core';
 import { CART_ITEMS } from '../cart';
 import { useQuery, useMutation } from 'react-apollo';
-import Link from '../../components/core/Link';
 import ProductThumb from '../../components/templates/ProductThumb';
-import slugGenerator from '../../components/core/slugGenerator';
 import { green } from '@material-ui/core/colors';
 import { Formik } from 'formik';
 
 import * as yup from 'yup';
-import { hasError } from '../../components/signin/SigninForm';
 import gql from 'graphql-tag';
 import { MY_ORDERS } from '../my-orders';
 import { navigate } from '@reach/router';
+import { VIEWER } from '../../components/navbar/ToolBarMenu';
+import Loading from '../../components/core/Loading';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -174,7 +169,7 @@ const CHECKOUT_CART = gql`
   }
 `;
 
-const Review = ({ cartItems, classes, values, handleNext }) => {
+const Review = ({ cartItems, classes, values, handleNext, userId }) => {
   const { firstName, lastName, phone } = values;
 
   const sortedCartItems = [];
@@ -215,28 +210,25 @@ const Review = ({ cartItems, classes, values, handleNext }) => {
 
   let noOfShops = shop_ids.length;
 
-  const [checkoutCart, { called, loading, error, data }] = useMutation(
-    CHECKOUT_CART,
-    {
-      variables: {
-        data: {
-          shopIds: shop_ids,
-          fullName: `${firstName} ${lastName}`,
-          phone
-        }
-      },
-      refetchQueries: [{ query: MY_ORDERS }],
-      update(store) {
-        store.writeQuery({
-          query: CART_ITEMS,
-          data: { cartItems: [] }
-        });
-      },
-      onCompleted() {
-        navigate('/my-orders');
+  const [checkoutCart, { loading, data }] = useMutation(CHECKOUT_CART, {
+    variables: {
+      data: {
+        shopIds: shop_ids,
+        fullName: `${firstName} ${lastName}`,
+        phone
       }
+    },
+    refetchQueries: [{ query: MY_ORDERS, variables: { userId } }],
+    update(store) {
+      store.writeQuery({
+        query: CART_ITEMS,
+        data: { cartItems: [] }
+      });
+    },
+    onCompleted() {
+      navigate('/my-orders');
     }
-  );
+  });
 
   return (
     <>
@@ -299,7 +291,6 @@ const Review = ({ cartItems, classes, values, handleNext }) => {
                             quantity
                           } = cartItem;
 
-                          const product_slug = slugGenerator(title);
                           return (
                             <>
                               <Grid
@@ -435,111 +426,117 @@ const CheckoutFromCart = () => {
     setActiveStep(activeStep - 1);
   };
 
+  const { data: viewerData } = useQuery(VIEWER);
+
   const steps = ['Your details', 'Review your order'];
 
   return (
     <Layout>
       <Container maxWidth='md'>
-        <Paper className={classes.paper}>
-          <Typography component='h1' variant='h4' align='center'>
-            Checkout
-          </Typography>
-          <Stepper activeStep={activeStep} className={classes.stepper}>
-            {steps.map(label => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-          <React.Fragment>
-            {data && data.cartItems && (
-              <>
-                {activeStep === steps.length ? (
-                  <React.Fragment>
-                    <Typography variant='h5' gutterBottom>
-                      Thank you for your order.
-                    </Typography>
-                    <Typography variant='subtitle1'>
-                      Your order number is #2001539. We have emailed your order
-                      confirmation, and will send you an update when your order
-                      has shipped.
-                    </Typography>
-                  </React.Fragment>
-                ) : (
-                  <Formik
-                    initialValues={{
-                      firstName: '',
-                      lastName: '',
-                      phone: ''
-                    }}
-                    validationSchema={yup.object().shape({
-                      firstName: yup
-                        .string('Only letters are allowed in name')
-                        .min(2, 'Too Short!')
-                        .max(50, 'Too Long!')
-                        .required('First name required'),
-                      lastName: yup
-                        .string('Only letters are allowed in name')
-                        .min(3, 'Too Short!')
-                        .max(50, 'Too Long!')
-                        .required('Last name required'),
-                      phone: yup
-                        .string()
-                        .matches(/^[1-9]\d{9}$/, {
-                          message: 'Please enter valid number.',
-                          excludeEmptyString: false
-                        })
-                        .required('Phone number required')
-                    })}
-                    onSubmit={(values, { setSubmitting }) =>
-                      handleNext() & setSubmitting(false)
-                    }>
-                    {formik => {
-                      function getStepContent(step) {
-                        switch (step) {
-                          case 0:
-                            return (
-                              <UserDetails
-                                classes={classes}
-                                formikProps={formik}
-                              />
-                            );
-                          case 1:
-                            return (
-                              <Review
-                                cartItems={data.cartItems}
-                                classes={classes}
-                                values={formik.values}
-                                handleNext={handleNext}
-                              />
-                            );
+        {viewerData && viewerData.viewer !== null && (
+          <Paper className={classes.paper}>
+            <Typography component='h1' variant='h4' align='center'>
+              Checkout
+            </Typography>
+            <Stepper activeStep={activeStep} className={classes.stepper}>
+              {steps.map(label => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            <React.Fragment>
+              {loading && <Loading></Loading>}
+              {data && data.cartItems && (
+                <>
+                  {activeStep === steps.length ? (
+                    <React.Fragment>
+                      <Typography variant='h5' gutterBottom>
+                        Thank you for your order.
+                      </Typography>
+                      <Typography variant='subtitle1'>
+                        Your order number is #2001539. We have emailed your
+                        order confirmation, and will send you an update when
+                        your order has shipped.
+                      </Typography>
+                    </React.Fragment>
+                  ) : (
+                    <Formik
+                      initialValues={{
+                        firstName: '',
+                        lastName: '',
+                        phone: ''
+                      }}
+                      validationSchema={yup.object().shape({
+                        firstName: yup
+                          .string('Only letters are allowed in name')
+                          .min(2, 'Too Short!')
+                          .max(50, 'Too Long!')
+                          .required('First name required'),
+                        lastName: yup
+                          .string('Only letters are allowed in name')
+                          .min(3, 'Too Short!')
+                          .max(50, 'Too Long!')
+                          .required('Last name required'),
+                        phone: yup
+                          .string()
+                          .matches(/^[1-9]\d{9}$/, {
+                            message: 'Please enter valid number.',
+                            excludeEmptyString: false
+                          })
+                          .required('Phone number required')
+                      })}
+                      onSubmit={(values, { setSubmitting }) =>
+                        handleNext() & setSubmitting(false)
+                      }>
+                      {formik => {
+                        function getStepContent(step) {
+                          switch (step) {
+                            case 0:
+                              return (
+                                <UserDetails
+                                  classes={classes}
+                                  formikProps={formik}
+                                />
+                              );
+                            case 1:
+                              return (
+                                <Review
+                                  userId={viewerData.viewer.id}
+                                  cartItems={data.cartItems}
+                                  classes={classes}
+                                  values={formik.values}
+                                  handleNext={handleNext}
+                                />
+                              );
 
-                          default:
-                            throw new Error('Unknown step');
+                            default:
+                              throw new Error('Unknown step');
+                          }
                         }
-                      }
-                      return (
-                        <React.Fragment>
-                          {getStepContent(activeStep)}
-                          <div className={classes.buttons}>
-                            {activeStep !== 0 && (
-                              <Button
-                                onClick={handleBack}
-                                className={classes.button}
-                                variant='outlined'>
-                                Back
-                              </Button>
-                            )}
-                          </div>
-                        </React.Fragment>
-                      );
-                    }}
-                  </Formik>
-                )}
-              </>
-            )}
-          </React.Fragment>
-        </Paper>
+                        return (
+                          <React.Fragment>
+                            {getStepContent(activeStep)}
+                            <div className={classes.buttons}>
+                              {activeStep !== 0 && (
+                                <Button
+                                  onClick={handleBack}
+                                  className={classes.button}
+                                  variant='outlined'>
+                                  Back
+                                </Button>
+                              )}
+                            </div>
+                          </React.Fragment>
+                        );
+                      }}
+                    </Formik>
+                  )}
+                </>
+              )}
+            </React.Fragment>
+          </Paper>
+        )}
       </Container>
     </Layout>
   );

@@ -54,8 +54,12 @@ const Footer = ({ social }) => {
 
   const footers = [
     {
-      title: 'Company',
+      title: 'Raspaai',
       description: [
+        {
+          id: 'home',
+          value: <MenuItemLink to='/'>Home</MenuItemLink>
+        },
         {
           id: 'contact-us',
           value: <MenuItemLink to='/contact-us'>Contact us</MenuItemLink>

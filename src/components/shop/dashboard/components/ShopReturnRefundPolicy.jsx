@@ -50,6 +50,8 @@ const EditPolicy = ({ defaultReturnRefundPolicy }) => {
     defaultReturnRefundPolicy
   );
 
+  console.info('returnRefundPolicy', returnRefundPolicy)
+  
   const [modify, { loading, error, data }] = useMutation(
     MODIFY_RETURN_REFUND_POLICY,
     {

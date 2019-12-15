@@ -30,7 +30,7 @@ import PaginationWithState from '../components/templates/PaginationWithState';
 export const MY_ORDERS = gql`
   query($userId: ID!, $endCursor: String) {
     userOrders(user: $userId, after: $endCursor, first: 5, orderBy: "-created")
-      @connection(key: "userOrders", filter: ["user"]) {
+      @connection(key: "userOrders", filter: ["userId"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -151,34 +151,45 @@ const getStatusColor = status => {
 };
 
 const OrderItem = ({ orderItemObj, classes, shopUsername, shopName }) => {
-  const {
-    productTitle,
-    item: {
+  const { productTitle, item, quantity, unitPrice } = orderItemObj.node;
+
+  // if  'item'  is null that means the shop-product have been deleted
+  // for which the order was placed.
+
+  // Also check if the brand has deleted its product or not. This is to be done.
+  if (item) {
+    var {
       id: shopProductId,
       product: { thumb }
-    },
-    quantity,
-    unitPrice
-  } = orderItemObj.node;
+    } = item;
+  }
 
   const productSlug = slugGenerator(productTitle);
   return (
     <Grid container>
       <Grid item xs={3} sm={3} md={2}>
-        <Link
-          to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
-          <ProductThumb
-            src={thumb}
-            alt={productTitle}
-            title={productTitle}></ProductThumb>
-        </Link>
+        {item && (
+          <Link
+            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
+            <ProductThumb
+              src={thumb}
+              alt={productTitle}
+              title={productTitle}></ProductThumb>
+          </Link>
+        )}
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
         <div style={{ paddingLeft: 6 }}>
-          <Typography
-            component={Link}
-            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
-            variant='subtitle1'>
+          {item && (
+            <Typography
+              component={Link}
+              to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
+              variant='subtitle1'>
+              {productTitle.substring(0, 60)}
+              {productTitle.length > 60 && '...'}
+            </Typography>
+          )}
+          <Typography variant='subtitle1'>
             {productTitle.substring(0, 60)}
             {productTitle.length > 60 && '...'}
           </Typography>
@@ -376,7 +387,7 @@ const OrderList = ({ viewer, classes }) => {
       <Grid container>
         {orders.length === 0 ? (
           <div>
-            <Typography variant='h4' align='center'>
+            <Typography variant='h5' align='center'>
               You do not have any orders right now ...
             </Typography>
             <br></br>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -25,6 +25,7 @@ import Link, { MenuItemLink } from '../core/Link';
 import { useQuery, useMutation } from 'react-apollo';
 import ToolBarMenuSkeleton from '../skeletons/ToolBarMenuSkeleton';
 import gql from 'graphql-tag';
+import { Paper } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -39,38 +40,6 @@ const useStyles = makeStyles(theme => ({
       display: 'block'
     }
   },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: 'auto',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto'
-    }
-  },
-  searchIcon: {
-    display: 'flex',
-    alignItems: 'right',
-    justifyContent: 'right'
-  },
-  inputRoot: {
-    color: 'inherit'
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 1),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: 200
-    }
-  },
-
   sectionDesktop: {
     display: 'none',
     [theme.breakpoints.up('md')]: {
@@ -89,6 +58,38 @@ const useStyles = makeStyles(theme => ({
   },
   fullList: {
     width: 'auto'
+  },
+
+  //Search
+  searchRoot: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    // width: 400,
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: 'auto',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(3),
+      width: 'auto'
+    }
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1
+    // backgroundColor: fade(theme.palette.common.white, 0.5),
+    // '&:hover': {
+    //   backgroundColor: fade(theme.palette.common.white, 0.8)
+    // }
+  },
+  iconButton: {
+    padding: 10
+  },
+  divider: {
+    height: 28,
+    margin: 4
   }
 }));
 
@@ -100,7 +101,7 @@ const LOGOUT_USER = gql`
   }
 `;
 
-export default function NavBar() {
+export default function NavBar({ searchPhrase }) {
   const classes = useStyles();
   const { loading, error, data } = useQuery(VIEWER);
 
@@ -130,8 +131,13 @@ export default function NavBar() {
   // end menus configuration
 
   // search phrase
-  const [phrase, setPhrase] = React.useState('');
+  const [phrase, setPhrase] = React.useState(searchPhrase ? searchPhrase : '');
   // end search phrase
+
+  if (error && error.message === 'GraphQL error: Error decoding signature') {
+    localStorage.removeItem('token');
+    window.reload();
+  }
 
   const [
     logout,
@@ -188,8 +194,12 @@ export default function NavBar() {
             <ListItemText primary={text} />
           </ListItem>
         ))}
+        <Divider></Divider>
+        <ListItem component={MenuItemLink} to='/cart'>
+          <ListItemText primary='My Cart' />
+        </ListItem>
         <ListItem component={MenuItemLink} to='/my-orders'>
-          <ListItemText primary='My orders' />
+          <ListItemText primary='My Orders' />
         </ListItem>
       </List>
       <Divider />
@@ -245,16 +255,29 @@ export default function NavBar() {
             </MenuItem>
           </>
         )}
+        {viewer.brand &&
+          [
+            {
+              id: 'my-brand',
+              to: `/brand/${viewer.brand.publicUsername}`,
+              title: 'My Brand'
+            },
+            {
+              id: 'brand-dashboard',
+              to: `/dashboard/brand/${viewer.brand.publicUsername}`,
+              title: 'Brand Dashboard'
+            }
+          ].map(brandObj => (
+            <MenuItem
+              key={brandObj.id}
+              component={MenuItemLink}
+              to={brandObj.to}>
+              {brandObj.title}
+            </MenuItem>
+          ))}
         <MenuItem component={MenuItemLink} to={`/my-orders`}>
           My Orders
         </MenuItem>
-        {viewer.brand && (
-          <MenuItem
-            component={MenuItemLink}
-            to={`/dashboard/brand/${viewer.brand.publicUsername}`}>
-            Brand Dashboard
-          </MenuItem>
-        )}
         <MenuItem onClick={() => logout()}>
           {!called
             ? 'Logout'
@@ -297,6 +320,12 @@ export default function NavBar() {
     // end menus
   }
 
+  const handleSearch = () => {
+    if (phrase.replace(/\s/g, '').length > 1) {
+      navigate(`/search/${phrase}/pg/1`);
+    }
+  };
+
   return (
     <div className={classes.grow}>
       <AppBar position='static'>
@@ -321,30 +350,31 @@ export default function NavBar() {
             noWrap>
             Raspaai
           </Typography>
-          <div className={classes.search}>
+          <Paper className={classes.searchRoot}>
             <InputBase
-              placeholder='Search…'
+              className={classes.input}
+              value={phrase}
               onChange={e => setPhrase(e.target.value)}
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput
-              }}
+              onKeyPress={e => e.key === 'Enter' && handleSearch()}
+              placeholder='Search...'
               inputProps={{ 'aria-label': 'search' }}
-              onKeyPress={e => {
-                if (phrase.replace(/\s/g, '').length > 1 && e.key === 'Enter') {
-                  navigate(`/search/${phrase}/pg/1`);
-                }
-              }}
             />
-          </div>
-          <div className={classes.searchIcon}>
-            <SearchIcon
-              onClick={() =>
-                phrase.replace(/\s/g, '').length > 1 &&
-                navigate(`/search/${phrase}/pg/1`)
-              }
-            />
-          </div>
+            {/* <IconButton
+              onClick={handleClearSearch}
+              className={classes.iconButton}
+              aria-label='clear'>
+              <CloseIcon />
+            </IconButton> */}
+            <Divider className={classes.divider} orientation='vertical' />
+            <IconButton
+              color='primary'
+              onClick={() => handleSearch()}
+              className={classes.iconButton}
+              aria-label='search'>
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+
           <div className={classes.grow} />
           {loading && <ToolBarMenuSkeleton></ToolBarMenuSkeleton>}
           {data && data.viewer !== null && (

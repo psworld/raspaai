@@ -1,26 +1,45 @@
-import React from "react"
+import React from 'react';
 
-import { makeStyles } from "@material-ui/core/styles"
-import Toolbar from "@material-ui/core/Toolbar"
-import Typography from "@material-ui/core/Typography"
-import SearchIcon from "@material-ui/icons/Search"
-import Grid from "@material-ui/core/Grid"
-import Box from "@material-ui/core/Box"
-import TextField from "@material-ui/core/TextField"
+import { makeStyles } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import SearchIcon from '@material-ui/icons/Search';
+import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
+import TextField from '@material-ui/core/TextField';
+import CloseIcon from '@material-ui/icons/Close';
 
-import { navigate } from "gatsby"
+import { navigate } from 'gatsby';
+import { Paper, InputBase, IconButton, Divider } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   toolbar: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderBottom: `1px solid ${theme.palette.divider}`
   },
   toolbarTitle: {
-    flex: 1,
+    flex: 1
   },
-}))
+  searchRoot: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    width: 400
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1
+  },
+  iconButton: {
+    padding: 10
+  },
+  divider: {
+    height: 28,
+    margin: 4
+  }
+}));
 
 const TitleAndSearchToolbar = props => {
-  const classes = useStyles()
+  const classes = useStyles();
 
   const {
     searchPhrase,
@@ -30,66 +49,64 @@ const TitleAndSearchToolbar = props => {
     isBrand,
     lat,
     lng,
-  } = props
+    handleClearSearch
+  } = props;
 
-  const shopSearch = `/shop/${publicUsername}/search/${searchPhrase}`
-  const brandSearch = `/brand/${publicUsername}/search/${searchPhrase}`
+  const shopSearch = `/shop/${publicUsername}/search/${searchPhrase}`;
+  const brandSearch = `/brand/${publicUsername}/search/${searchPhrase}`;
+
+  const handleSearch = () => {
+    if (searchPhrase.replace(/\s/g, '').length > 1) {
+      navigate(isBrand ? brandSearch : shopSearch);
+    }
+  };
+
   return (
     <Toolbar className={classes.toolbar}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={4}>
           <Typography
-            variant="h5"
-            color="inherit"
-            align="center"
+            variant='h5'
+            color='inherit'
+            align='center'
             noWrap
-            className={classes.toolbarTitle}
-          >
+            className={classes.toolbarTitle}>
             {title}
           </Typography>
         </Grid>
         <Grid item xs={12} md={4}>
-          {/* <div className={classes.search}> */}
-          <Box width={250} height={56} mx="auto">
-            <TextField
+          <Paper className={classes.searchRoot}>
+            <InputBase
+              className={classes.input}
+              value={searchPhrase}
               onChange={e => setSearchPhrase(e.target.value)}
-              defaultValue={""}
-              onKeyPress={e => {
-                if (
-                  searchPhrase.replace(/\s/g, "").length > 1 &&
-                  e.key === "Enter"
-                ) {
-                  navigate(isBrand ? brandSearch : shopSearch)
-                }
-              }}
-              id="outlined-full-width"
-              // style={{ margin: 8 }}
-              placeholder={isBrand ? "Search here" : "Search in this shop"}
-              style={{ maxWidth: "100%" }}
-              margin="none"
-              variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-              }}
+              onKeyPress={e => e.key === 'Enter' && handleSearch()}
+              placeholder='Search Here'
+              inputProps={{ 'aria-label': 'search here' }}
             />
-            {/* </div> */}
-            <SearchIcon
-              style={{ marginTop: 16, marginLeft: 1 }}
-              onClick={() =>
-                searchPhrase.replace(/\s/g, "").length > 1 &&
-                navigate(isBrand ? brandSearch : shopSearch)
-              }
-            />
-          </Box>
+            <IconButton
+              onClick={handleClearSearch}
+              className={classes.iconButton}
+              aria-label='clear'>
+              <CloseIcon />
+            </IconButton>
+            <Divider className={classes.divider} orientation='vertical' />
+            <IconButton
+              color='primary'
+              onClick={() => handleSearch()}
+              className={classes.iconButton}
+              aria-label='search'>
+              <SearchIcon />
+            </IconButton>
+          </Paper>
         </Grid>
         <Grid item xs={12} md={4}>
           {!isBrand && (
-            <Typography align="center">
+            <Typography align='center'>
               <a
                 href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+                target='_blank'
+                rel='noopener noreferrer'>
                 See this on map
               </a>
             </Typography>
@@ -97,7 +114,7 @@ const TitleAndSearchToolbar = props => {
         </Grid>
       </Grid>
     </Toolbar>
-  )
-}
+  );
+};
 
-export default TitleAndSearchToolbar
+export default TitleAndSearchToolbar;
