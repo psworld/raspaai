@@ -308,6 +308,10 @@ const AddNewBrandProduct = ({ brandUsername }) => {
     { variables: { data: addBrandProductInput } }
   );
 
+  //Character length limit
+  const shortDescriptionLengthLimit = 200;
+  const longDescriptionLengthLimit = 1000;
+
   return (
     <Grid container>
       <Grid item xs={12} sm={6} md={4}>
@@ -533,11 +537,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             id='description'
             name='description'
             label={
-              values.description.length > 100 &&
-              'Short description should not be longer than 100 characters.'
+              values.description.length > shortDescriptionLengthLimit &&
+              `Short description should not be longer than ${shortDescriptionLengthLimit} characters.`
             }
             onChange={handleChange('description')}
-            error={values.description.length > 100}
+            error={values.description.length > shortDescriptionLengthLimit}
             placeholder='Short Description'
             multiline
             fullWidth></TextField>
@@ -547,11 +551,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             id='longDescription'
             name='longDescription'
             label={
-              values.longDescription.length > 600 &&
-              'Long Description should not be longer than 600 characters.'
+              values.longDescription.length > longDescriptionLengthLimit &&
+              `Long Description should not be longer than ${longDescriptionLengthLimit} characters.`
             }
             onChange={handleChange('longDescription')}
-            error={values.longDescription.length > 600}
+            error={values.longDescription.length > longDescriptionLengthLimit}
             placeholder='Long Descriptions'
             multiline
             fullWidth></TextField>

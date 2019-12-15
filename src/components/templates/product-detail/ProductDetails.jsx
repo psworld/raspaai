@@ -153,7 +153,7 @@ const ProductDetails = props => {
           sm={6}
           md={6}>
           <ListItem style={{ paddingBottom: 1 }}>
-            <Typography variant={'h5'} component='h1'>
+            <Typography variant='h5' component='h1'>
               {productTitle}
             </Typography>
           </ListItem>

@@ -137,15 +137,7 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
                   )}>
                   <MenuIcon />
                 </IconButton>
-                {/* <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            >
-              Dashboard
-            </Typography> */}
+
                 <SearchBar
                   isBrand={isBrand}
                   publicUsername={publicUsername}></SearchBar>

@@ -7,44 +7,48 @@ const PaginationWithState = props => {
   const [loading, setLoading] = React.useState(false);
   return (
     <>
-      <Button
-        disabled={!pageInfo.hasNextPage || loading}
-        onClick={() =>
-          fetchMore({
-            variables: {
-              endCursor: pageInfo.endCursor,
-              ...other
-            },
-            updateQuery: (previousResults, { loading, fetchMoreResult }) => {
-              console.info(fetchMoreResult);
-              if (loading) {
-                setLoading(true);
-              }
-              if (fetchMoreResult) {
-                const newData = Object.values(fetchMoreResult)[0];
-                const key = Object.keys(fetchMoreResult)[0];
+      {pageInfo.hasNextPage ? (
+        <Button
+          disabled={!pageInfo.hasNextPage || loading}
+          onClick={() =>
+            fetchMore({
+              variables: {
+                endCursor: pageInfo.endCursor,
+                ...other
+              },
+              updateQuery: (previousResults, { loading, fetchMoreResult }) => {
+                console.info(fetchMoreResult);
+                if (loading) {
+                  setLoading(true);
+                }
+                if (fetchMoreResult) {
+                  const newData = Object.values(fetchMoreResult)[0];
+                  const key = Object.keys(fetchMoreResult)[0];
 
-                const newEdges = newData.edges;
+                  const newEdges = newData.edges;
 
-                const prevEdges = Object.values(previousResults)[0].edges;
+                  const prevEdges = Object.values(previousResults)[0].edges;
 
-                setLoading(false);
-                return newEdges.length
-                  ? {
-                      [key]: {
-                        ...newData,
-                        edges: [...prevEdges, ...newEdges]
+                  setLoading(false);
+                  return newEdges.length
+                    ? {
+                        [key]: {
+                          ...newData,
+                          edges: [...prevEdges, ...newEdges]
+                        }
                       }
-                    }
-                  : previousResults;
+                    : previousResults;
+                }
               }
-            }
-          })
-        }
-        variant='contained'
-        color='secondary'>
-        Load more
-      </Button>
+            })
+          }
+          variant='contained'
+          color='secondary'>
+          Load more
+        </Button>
+      ) : (
+        <></>
+      )}
       {/* <Button
         variant="contained"
         color="secondary"

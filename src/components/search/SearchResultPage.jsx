@@ -124,7 +124,12 @@ const SearchResultPage = props => {
       </Typography>
       <br></br>
       <Typography style={{ marginTop: 25 }} align='center'>
-        Click here to send a request to add <b>{phrase}</b> to raspaai.
+        <a
+          href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add *${phrase}* to raspaai%0aOther information about product:-%0a`}
+          target='_blank'
+          rel='noopener noreferrer'>
+          Click here to send a request to add <b>{phrase}</b> to raspaai.
+        </a>
       </Typography>
     </div>
   );

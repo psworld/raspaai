@@ -1,14 +1,15 @@
-import React from "react"
-import SEO from "../../seo"
-import gql from "graphql-tag"
-import { useQuery } from "react-apollo"
-import ProductGridSkeleton from "../../skeletons/ProductGridSkeleton"
-import ErrorPage from "../../core/ErrorPage"
-import PaginationWithState from "../../templates/PaginationWithState"
+import React from 'react';
+import SEO from '../../seo';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
+import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
+import ErrorPage from '../../core/ErrorPage';
+import PaginationWithState from '../../templates/PaginationWithState';
 
-import Grid from "@material-ui/core/Grid"
-import DashboardBrandProductGrid from "../../templates/dashboard/DashboardBrandProductGrid"
-import SearchBar from "../../templates/dashboard/SearchBar"
+import Grid from '@material-ui/core/Grid';
+import DashboardBrandProductGrid from '../../templates/dashboard/DashboardBrandProductGrid';
+import SearchBar from '../../templates/dashboard/SearchBar';
+import { Typography } from '@material-ui/core';
 
 const PRODUCTS = gql`
   query($phrase: String, $endCursor: String, $withBrand: Boolean!) {
@@ -34,77 +35,96 @@ const PRODUCTS = gql`
       }
     }
   }
-`
+`;
 
 const ProductGrid = ({ phrase, publicShopUsername }) => {
-  // Required for pagination
-  const [pageInfo, setPageInfo] = React.useState([
-    {
-      startCursor: null,
-    },
-  ])
-  const [pageNo, setPageNo] = React.useState(1)
-  // Pagination requirements end
-
-  const { loading, error, data } = useQuery(PRODUCTS, {
+  const { loading, error, data, fetchMore } = useQuery(PRODUCTS, {
     variables: {
       phrase,
-      withBrand: true,
-      endCursor: pageInfo[pageNo - 1].startCursor,
-    },
-  })
+      withBrand: true
+    }
+  });
 
-  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>
-  if (error) return <ErrorPage></ErrorPage>
+  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
+  if (error) return <ErrorPage></ErrorPage>;
 
   if (data) {
-    const {
-      edges: products,
-      pageInfo: { hasNextPage, endCursor: currentPageEndCursor },
-    } = data.products
-    return (
-      <>
-        <DashboardBrandProductGrid
-          publicShopUsername={publicShopUsername}
-          products={products}
-          addShopProduct={true}
-          isBrand={false}
-        ></DashboardBrandProductGrid>
-
-        <Grid item>
+    if (data.products.pageInfo.startCursor) {
+      const { edges: products, pageInfo } = data.products;
+      return (
+        <>
+          <DashboardBrandProductGrid
+            publicShopUsername={publicShopUsername}
+            products={products}
+            addShopProduct={true}
+            isBrand={false}></DashboardBrandProductGrid>
+          <br></br>
           <PaginationWithState
-            pageNo={pageNo}
-            setPageNo={setPageNo}
             pageInfo={pageInfo}
-            setPageInfo={setPageInfo}
-            currentPageEndCursor={currentPageEndCursor}
-            hasNextPage={hasNextPage}
-          ></PaginationWithState>
-        </Grid>
-      </>
-    )
+            fetchMore={fetchMore}></PaginationWithState>
+          <br></br>
+          {phrase && (
+            <>
+              <Typography variant='h6' algin='center'>
+                Could not find <b>{phrase}</b> ?
+              </Typography>
+              <Typography align='center'>
+                <a
+                  href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add brand product *${phrase}* to raspaai%0aOther information about product:-%0a`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  Click here to send a request to add <b>{phrase}</b> to
+                  raspaai.
+                </a>
+              </Typography>
+            </>
+          )}
+        </>
+      );
+    }
+    if (phrase) {
+      return (
+        <>
+          <Typography align='center' style={{ margin: 4 }} variant='h5'>
+            No results found for - <b>{phrase}</b>
+          </Typography>
+          <br></br>
+          <Typography style={{ marginTop: 25 }} align='center'>
+            <a
+              href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add brand product *${phrase}* to raspaai%0aOther information about product:-%0a`}
+              target='_blank'
+              rel='noopener noreferrer'>
+              Click here to send a request to add <b>{phrase}</b> to raspaai.
+            </a>
+          </Typography>
+        </>
+      );
+    }
+    return (
+      <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
+        Sorry, no products available at the moment
+      </Typography>
+    );
   }
-}
+};
 
 const AddNewProduct = ({ phrase, shopUsername }) => {
-  const [searchPhrase, setSearchPhrase] = React.useState("")
+  const [searchPhrase, setSearchPhrase] = React.useState('');
 
   return (
     <>
-      <SEO title="Dashboard Add Products"></SEO>
+      <SEO title='Dashboard Add Products'></SEO>
       <h1>Add new products to your shop.</h1>
       <SearchBar
         searchPhrase={searchPhrase}
         setSearchPhrase={setSearchPhrase}
         publicUsername={shopUsername}
-        isAddNewShopProductSearch={true}
-      ></SearchBar>
+        isAddNewShopProductSearch={true}></SearchBar>
       <ProductGrid
         phrase={phrase}
-        publicShopUsername={shopUsername}
-      ></ProductGrid>
+        publicShopUsername={shopUsername}></ProductGrid>
     </>
-  )
-}
+  );
+};
 
-export default AddNewProduct
+export default AddNewProduct;

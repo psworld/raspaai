@@ -48,7 +48,7 @@ const ProductElement = ({
       variables: {
         data: { productId: id, action: 'delete' }
       },
-      update(store, {}) {
+      update(store) {
         const { brandProducts } = store.readQuery({
           query: BRAND_PRODUCTS,
           variables: { publicBrandUsername: publicUsername, withBrand: false }
@@ -74,8 +74,7 @@ const ProductElement = ({
             placeholder={title}
             variant='body2'
             color='textPrimary'>
-            {title.substring(0, 30)}
-            {title.length > 30 && '...'}
+            {title}
           </Typography>
         </Link>
         <Typography display='block' variant='caption' color='primary'>

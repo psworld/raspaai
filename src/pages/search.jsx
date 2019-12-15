@@ -4,16 +4,19 @@ import { Router } from '@reach/router';
 import SearchResultPage from '../components/search/SearchResultPage';
 import { LOCAL_SAVED_LOCATION } from '.';
 import { useQuery } from 'react-apollo';
+import Loading from '../components/core/Loading';
+import ErrorPage from '../components/core/ErrorPage';
+import { Typography } from '@material-ui/core';
 
 const Search = () => {
-  const { data } = useQuery(LOCAL_SAVED_LOCATION);
+  const { data, loading, error } = useQuery(LOCAL_SAVED_LOCATION);
 
   const browser = typeof window !== 'undefined' && window;
   const pathname = browser ? window.location.pathname : '';
 
   return (
     <Layout searchPhrase={decodeURI(pathname.split('/')[2])}>
-      {data && data.localSavedLocation ? (
+      {data && data.localSavedLocation && (
         <Router>
           <SearchResultPage
             path='/search/:phrase/pg/:pageNo'
@@ -26,8 +29,11 @@ const Search = () => {
               atob(data.localSavedLocation)
             )}></SearchResultPage>
         </Router>
-      ) : (
-        <h1>No saved location were found</h1>
+      )}
+      {loading && <Loading></Loading>}
+      {error && <ErrorPage></ErrorPage>}
+      {data && !data.localSavedLocation && (
+        <Typography>No saved location were found.</Typography>
       )}
     </Layout>
   );

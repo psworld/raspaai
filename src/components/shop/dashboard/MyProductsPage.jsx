@@ -38,9 +38,16 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
       </>
     );
   }
+  if (phrase) {
+    return (
+      <Typography align='center' style={{ margin: 4 }} variant='h5'>
+        No results found for - <b>{phrase}</b>
+      </Typography>
+    );
+  }
   return (
-    <div>
-      <Typography variant='h4' align='center'>
+    <>
+      <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
         You do not have any products in your shop
       </Typography>
       <br></br>
@@ -50,7 +57,7 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
         to={`${window.location.pathname}/add`}>
         Add Products
       </Typography>
-    </div>
+    </>
   );
 };
 
