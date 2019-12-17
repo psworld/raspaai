@@ -19,11 +19,13 @@ module.exports = {
   plugins: [
     `gatsby-plugin-react-helmet`,
     {
-      resolve: `gatsby-plugin-gtag`,
+      resolve: `gatsby-plugin-google-gtag`,
       options: {
-        trackingId: `UA-146572078-2`,
-        head: true,
-        respectDNT: false
+        trackingIds: [`UA-146572078-2`],
+        pluginConfig: {
+          head: true,
+          respectDNT: false
+        }
       }
     },
     {
