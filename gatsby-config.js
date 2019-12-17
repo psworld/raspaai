@@ -23,7 +23,7 @@ module.exports = {
       options: {
         trackingId: `UA-146572078-2`,
         head: true,
-        respectDNT: true
+        respectDNT: false
       }
     },
     {
