@@ -15,8 +15,17 @@ module.exports = {
       youtube: `UC8cQk9mevrOSCJBO5t5u2AQ`
     }
   },
+
   plugins: [
     `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-google-analytics`,
+      options: {
+        trackingId: `UA-146572078-2`,
+        head: true,
+        respectDNT: true
+      }
+    },
     {
       resolve: `gatsby-plugin-material-ui`
       // options: {

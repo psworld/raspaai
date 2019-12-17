@@ -13,6 +13,9 @@ const Search = () => {
 
   const browser = typeof window !== 'undefined' && window;
   const pathname = browser ? window.location.pathname : '';
+  let searchPhrase = pathname.includes('/')
+    ? decodeURI(pathname.split('/')[2])
+    : '';
 
   return (
     <Layout searchPhrase={decodeURI(pathname.split('/')[2])}>
