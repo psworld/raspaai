@@ -27,6 +27,12 @@ module.exports = {
       }
     },
     {
+      resolve: `gatsby-plugin-sitemap`,
+      options: {
+        exclude: ['/set-location/*', '/dashboard/*', '/raspaai/*']
+      }
+    },
+    {
       resolve: `gatsby-plugin-material-ui`
       // options: {
       //   disableAutoprefixing: true,
