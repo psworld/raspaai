@@ -1,12 +1,12 @@
-import React from "react"
-import { useQuery } from "react-apollo"
-import gql from "graphql-tag"
+import React from 'react';
+import { useQuery } from 'react-apollo';
+import gql from 'graphql-tag';
 
-import ErrorPage from "../core/ErrorPage"
-import HomePageSkeleton from "../skeletons/HomePageSkeleton"
-import HomePage from "./HomePage"
+import ErrorPage from '../core/ErrorPage';
+import HomePageSkeleton from '../skeletons/HomePageSkeleton';
+import HomePage from './HomePage';
 
-const NEARBY_SHOP_PRODUCTS = gql`
+const NEARBY_COMBOS_AND_SHOP_PRODUCTS = gql`
   query($lat: Float!, $lng: Float!) {
     nearbyShopProducts(lat: $lat, lng: $lng, first: 10) {
       pageInfo {
@@ -21,6 +21,7 @@ const NEARBY_SHOP_PRODUCTS = gql`
           shop {
             id
             properties {
+              title
               publicUsername
             }
           }
@@ -36,24 +37,41 @@ const NEARBY_SHOP_PRODUCTS = gql`
         }
       }
     }
+    nearbyCombos(lat: $lat, lng: $lng, first: 10) {
+      edges {
+        node {
+          id
+          name
+          shop {
+            id
+            properties {
+              title
+              publicUsername
+            }
+          }
+          thumbs
+          offeredPrice
+        }
+      }
+    }
   }
-`
+`;
 
 const Home = props => {
-  const { location } = props
-  const { loading, error, data } = useQuery(NEARBY_SHOP_PRODUCTS, {
-    variables: { lat: location.lat, lng: location.lng },
-  })
-  if (loading) return <HomePageSkeleton></HomePageSkeleton>
-  if (error) return <ErrorPage></ErrorPage>
+  const { location } = props;
+  const { loading, error, data } = useQuery(NEARBY_COMBOS_AND_SHOP_PRODUCTS, {
+    variables: { lat: location.lat, lng: location.lng }
+  });
+  if (loading) return <HomePageSkeleton></HomePageSkeleton>;
+  if (error) return <ErrorPage></ErrorPage>;
   if (data) {
     return (
       <HomePage
         location={location}
-        nearbyShopProducts={data.nearbyShopProducts.edges}
-      ></HomePage>
-    )
+        shopProductNodeEdges={data.nearbyShopProducts.edges}
+        comboNodeEdges={data.nearbyCombos.edges}></HomePage>
+    );
   }
-}
+};
 
-export default Home
+export default Home;

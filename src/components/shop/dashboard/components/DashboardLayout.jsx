@@ -17,7 +17,6 @@ import SearchBar from '../../../templates/dashboard/SearchBar';
 import { useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import { VIEWER } from '../../../navbar/ToolBarMenu';
-import { Redirect } from '@reach/router';
 import { navigate } from 'gatsby';
 
 const drawerWidth = 240;
@@ -28,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(4),
+    // paddingBottom: theme.spacing(4),
     paddingLeft: 3,
     paddingRight: 3
   },
@@ -89,7 +88,7 @@ const useStyles = makeStyles(theme => ({
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
+    // height: '100vh',
     overflow: 'auto'
   }
 }));

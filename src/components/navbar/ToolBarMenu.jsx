@@ -22,7 +22,6 @@ export const VIEWER = gql`
       isShopOwner
       isBrandOwner
       isSuperuser
-      totalCartItems
       brand {
         id
         publicUsername
@@ -75,7 +74,8 @@ export const UserToolBar = ({
           aria-label='cart items'
           color='inherit'>
           <Badge
-            badgeContent={data ? data.cartItems.length : 0}
+            variant='dot'
+            invisible={data && data.cartLines.length === 0}
             color='secondary'>
             <ShoppingCart />
           </Badge>

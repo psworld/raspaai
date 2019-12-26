@@ -6,7 +6,6 @@ import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
 import ErrorPage from '../../core/ErrorPage';
 import PaginationWithState from '../../templates/PaginationWithState';
 
-import Grid from '@material-ui/core/Grid';
 import DashboardBrandProductGrid from '../../templates/dashboard/DashboardBrandProductGrid';
 import SearchBar from '../../templates/dashboard/SearchBar';
 import { Typography } from '@material-ui/core';

@@ -1,5 +1,7 @@
 export default title =>
   title
-    .replace(/\s+/g, "-")
+    .replace(/\s+/g, '-')
     // .replace(/\|/g, "and")
-    .toLowerCase()
+    .toLowerCase();
+
+// deprecate this slug generator slowly

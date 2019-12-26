@@ -83,6 +83,7 @@ const DashboardProductElement = props => {
     title,
     publicUsername,
     brandUsername,
+    brandName,
     thumb,
     offeredPrice,
     mrp,
@@ -125,11 +126,11 @@ const DashboardProductElement = props => {
       <Box width='100%' px={1} my={2}>
         <Link to={isBrand || addShopProduct ? brandProduct : shopProduct}>
           <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
-          <Typography variant='body2'>{title.substring(0, 30)}</Typography>
+          <Typography variant='body2'>{title}</Typography>
         </Link>
         <Typography display='block' variant='caption' color='textSecondary'>
           <Link to={`/brand/${brandUsername}`}>
-            By <span style={{ color: '#5050FF' }}>{brandUsername}</span>
+            By <span style={{ color: '#5050FF' }}>{brandName}</span>
           </Link>
         </Typography>
         {!isBrand && (

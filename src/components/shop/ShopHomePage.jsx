@@ -2,7 +2,6 @@ import React from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
@@ -21,6 +20,8 @@ import Link from '../core/Link';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { navigate } from 'gatsby';
+import { SHOP_COMBOS } from './dashboard/MyCombos';
+import CombosGrid from '../templates/CombosGrid';
 
 const useStyles = makeStyles(theme => ({
   toolbarSecondary: {
@@ -56,6 +57,7 @@ export const SHOP_PRODUCTS = gql`
         startCursor
         endCursor
       }
+      count
       edges {
         node {
           id
@@ -75,6 +77,7 @@ export const SHOP_PRODUCTS = gql`
           shop {
             id
             properties {
+              title
               publicUsername
             }
           }
@@ -85,10 +88,44 @@ export const SHOP_PRODUCTS = gql`
   }
 `;
 
-const ProductGrid = ({ publicShopUsername, phrase }) => {
+const Combos = ({ shopUsername, phrase }) => {
+  const { loading, error, data, fetchMore } = useQuery(SHOP_COMBOS, {
+    variables: { shopUsername, phrase, withShop: true }
+  });
+
+  if (loading)
+    return (
+      <>
+        <Typography align='center' style={{ margin: 6 }} variant='h5'>
+          Searching combos...
+        </Typography>
+        <ProductGridSkeleton numberOfProducts={4}></ProductGridSkeleton>
+      </>
+    );
+  if (error) return <ErrorPage></ErrorPage>;
+
+  if (data && data.shopCombos && data.shopCombos.pageInfo.startCursor) {
+    const { pageInfo, edges: comboNodeEdges } = data.shopCombos;
+    return (
+      <>
+        <Grid container>
+          <CombosGrid comboNodeEdges={comboNodeEdges}></CombosGrid>
+        </Grid>
+
+        <PaginationWithState
+          pageInfo={pageInfo}
+          fetchMore={fetchMore}></PaginationWithState>
+      </>
+    );
+  }
+
+  return <></>;
+};
+
+const ShopProducts = ({ shopUsername, phrase }) => {
   const { loading, error, data, fetchMore } = useQuery(SHOP_PRODUCTS, {
     variables: {
-      publicShopUsername,
+      publicShopUsername: shopUsername,
       phrase,
       withBrand: false
     }
@@ -153,7 +190,7 @@ const sections = [
 ];
 
 const ShopHomePage = props => {
-  const { shopUsername: publicShopUsername, phrase } = props;
+  const { shopUsername, phrase } = props;
   // The setSearchPhrase will add searchPhrase at the end of the
   // of the url eg. abc/search/${searchPhrase} it will be available
   // as `:phrase` in the props of the component. Then it will be sent to
@@ -163,7 +200,7 @@ const ShopHomePage = props => {
   const classes = useStyles();
 
   const { loading, error, data } = useQuery(SHOP, {
-    variables: { publicShopUsername }
+    variables: { publicShopUsername: shopUsername }
   });
 
   if (loading)
@@ -177,7 +214,7 @@ const ShopHomePage = props => {
 
   const handleClearSearch = () => {
     setSearchPhrase('');
-    navigate(`/shop/${publicShopUsername}`);
+    navigate(`/shop/${shopUsername}`);
   };
 
   if (data && data.shop) {
@@ -194,7 +231,7 @@ const ShopHomePage = props => {
         <TitleAndSearchToolbar
           title={title}
           searchPhrase={searchPhrase}
-          publicUsername={publicShopUsername}
+          publicUsername={shopUsername}
           setSearchPhrase={setSearchPhrase}
           handleClearSearch={handleClearSearch}
           lat={lat}
@@ -216,11 +253,11 @@ const ShopHomePage = props => {
           ))}
         </Toolbar>
         <Divider></Divider>
-        <Box overflow='hidden' px={0}>
-          <ProductGrid
-            phrase={phrase}
-            publicShopUsername={publicShopUsername}></ProductGrid>
-        </Box>
+
+        <Combos phrase={phrase} shopUsername={shopUsername}></Combos>
+        <ShopProducts
+          phrase={phrase}
+          shopUsername={shopUsername}></ShopProducts>
       </>
     );
   } else {
@@ -228,7 +265,7 @@ const ShopHomePage = props => {
       <>
         <Typography component='h1' variant='h3' align='center'>
           No shop found with username{' '}
-          <span style={{ color: 'blue' }}>{publicShopUsername}</span>
+          <span style={{ color: 'blue' }}>{shopUsername}</span>
         </Typography>
         <br></br>
         <Typography variant='h4' color='primary' align='center'>

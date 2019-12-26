@@ -29,26 +29,52 @@ import { getJsonFriendlyString } from '../../shop/dashboard/components/ShopRetur
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
     addItemToCart(input: $data) {
-      cartItem {
+      cartLine {
         id
-        item {
+        shop {
           id
-          inStock
-          shop {
-            id
-            properties {
-              publicUsername
-              title
+          geometry {
+            coordinates
+          }
+          properties {
+            title
+            publicUsername
+            address
+          }
+        }
+        items {
+          edges {
+            node {
+              id
+              combo {
+                id
+                name
+                thumbs
+                offeredPrice
+                totalCost
+                isAvailable
+              }
+              shopProduct {
+                id
+                inStock
+                shop {
+                  id
+                  properties {
+                    publicUsername
+                    title
+                  }
+                }
+                product {
+                  id
+                  title
+                  thumb
+                }
+                offeredPrice
+              }
+              quantity
             }
           }
-          product {
-            id
-            title
-            thumb
-          }
-          offeredPrice
         }
-        quantity
       }
     }
   }
@@ -117,20 +143,21 @@ const ProductDetails = props => {
         store,
         {
           data: {
-            addItemToCart: { cartItem: newCartItem }
+            addItemToCart: { cartLine: newCartLine }
           }
         }
       ) => {
-        const { cartItems } = store.readQuery({ query: CART_ITEMS });
+        const { cartLines } = store.readQuery({ query: CART_ITEMS });
 
-        const existing_cart_items = cartItems.find(
-          cartItem => cartItem.id === newCartItem.id
+        const existingCartLine = cartLines.find(
+          cartLine => cartLine.id === newCartLine.id
         );
-        if (existing_cart_items) {
+        if (existingCartLine) {
+          // Apollo will automatically update the cache
         } else {
           store.writeQuery({
             query: CART_ITEMS,
-            data: { cartItems: cartItems.concat(newCartItem) }
+            data: { cartLines: cartLines.concat(newCartLine) }
           });
         }
       }
@@ -241,7 +268,7 @@ const ProductDetails = props => {
             <TableBody>
               <TableRow>
                 <TableCell component='th' scope='row'>
-                  title
+                  Title
                 </TableCell>
                 <TableCell>{productTitle}</TableCell>
               </TableRow>

@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    height: '100%',
+    // height: '100%',
     display: 'flex',
     flexDirection: 'column'
   },
@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ProductThumb = ({ src, alt, title }) => {
+const ProductThumb = ({ src, title }) => {
   const classes = useStyles();
   return (
     // <img

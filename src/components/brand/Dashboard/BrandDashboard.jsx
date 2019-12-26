@@ -5,6 +5,7 @@ import BrandDashboardHomePage from './BrandDashboardHomePage';
 import AddNewBrandProduct from './AddNewBrandProduct';
 import MyProductsPage from './MyProductsPage';
 import EditBrandProduct from './EditBrandProduct';
+import { NotFoundPageWithoutLayout } from '../../../pages/404';
 
 const BrandDashboard = props => {
   const { brandUsername } = props;
@@ -24,6 +25,7 @@ const BrandDashboard = props => {
         <MyProductsPage
           brandUsername={brandUsername}
           path='products/search/:phrase'></MyProductsPage>
+        <NotFoundPageWithoutLayout default></NotFoundPageWithoutLayout>
       </Router>
     </DashboardLayout>
   );

@@ -47,7 +47,7 @@ const CATEGORIES = gql`
           id
           name
           technicalDetailsTemplate
-          producttypeSet {
+          types {
             edges {
               node {
                 id
@@ -112,14 +112,14 @@ const AddNewBrandProduct = ({ brandUsername }) => {
   // Category types filtering
   const currentCategory =
     categoriesData && values.categoryId
-      ? categoriesData.categories.edges.filter(
+      ? categoriesData.categories.edges.find(
           e => e.node.id === values.categoryId
-        )[0].node
+        ).node
       : null;
 
   const currentCategoryProductTypes =
-    currentCategory && currentCategory.producttypeSet.edges.length !== 0
-      ? currentCategory.producttypeSet.edges
+    currentCategory && currentCategory.types.edges.length !== 0
+      ? currentCategory.types.edges
       : null;
 
   const currentProductType =
@@ -570,7 +570,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
           <TableBody>
             <TableRow>
               <TableCell component='th' scope='row'>
-                title
+                Title
               </TableCell>
               <TableCell>{values.productTitle}</TableCell>
             </TableRow>

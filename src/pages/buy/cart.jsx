@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import React from 'react';
 import Layout from '../../components/layout';
 import { makeStyles } from '@material-ui/core/styles';
@@ -27,6 +28,9 @@ import { MY_ORDERS } from '../my-orders';
 import { navigate } from '@reach/router';
 import { VIEWER } from '../../components/navbar/ToolBarMenu';
 import Loading from '../../components/core/Loading';
+import Link from '../../components/core/Link';
+import ProductCollage from '../../components/templates/dashboard/ProductCollage';
+import singularOrPlural from '../../components/core/utils';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -169,51 +173,30 @@ const CHECKOUT_CART = gql`
   }
 `;
 
-const Review = ({ cartItems, classes, values, handleNext, userId }) => {
+const Review = ({ cartLines, classes, values, handleNext, userId }) => {
   const { firstName, lastName, phone } = values;
 
-  const sortedCartItems = [];
-
-  let shop_ids = [];
-
-  let total = 0;
+  let offeredPriceTotal = 0;
   let mrpTotal = 0;
   let totalNoOfItems = 0;
 
-  cartItems.forEach(cartItem => {
-    shop_ids.push(cartItem.item.shop.id);
-    total += cartItem.item.offeredPrice * cartItem.quantity;
-    mrpTotal += cartItem.item.product.mrp * cartItem.quantity;
-    totalNoOfItems += cartItem.quantity;
-  });
+  cartLines.forEach(cartLine => {
+    cartLine.items.edges.forEach(cartItem => {
+      const cartItemNode = cartItem.node;
+      // const itemKey = cartItemNode.isCombo ? 'combo' : 'shopProduct';
 
-  shop_ids = [...new Set(shop_ids)];
+      offeredPriceTotal += cartItemNode.offeredPriceTotal;
+      mrpTotal += cartItemNode.totalCost;
 
-  shop_ids.forEach(shopId => {
-    const shopCartItems = cartItems.filter(
-      cartItem => cartItem.item.shop.id === shopId
-    );
-    const locationList = shopCartItems[0].item.shop.geometry.coordinates;
-    const location = {
-      lat: locationList[1],
-      lng: locationList[0]
-    };
-    sortedCartItems.push({
-      shopId: shopId,
-      shopName: shopCartItems[0].item.shop.properties.title,
-      publicUsername: shopCartItems[0].item.shop.properties.publicUsername,
-      address: shopCartItems[0].item.shop.properties.address,
-      location,
-      shopCartItems
+      totalNoOfItems += cartItemNode.quantity;
     });
   });
 
-  let noOfShops = shop_ids.length;
+  const noOfShops = cartLines && cartLines.length;
 
   const [checkoutCart, { loading, data }] = useMutation(CHECKOUT_CART, {
     variables: {
       data: {
-        shopIds: shop_ids,
         fullName: `${firstName} ${lastName}`,
         phone
       }
@@ -222,7 +205,7 @@ const Review = ({ cartItems, classes, values, handleNext, userId }) => {
     update(store) {
       store.writeQuery({
         query: CART_ITEMS,
-        data: { cartItems: [] }
+        data: { cartLines: [] }
       });
     },
     onCompleted() {
@@ -237,30 +220,40 @@ const Review = ({ cartItems, classes, values, handleNext, userId }) => {
         <span style={{ textDecorationLine: 'line-through', fontSize: 20 }}>
           &#x20b9;{mrpTotal}
         </span>{' '}
-        <span style={{ color: 'green' }}>&#x20b9;{total}</span>
+        <span style={{ color: 'green' }}>&#x20b9;{offeredPriceTotal}</span>
       </Typography>
       <Typography align='center' variant='h5'>
         You save{' '}
         <span style={{ color: 'blue' }}>
-          &#x20b9;{mrpTotal - total} (
-          {Math.round(100 - (100 / mrpTotal) * total)}%)
+          &#x20b9;{mrpTotal - offeredPriceTotal} (
+          {Math.round(100 - (100 / mrpTotal) * offeredPriceTotal)}%)
         </span>
       </Typography>
       <Typography align='center' variant='h5'>
         Total no of items: {totalNoOfItems}
       </Typography>
       <List>
-        {sortedCartItems.map(shopCart => {
+        {cartLines.map(cartLineNode => {
           const {
-            shopName,
-            shopId,
-            shopCartItems,
-            publicUsername: shopUsername,
-            address,
-            location: { lat, lng }
-          } = shopCart;
+            id: cartLineId,
+            shop: {
+              id: shopId,
+              geometry: { coordinates },
+              properties: {
+                title: shopName,
+                publicUsername: shopUsername,
+                address
+              }
+            },
+            items: { edges: cartItems }
+          } = cartLineNode;
+
+          const lat = coordinates[1];
+          const lng = coordinates[0];
+
+          let mrpSubTotal = 0;
           let subTotal = 0;
-          let items = 0;
+          let noOfItems = 0;
           return (
             <div key={shopId} className={classes.grey}>
               <ListItem>
@@ -271,25 +264,38 @@ const Review = ({ cartItems, classes, values, handleNext, userId }) => {
                   <ListItem className={classes.nested}>
                     <div>
                       <Grid container>
-                        {shopCartItems.map(cartItem => {
-                          subTotal +=
-                            cartItem.item.offeredPrice * cartItem.quantity;
+                        {cartItems.map(cartItem => {
+                          const cartItemNode = cartItem.node;
 
-                          items += cartItem.quantity;
+                          subTotal += cartItemNode.offeredPriceTotal;
+                          noOfItems += cartItemNode.quantity;
+                          mrpSubTotal += cartItemNode.totalCost;
 
                           const {
                             id: cartItemId,
-                            item: {
+                            shopProduct,
+                            combo,
+                            quantity,
+                            isCombo
+                          } = cartItem.node;
+
+                          if (isCombo) {
+                            var {
+                              id: comboId,
+                              offeredPrice,
+                              name: title,
+                              thumbs,
+                              totalCost: mrp,
+                              isAvailable: inStock
+                            } = combo;
+                          } else {
+                            var {
                               id: shopProductId,
                               product: { title, thumb, mrp },
                               offeredPrice,
-                              inStock,
-                              shop: {
-                                properties: { publicUsername }
-                              }
-                            },
-                            quantity
-                          } = cartItem;
+                              inStock
+                            } = shopProduct;
+                          }
 
                           return (
                             <>
@@ -297,14 +303,19 @@ const Review = ({ cartItems, classes, values, handleNext, userId }) => {
                                 item
                                 xs={3}
                                 sm={3}
-                                md={2}
+                                md={3}
                                 className={classes.thumb}>
-                                <ProductThumb
-                                  src={thumb}
-                                  alt={title}
-                                  title={title}></ProductThumb>
+                                {isCombo ? (
+                                  <ProductCollage
+                                    thumbs={thumbs}
+                                    title={title}></ProductCollage>
+                                ) : (
+                                  <ProductThumb
+                                    src={thumb}
+                                    title={title}></ProductThumb>
+                                )}
                               </Grid>
-                              <Grid item xs={9} sm={9} md={10}>
+                              <Grid item xs={9} sm={9} md={9}>
                                 <div style={{ paddingLeft: 6 }}>
                                   <Typography variant='h6'>
                                     {title.substring(0, 60)}
@@ -356,7 +367,8 @@ const Review = ({ cartItems, classes, values, handleNext, userId }) => {
                         </span>
                       </Typography>
                       <Typography variant='h6'>
-                        Items to collect ({items} items)
+                        Items to collect ({totalNoOfItems} item
+                        {singularOrPlural(totalNoOfItems)})
                       </Typography>
                       <Typography variant='h6'>
                         Collect at{' '}
@@ -447,19 +459,12 @@ const CheckoutFromCart = () => {
             </Stepper>
             <React.Fragment>
               {loading && <Loading></Loading>}
-              {data && data.cartItems && (
+              {data && data.cartLines && data.cartLines.length !== 0 && (
                 <>
                   {activeStep === steps.length ? (
-                    <React.Fragment>
-                      <Typography variant='h5' gutterBottom>
-                        Thank you for your order.
-                      </Typography>
-                      <Typography variant='subtitle1'>
-                        Your order number is #2001539. We have emailed your
-                        order confirmation, and will send you an update when
-                        your order has shipped.
-                      </Typography>
-                    </React.Fragment>
+                    <Typography variant='h5' gutterBottom>
+                      Thank you for your order.
+                    </Typography>
                   ) : (
                     <Formik
                       initialValues={{
@@ -503,7 +508,7 @@ const CheckoutFromCart = () => {
                               return (
                                 <Review
                                   userId={viewerData.viewer.id}
-                                  cartItems={data.cartItems}
+                                  cartLines={data.cartLines}
                                   classes={classes}
                                   values={formik.values}
                                   handleNext={handleNext}
@@ -532,6 +537,21 @@ const CheckoutFromCart = () => {
                       }}
                     </Formik>
                   )}
+                </>
+              )}
+              {data && data.cartLines && data.cartLines.length === 0 && (
+                <>
+                  <Typography variant='h3' align='center'>
+                    You do not have any item in your cart.
+                  </Typography>
+                  <br></br>
+                  <Button
+                    color='primary'
+                    component={Link}
+                    to='/'
+                    variant='contained'>
+                    Continue Shopping
+                  </Button>
                 </>
               )}
             </React.Fragment>

@@ -12,7 +12,9 @@ import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import StoreIcon from '@material-ui/icons/Store';
+import ViewQuiltIcon from '@material-ui/icons/ViewQuilt';
 import HomeIcon from '@material-ui/icons/Home';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import RaspaaiIcon from '../../../../images/raspaai.svg';
 import { MenuItemLink } from '../../../core/Link';
@@ -54,12 +56,27 @@ export const mainListItems = (publicUsername, isBrand) => {
       </ListItem>
       <ListItem component={MenuItemLink} to={`${baseUrl}/products/add`} button>
         <ListItemIcon>
-          <LibraryAddIcon></LibraryAddIcon>
+          <AddBoxIcon></AddBoxIcon>
         </ListItemIcon>
         <ListItemText primary='Add product' />
       </ListItem>
       {!isBrand && (
         <>
+          <ListItem button component={MenuItemLink} to={`${baseUrl}/combos`}>
+            <ListItemIcon>
+              <ViewQuiltIcon></ViewQuiltIcon>
+            </ListItemIcon>
+            <ListItemText primary='My combos'></ListItemText>
+          </ListItem>
+          <ListItem
+            button
+            component={MenuItemLink}
+            to={`${baseUrl}/combos/create`}>
+            <ListItemIcon>
+              <LibraryAddIcon></LibraryAddIcon>
+            </ListItemIcon>
+            <ListItemText primary='Create combo'></ListItemText>
+          </ListItem>
           <ListItem
             button
             component={MenuItemLink}

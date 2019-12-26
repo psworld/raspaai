@@ -26,6 +26,8 @@ import Link from '../components/core/Link';
 import slugGenerator from '../components/core/slugGenerator';
 import UserCheck from '../components/core/UserCheck';
 import PaginationWithState from '../components/templates/PaginationWithState';
+import ProductCollage from '../components/templates/dashboard/ProductCollage';
+import singularOrPlural from '../components/core/utils';
 
 export const MY_ORDERS = gql`
   query($userId: ID!, $endCursor: String) {
@@ -74,7 +76,11 @@ export const MY_ORDERS = gql`
                     node {
                       id
                       productTitle
-                      item {
+                      combo {
+                        id
+                        thumbs
+                      }
+                      shopProduct {
                         id
                         product {
                           id
@@ -151,48 +157,75 @@ const getStatusColor = status => {
 };
 
 const OrderItem = ({ orderItemObj, classes, shopUsername, shopName }) => {
-  const { productTitle, item, quantity, unitPrice } = orderItemObj.node;
+  const {
+    productTitle,
+    shopProduct,
+    combo,
+    quantity,
+    unitPrice
+  } = orderItemObj.node;
 
-  // if  'item'  is null that means the shop-product have been deleted
+  // if  'shopProduct'  is null that means the shop-product have been deleted
   // for which the order was placed.
 
   // Also check if the brand has deleted its product or not. This is to be done.
-  if (item) {
+  if (shopProduct) {
     var {
       id: shopProductId,
       product: { thumb }
-    } = item;
+    } = shopProduct;
+  } else if (combo) {
+    var { id: comboId, thumbs } = combo;
   }
 
+  // available if the orderItem that can be a shopProduct or combo is not deleted in db
+  const available = shopProduct || combo;
+
+  const isCombo = available && shopProduct ? false : true;
+
   const productSlug = slugGenerator(productTitle);
+
+  const productUrl = isCombo
+    ? `/shop/${shopUsername}/combo/${productSlug}/${comboId}`
+    : `/shop/${shopUsername}/product/${productSlug}/${shopProductId}`;
+
   return (
     <Grid container>
       <Grid item xs={3} sm={3} md={2}>
-        {item && (
-          <Link
-            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
-            <ProductThumb
-              src={thumb}
-              alt={productTitle}
-              title={productTitle}></ProductThumb>
+        {available && (
+          <Link to={productUrl}>
+            {isCombo ? (
+              <ProductCollage
+                thumbs={thumbs}
+                title={productTitle}></ProductCollage>
+            ) : (
+              <ProductThumb
+                src={thumb}
+                alt={productTitle}
+                title={productTitle}></ProductThumb>
+            )}
           </Link>
         )}
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
         <div style={{ paddingLeft: 6 }}>
-          {item && (
-            <Typography
-              component={Link}
-              to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
-              variant='subtitle1'>
+          {available && (
+            <Typography component={Link} to={productUrl} variant='subtitle1'>
               {productTitle.substring(0, 60)}
               {productTitle.length > 60 && '...'}
             </Typography>
           )}
-          <Typography variant='subtitle1'>
-            {productTitle.substring(0, 60)}
-            {productTitle.length > 60 && '...'}
-          </Typography>
+          {!available && (
+            <>
+              <Typography variant='subtitle1'>
+                {productTitle.substring(0, 60)}
+                {productTitle.length > 60 && '...'}
+              </Typography>
+              <Typography variant='caption'>
+                *This item has been deleted.
+              </Typography>
+            </>
+          )}
           <br></br>
           <Typography variant='caption'>
             Sold by <Link to={`/shop/${shopUsername}`}>{shopName}</Link>
@@ -258,7 +291,8 @@ const ShopOrder = ({ shopOrderObj, classes }) => {
           </Grid>
           <Grid item xs={3} md={3}>
             <Typography variant='subtitle2'>
-              Subtotal ({shopOrderTotalItems} items)
+              Subtotal ({shopOrderTotalItems} item
+              {singularOrPlural(shopOrderTotalItems)})
             </Typography>
             <Typography style={{ color: green[600] }} variant='caption'>
               &#x20b9;{shopOrderTotal}
@@ -340,7 +374,7 @@ const Order = ({ orderNodeObj, classes }) => {
           </Grid>
           <Grid item xs={3} md={3}>
             <Typography align='right' variant='subtitle2'>
-              Total ({orderTotalItems} items)
+              Total ({orderTotalItems} item{singularOrPlural(orderTotalItems)})
             </Typography>
             <Typography
               align='right'

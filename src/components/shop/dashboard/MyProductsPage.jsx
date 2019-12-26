@@ -30,11 +30,11 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
         <DashboardShopProductGrid
           shopProducts={shopProducts}></DashboardShopProductGrid>
 
-        <Grid item>
-          <PaginationWithState
-            fetchMore={fetchMore}
-            pageInfo={pageInfo}></PaginationWithState>
-        </Grid>
+        <br></br>
+        <br></br>
+        <PaginationWithState
+          fetchMore={fetchMore}
+          pageInfo={pageInfo}></PaginationWithState>
       </>
     );
   }

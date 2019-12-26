@@ -28,13 +28,14 @@ import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 
 import { yellow, green } from '@material-ui/core/colors';
-import slugGenerator from '../../../../core/slugGenerator';
 import Link from '../../../../core/Link';
 import ProductThumb from '../../../../templates/ProductThumb';
 import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../../../../core/Loading';
 import ResponseSnackbar from './ResponseSnackbar';
 import PaginationWithState from '../../../../templates/PaginationWithState';
+import ProductCollage from '../../../../templates/dashboard/ProductCollage';
+import { slugGenerator } from '../../../../core/utils';
 
 const useStyles = makeStyles(theme => ({
   order: {
@@ -91,7 +92,7 @@ export const SHOP_ORDERS = gql`
       first: 10
       orderBy: "order__created"
       clientTrackingId: $shopOrderTrackingId
-    ) @connection(key: "shop", filter: ["status"]) {
+    ) @connection(key: "shopOrders", filter: ["status", "shopId"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -122,7 +123,11 @@ export const SHOP_ORDERS = gql`
                 productTitle
                 quantity
                 unitPrice
-                item {
+                combo {
+                  id
+                  thumbs
+                }
+                shopProduct {
                   id
                   product {
                     id
@@ -155,52 +160,71 @@ export const MODIFY_ORDER_STATUS = gql`
 `;
 
 export const OrderItem = ({
-  orderItemObj,
+  orderItemNode,
   classes,
   shopUsername,
   shopName
 }) => {
-  const { productTitle, item, quantity, unitPrice } = orderItemObj.node;
+  const {
+    productTitle,
+    shopProduct,
+    combo,
+    quantity,
+    unitPrice
+  } = orderItemNode;
 
-  // if  'item'  is null that means the shop-product have been deleted
-  // for which the order was placed.
+  // available if the shopProduct or combo is not deleted in db for which orderItem is created.
+  // we do not allow orderItem to deleted for now. But shopProduct or combo
+  // can be deleted.
+  const available = shopProduct || combo;
 
-  // Also check if the brand has deleted its product or not. This is to be done.
-  if (item) {
+  const isCombo = available && shopProduct ? false : true;
+
+  const productSlug = slugGenerator(productTitle);
+
+  if (shopProduct) {
     var {
       id: shopProductId,
       product: {
         thumb,
         brand: { publicUsername: brandPublicUsername }
       }
-    } = item;
+    } = shopProduct;
+  } else if (combo) {
+    var { id: comboId, thumbs } = combo;
   }
 
-  const productSlug = slugGenerator(productTitle);
+  const productUrl = isCombo
+    ? `/shop/${shopUsername}/combo/${productSlug}/${comboId}`
+    : `/shop/${shopUsername}/product/${productSlug}/${shopProductId}`;
+
   return (
     <Grid container>
       <Grid item xs={2} sm={2} md={1}>
-        {item && (
-          <Link
-            to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
-            <ProductThumb
-              src={thumb}
-              alt={productTitle}
-              title={productTitle}></ProductThumb>
+        {available && (
+          <Link to={productUrl}>
+            {isCombo ? (
+              <ProductCollage
+                thumbs={thumbs}
+                title={productTitle}></ProductCollage>
+            ) : (
+              <ProductThumb
+                src={thumb}
+                alt={productTitle}
+                title={productTitle}></ProductThumb>
+            )}
           </Link>
         )}
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
         <div style={{ paddingLeft: 6 }}>
-          {item ? (
-            <Typography
-              component={Link}
-              to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}
-              variant='subtitle1'>
+          {available && (
+            <Typography component={Link} to={productUrl} variant='subtitle1'>
               {productTitle.substring(0, 60)}
               {productTitle.length > 60 && '...'}
             </Typography>
-          ) : (
+          )}
+          {!available && (
             <Typography variant='subtitle1'>
               {productTitle.substring(0, 60)}
               {productTitle.length > 60 && '...'}
@@ -208,12 +232,16 @@ export const OrderItem = ({
           )}
           <br></br>
           <Typography variant='caption'>
-            {item ? (
+            {available ? (
               <>
-                By{' '}
-                <Link to={`/brand/${brandPublicUsername}`}>
-                  {brandPublicUsername}
-                </Link>
+                {!isCombo && (
+                  <>
+                    By{' '}
+                    <Link to={`/brand/${brandPublicUsername}`}>
+                      {brandPublicUsername}
+                    </Link>
+                  </>
+                )}
               </>
             ) : (
               <>This product was deleted.</>
@@ -460,11 +488,12 @@ export const ShopOrder = ({
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
       <Collapse in={open} timeout='auto'>
-        {orderItems.map(orderItemObj => {
+        {orderItems.map(orderItem => {
+          const orderItemNode = orderItem.node;
           return (
-            <Paper key={orderItemObj.node.id} className={classes.orderItem}>
+            <Paper key={orderItemNode.id} className={classes.orderItem}>
               <OrderItem
-                orderItemObj={orderItemObj}
+                orderItemNode={orderItemNode}
                 classes={classes}
                 // shopUsername={shopUsername}
                 // shopName={shopName}

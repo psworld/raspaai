@@ -6,6 +6,7 @@ import SEO from '../seo';
 
 import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
 import ProductDetails from '../templates/product-detail/ProductDetails';
+import { Typography } from '@material-ui/core';
 
 // const seeThisOnGoogleMaps = "https://www.google.co.in/maps/place/31.708324,76.931868/@31.7082658,76.931412,16z/"
 
@@ -70,8 +71,8 @@ const ShopProductPage = props => {
   });
   if (loading) return <ShopProductSkeleton></ShopProductSkeleton>;
   if (error) {
-    // return <ErrorPage></ErrorPage>
-    return <p>{error.message}</p>;
+    return <ErrorPage></ErrorPage>;
+    // return <p>{error.message}</p>;
   }
   if (data && data.shopProduct) {
     const {
@@ -111,6 +112,8 @@ const ShopProductPage = props => {
       </>
     );
   }
+
+  return <Typography>No product found ...</Typography>;
 };
 
 export default ShopProductPage;

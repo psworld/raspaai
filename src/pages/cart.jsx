@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import React from 'react';
 import Layout from '../components/layout';
 import { VIEWER } from '../components/navbar/ToolBarMenu';
@@ -25,12 +26,13 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 import ProductThumb from '../components/templates/ProductThumb';
 import { Link, navigate } from 'gatsby';
-import slugGenerator from '../components/core/slugGenerator';
 
 import green from '@material-ui/core/colors/green';
 import SEO from '../components/seo';
 import { blue } from '@material-ui/core/colors';
 import UserCheck from '../components/core/UserCheck';
+import ProductCollage from '../components/templates/dashboard/ProductCollage';
+import singularOrPlural, { slugGenerator } from '../components/core/utils';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,32 +59,49 @@ const useStyles = makeStyles(theme => ({
 
 export const CART_ITEMS = gql`
   {
-    cartItems {
+    cartLines {
       id
-      item {
+      shop {
         id
-        inStock
-        product {
-          id
+        geometry {
+          coordinates
+        }
+        properties {
           title
-          thumb
-          mrp
+          publicUsername
+          address
         }
-        shop {
-          id
-          geometry {
-            coordinates
-          }
-          properties {
-            title
-            publicUsername
-            address
-          }
-        }
-        offeredPrice
       }
-      quantity
-      updated
+      items {
+        edges {
+          node {
+            id
+            totalCost
+            offeredPriceTotal
+            combo {
+              id
+              offeredPrice
+              name
+              thumbs
+              isAvailable
+              totalCost
+            }
+            shopProduct {
+              id
+              inStock
+              offeredPrice
+              product {
+                id
+                title
+                thumb
+                mrp
+              }
+            }
+            quantity
+            isCombo
+          }
+        }
+      }
     }
   }
 `;
@@ -93,7 +112,8 @@ const CHANGE_CART_ITEM_QTY = gql`
       cartItem {
         id
         quantity
-        updated
+        totalCost
+        offeredPriceTotal
       }
     }
   }
@@ -107,22 +127,34 @@ const DELETE_CART_ITEM = gql`
   }
 `;
 
-const CartItem = ({ cartItem }) => {
+const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
   const {
     id: cartItemId,
-    item: {
+    shopProduct,
+    combo,
+    quantity,
+    isCombo
+  } = cartItemNode;
+
+  const classes = useStyles();
+
+  if (isCombo) {
+    var {
+      id: comboId,
+      offeredPrice,
+      name: title,
+      thumbs,
+      totalCost: mrp,
+      isAvailable: inStock
+    } = combo;
+  } else {
+    var {
       id: shopProductId,
       product: { title, thumb, mrp },
       offeredPrice,
-      inStock,
-      shop: {
-        properties: { publicUsername }
-      }
-    },
-    quantity
-  } = cartItem;
-
-  const classes = useStyles();
+      inStock
+    } = shopProduct;
+  }
 
   const [qty, setQty] = React.useState(quantity);
   const [changeQty, { loading }] = useMutation(CHANGE_CART_ITEM_QTY);
@@ -131,20 +163,37 @@ const CartItem = ({ cartItem }) => {
     DELETE_CART_ITEM,
     {
       variables: {
-        data: { cartItemId }
+        data: { cartItemId, shopId }
       },
       update: (store, { data: { clientMutationId } }) => {
-        const { cartItems } = store.readQuery({ query: CART_ITEMS });
+        const { cartLines } = store.readQuery({ query: CART_ITEMS });
         const { viewer } = store.readQuery({ query: VIEWER });
 
-        const newCartItems = cartItems.filter(
-          cartItem => cartItem.id !== cartItemId
+        const cartLine = cartLines.find(cartLine => cartLine.id === cartLineId);
+
+        const newCartLineItemsEdges = cartLine.items.edges.filter(
+          cartItem => cartItem.node.id !== cartItemId
         );
 
-        store.writeQuery({
-          query: CART_ITEMS,
-          data: { cartItems: newCartItems }
-        });
+        const newCartLines = cartLines.filter(
+          cartLine => cartLine.id !== cartLineId
+        );
+
+        const modifiedCartLine = {
+          ...cartLine,
+          items: { ...cartLine.items, edges: newCartLineItemsEdges }
+        };
+        if (newCartLineItemsEdges.length > 0) {
+          store.writeQuery({
+            query: CART_ITEMS,
+            data: { cartLines: newCartLines.concat(modifiedCartLine) }
+          });
+        } else {
+          store.writeQuery({
+            query: CART_ITEMS,
+            data: { cartLines: newCartLines }
+          });
+        }
 
         store.writeQuery({
           query: VIEWER,
@@ -162,28 +211,34 @@ const CartItem = ({ cartItem }) => {
   const handleChange = event => {
     setQty(event.target.value);
     changeQty({
-      variables: { data: { cartItemId, newQuantity: event.target.value } }
+      variables: {
+        data: { cartItemId, newQuantity: event.target.value, shopId }
+      }
     });
   };
 
-  const product_slug = slugGenerator(title);
+  const productSlug = slugGenerator(title);
+
+  const productUrl = isCombo
+    ? `/shop/${shopUsername}/combo/${productSlug}/${comboId}`
+    : `/shop/${shopUsername}/product/${productSlug}/${shopProductId}`;
 
   return (
     <>
       <SEO title='Shopping Cart' description='Shopping Cart'></SEO>
       <Drawer open={loading || deleteCartItemLoading}></Drawer>
       <Grid item xs={3} sm={3} md={2} className={classes.thumb}>
-        <Link
-          to={`/shop/${publicUsername}/product/${product_slug}/${shopProductId}`}>
-          <ProductThumb src={thumb} alt={title} title={title}></ProductThumb>
+        <Link to={productUrl}>
+          {isCombo ? (
+            <ProductCollage thumbs={thumbs} title={title}></ProductCollage>
+          ) : (
+            <ProductThumb src={thumb} title={title}></ProductThumb>
+          )}
         </Link>
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
         <div style={{ paddingLeft: 6 }}>
-          <Typography
-            to={`/shop/${publicUsername}/product/${product_slug}/${shopProductId}`}
-            component={Link}
-            variant='h6'>
+          <Typography to={productUrl} component={Link} variant='h6'>
             {title.substring(0, 60)}
             {title.length > 60 && '...'}
           </Typography>
@@ -222,6 +277,7 @@ const CartItem = ({ cartItem }) => {
                     variables: {
                       data: {
                         cartItemId,
+                        shopId,
                         clientMutationId: cartItemId,
                         delete: true
                       }
@@ -259,40 +315,24 @@ const Cart = () => {
 
   const { loading, error, data } = useQuery(CART_ITEMS);
 
-  const sortedCartItems = [];
-
-  let shop_ids = [];
-
-  let total = 0;
+  let offeredPriceTotal = 0;
   let mrpTotal = 0;
   let totalNoOfItems = 0;
 
   data &&
-    data.cartItems.forEach(cartItem => {
-      shop_ids.push(cartItem.item.shop.id);
-      total += cartItem.item.offeredPrice * cartItem.quantity;
-      mrpTotal += cartItem.item.product.mrp * cartItem.quantity;
-      totalNoOfItems += cartItem.quantity;
+    data.cartLines.forEach(cartLine => {
+      cartLine.items.edges.forEach(cartItem => {
+        const cartItemNode = cartItem.node;
+        // const itemKey = cartItemNode.isCombo ? 'combo' : 'shopProduct';
+
+        offeredPriceTotal += cartItemNode.offeredPriceTotal;
+        mrpTotal += cartItemNode.totalCost;
+
+        totalNoOfItems += cartItemNode.quantity;
+      });
     });
 
-  shop_ids = [...new Set(shop_ids)];
-
-  shop_ids.forEach(shopId => {
-    const shopCartItems = data.cartItems.filter(
-      cartItem => cartItem.item.shop.id === shopId
-    );
-    sortedCartItems.push({
-      shopId: shopId,
-      shopName: shopCartItems[0].item.shop.properties.title,
-      publicUsername: shopCartItems[0].item.shop.properties.publicUsername,
-      address: shopCartItems[0].item.shop.properties.address,
-      lat: shopCartItems[0].item.shop.geometry.coordinates[1],
-      lng: shopCartItems[0].item.shop.geometry.coordinates[0],
-      shopCartItems
-    });
-  });
-
-  let noOfShops = shop_ids.length;
+  const noOfShops = data && data.cartLines && data.cartLines.length;
 
   return (
     <Layout>
@@ -300,7 +340,7 @@ const Cart = () => {
       <UserCheck withViewerProp={false}>
         {loading && <Loading></Loading>}
         {error && <ErrorPage></ErrorPage>}
-        {data && data.cartItems && sortedCartItems.length !== 0 && (
+        {data && data.cartLines && data.cartLines.length !== 0 && (
           <>
             <Grid container>
               <Grid item xs={12} md={9}>
@@ -316,19 +356,27 @@ const Cart = () => {
                   </Grid>
 
                   <Grid item xs={12}>
-                    {sortedCartItems.map(shopCart => {
+                    {data.cartLines.map(cartLineNode => {
                       const {
-                        shopName,
-                        shopId,
-                        shopCartItems,
-                        publicUsername: shopUsername,
-                        address,
-                        lat,
-                        lng
-                      } = shopCart;
+                        id: cartLineId,
+                        shop: {
+                          id: shopId,
+                          geometry: { coordinates },
+                          properties: {
+                            title: shopName,
+                            publicUsername: shopUsername,
+                            address
+                          }
+                        },
+                        items: { edges: cartItems }
+                      } = cartLineNode;
+
+                      const lat = coordinates[1];
+                      const lng = coordinates[0];
+
                       let mrpSubTotal = 0;
                       let subTotal = 0;
-                      let items = 0;
+                      let noOfItems = 0;
                       return (
                         <div key={shopId}>
                           <ListItem>
@@ -352,22 +400,25 @@ const Cart = () => {
                             </Typography>
                           </ListItem>
                           <Grid container>
-                            {shopCartItems.map(cartItem => {
-                              subTotal =
-                                subTotal +
-                                cartItem.item.offeredPrice * cartItem.quantity;
-                              mrpSubTotal +=
-                                cartItem.item.product.mrp * cartItem.quantity;
-                              items = items + cartItem.quantity;
+                            {cartItems.map(cartItem => {
+                              const cartItemNode = cartItem.node;
+
+                              subTotal += cartItemNode.offeredPriceTotal;
+                              mrpSubTotal += cartItemNode.totalCost;
+                              noOfItems += cartItemNode.quantity;
                               return (
                                 <CartItem
-                                  key={cartItem.id}
-                                  cartItem={cartItem}></CartItem>
+                                  key={cartItemNode.id}
+                                  shopId={shopId}
+                                  cartLineId={cartLineId}
+                                  shopUsername={shopUsername}
+                                  cartItemNode={cartItemNode}></CartItem>
                               );
                             })}
                           </Grid>
                           <Typography variant='h6' align='right'>
-                            Subtotal ({items} items):{' '}
+                            Subtotal ({noOfItems} item
+                            {singularOrPlural(noOfItems)}):{' '}
                             <span style={{ color: 'green' }}>
                               &#x20b9; {subTotal}
                             </span>
@@ -386,20 +437,32 @@ const Cart = () => {
                 <Paper color='primary' className={classes.cartSummary}>
                   <Container maxWidth='sm' className={classes.spacing}>
                     <Typography variant='h5'>
-                      Total ({totalNoOfItems} items):{' '}
-                      <span style={{ textDecoration: 'line-through' }}>
+                      Total ({totalNoOfItems} item
+                      {singularOrPlural(totalNoOfItems)}):{' '}
+                      <Typography
+                        variant='body1'
+                        component='span'
+                        style={{ textDecoration: 'line-through' }}>
                         &#x20b9;{mrpTotal}
-                      </span>{' '}
-                      <span style={{ color: 'green' }}>&#x20b9;{total}</span>
+                      </Typography>{' '}
+                      <span style={{ color: 'green' }}>
+                        <b>&#x20b9;{offeredPriceTotal}</b>
+                      </span>
                     </Typography>
 
-                    <Typography variant='h6'>From {noOfShops} shops</Typography>
+                    <Typography variant='h6'>
+                      From {noOfShops} shop{singularOrPlural(noOfShops)}
+                    </Typography>
                     <Typography variant='h6'>
                       You save{' '}
                       <span style={{ color: blue[600] }}>
-                        &#x20b9;{mrpTotal - total}
+                        &#x20b9;{mrpTotal - offeredPriceTotal}
                       </span>{' '}
-                      ({Math.round((100 / mrpTotal) * (mrpTotal - total))}%)
+                      (
+                      {Math.round(
+                        (100 / mrpTotal) * (mrpTotal - offeredPriceTotal)
+                      )}
+                      %)
                     </Typography>
                     <br></br>
                     <Button
@@ -418,7 +481,7 @@ const Cart = () => {
             </Grid>
           </>
         )}
-        {data && data.cartItems && sortedCartItems.length === 0 && (
+        {data && data.cartLines && data.cartLines.length === 0 && (
           <>
             <Typography variant='h3' align='center'>
               You do not have any item in your cart.

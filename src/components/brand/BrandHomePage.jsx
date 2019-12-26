@@ -112,7 +112,7 @@ export const ProductGrid = props => {
         <Button
           component={Link}
           variant='contained'
-          to={`/dashboard/brand/${publicBrandUsername}/product/add`}>
+          to={`/dashboard/brand/${publicBrandUsername}/products/add`}>
           Add products
         </Button>
       )}

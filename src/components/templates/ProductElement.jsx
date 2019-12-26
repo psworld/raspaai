@@ -32,6 +32,8 @@ const ProductElement = ({
   thumb,
   publicUsername,
   offeredPrice,
+  shopName,
+  brandName,
   mrp,
   isBrand,
   isBrandDashboardProduct = false
@@ -66,14 +68,10 @@ const ProductElement = ({
 
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
-      <Box width={'100%'} px={1} my={2}>
+      <Box px={1} my={1}>
         <Link to={isBrand ? brandProduct : shopProduct}>
           <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
-          <Typography
-            title={title}
-            placeholder={title}
-            variant='body2'
-            color='textPrimary'>
+          <Typography title={title} variant='body2' color='textPrimary'>
             {title}
           </Typography>
         </Link>
@@ -82,7 +80,7 @@ const ProductElement = ({
             to={
               isBrand ? `/brand/${publicUsername}` : `/shop/${publicUsername}`
             }>
-            {publicUsername}
+            {isBrand ? brandName : shopName}
           </Link>
         </Typography>
         <Typography variant='body1' style={{ color: 'green' }}>
