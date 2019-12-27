@@ -16,12 +16,13 @@ import ShopProductGrid from '../templates/ShopProductGrid';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
 import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
 import { Toolbar, Divider } from '@material-ui/core';
-import Link from '../core/Link';
+import Link, { MenuItemLink } from '../core/Link';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { navigate } from 'gatsby';
 import { SHOP_COMBOS } from './dashboard/MyCombos';
 import CombosGrid from '../templates/CombosGrid';
+import { activeStoreTime } from '../core/utils';
 
 const useStyles = makeStyles(theme => ({
   toolbarSecondary: {
@@ -40,6 +41,7 @@ export const SHOP_PRODUCTS = gql`
     $phrase: String
     $endCursor: String
     $withBrand: Boolean = false
+    $withShop: Boolean = true
   ) {
     shopProducts(
       publicShopUsername: $publicShopUsername
@@ -58,6 +60,13 @@ export const SHOP_PRODUCTS = gql`
         endCursor
       }
       count
+      shop @include(if: $withShop) {
+        id
+        properties {
+          title
+          publicUsername
+        }
+      }
       edges {
         node {
           id
@@ -74,13 +83,6 @@ export const SHOP_PRODUCTS = gql`
             }
           }
           offeredPrice
-          shop {
-            id
-            properties {
-              title
-              publicUsername
-            }
-          }
           inStock
         }
       }
@@ -88,9 +90,9 @@ export const SHOP_PRODUCTS = gql`
   }
 `;
 
-const Combos = ({ shopUsername, phrase }) => {
+const Combos = ({ shopUsername, phrase, shop }) => {
   const { loading, error, data, fetchMore } = useQuery(SHOP_COMBOS, {
-    variables: { shopUsername, phrase, withShop: true }
+    variables: { shopUsername, phrase }
   });
 
   if (loading)
@@ -109,7 +111,7 @@ const Combos = ({ shopUsername, phrase }) => {
     return (
       <>
         <Grid container>
-          <CombosGrid comboNodeEdges={comboNodeEdges}></CombosGrid>
+          <CombosGrid shop={shop} comboNodeEdges={comboNodeEdges}></CombosGrid>
         </Grid>
 
         <PaginationWithState
@@ -122,12 +124,13 @@ const Combos = ({ shopUsername, phrase }) => {
   return <></>;
 };
 
-const ShopProducts = ({ shopUsername, phrase }) => {
+const ShopProducts = ({ shopUsername, phrase, shop }) => {
   const { loading, error, data, fetchMore } = useQuery(SHOP_PRODUCTS, {
     variables: {
       publicShopUsername: shopUsername,
       phrase,
-      withBrand: false
+      withBrand: false,
+      withShop: false
     }
   });
 
@@ -139,7 +142,9 @@ const ShopProducts = ({ shopUsername, phrase }) => {
     return (
       <>
         <Grid container>
-          <ShopProductGrid shopProducts={shopProducts}></ShopProductGrid>
+          <ShopProductGrid
+            shopProducts={shopProducts}
+            shop={shop}></ShopProductGrid>
         </Grid>
         <Grid item>
           <PaginationWithState
@@ -177,6 +182,9 @@ const SHOP = gql`
         publicUsername
         title
         heroImage
+        openAt
+        closeAt
+        isOpenToday
       }
     }
   }
@@ -185,6 +193,7 @@ const SHOP = gql`
 const sections = [
   { id: 'About', url: '' },
   { id: 'Address', url: '#address' },
+  { id: 'Active time', url: '#active-time' },
   { id: 'Contact', url: '#contact' },
   { id: 'Return refund policy', url: '#return-refund-policy' }
 ];
@@ -218,12 +227,17 @@ const ShopHomePage = props => {
   };
 
   if (data && data.shop) {
-    const {
+    let {
       geometry: { coordinates },
-      properties: { title, heroImage }
+      properties: { title, heroImage, openAt, closeAt, isOpenToday }
     } = data.shop;
     const lat = coordinates[1];
     const lng = coordinates[0];
+
+    const isActiveStoreTime = activeStoreTime(openAt, closeAt);
+
+    const isStoreOpenNow = isActiveStoreTime && isOpenToday;
+
     return (
       <>
         <SEO title={title}></SEO>
@@ -253,9 +267,21 @@ const ShopHomePage = props => {
           ))}
         </Toolbar>
         <Divider></Divider>
-
-        <Combos phrase={phrase} shopUsername={shopUsername}></Combos>
+        <Typography align='center' variant='h6'>
+          <MenuItemLink to={`${window.location.pathname}/about/#active-time`}>
+            {isStoreOpenNow ? (
+              <span style={{ color: 'green' }}>Store is open now</span>
+            ) : (
+              <span style={{ color: 'red' }}>Store is closed for now</span>
+            )}
+          </MenuItemLink>
+        </Typography>
+        <Combos
+          shop={data.shop}
+          phrase={phrase}
+          shopUsername={shopUsername}></Combos>
         <ShopProducts
+          shop={data.shop}
           phrase={phrase}
           shopUsername={shopUsername}></ShopProducts>
       </>

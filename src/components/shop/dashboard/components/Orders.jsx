@@ -41,6 +41,7 @@ const RECENT_SHOP_ORDERS = gql`
             userFullName
             userPhone
             user {
+              id
               email
             }
           }

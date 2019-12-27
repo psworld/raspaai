@@ -1,25 +1,25 @@
-import React from "react"
-import DashboardProductElement from "./DashboardProductElement"
-import Grid from "@material-ui/core/Grid"
+import React from 'react';
+import DashboardProductElement from './DashboardProductElement';
+import Grid from '@material-ui/core/Grid';
 
-const DashboardShopProductGrid = ({ shopProducts }) => {
+const DashboardShopProductGrid = ({ shopProducts, shop }) => {
+  const {
+    properties: { publicUsername }
+  } = shop;
   return (
     <Grid container>
       {shopProducts.map(shopProductObj => {
         const {
           id,
-          shop: {
-            properties: { publicUsername },
-          },
           offeredPrice,
           product: {
             thumb,
             title,
             mrp,
-            brand: { publicUsername: brandUsername },
+            brand: { title: brandName, publicUsername: brandUsername }
           },
-          inStock,
-        } = shopProductObj.node
+          inStock
+        } = shopProductObj.node;
 
         return (
           <DashboardProductElement
@@ -29,16 +29,16 @@ const DashboardShopProductGrid = ({ shopProducts }) => {
             thumb={thumb}
             publicUsername={publicUsername}
             brandUsername={brandUsername}
+            brandName={brandName}
             offeredPrice={offeredPrice}
             mrp={mrp}
-            action={"modify"}
+            action={'modify'}
             isBrand={false}
-            inStock={inStock}
-          ></DashboardProductElement>
-        )
+            inStock={inStock}></DashboardProductElement>
+        );
       })}
     </Grid>
-  )
-}
+  );
+};
 
-export default DashboardShopProductGrid
+export default DashboardShopProductGrid;

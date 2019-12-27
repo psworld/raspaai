@@ -32,6 +32,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { gql } from 'apollo-boost';
+import { newPageInfo } from '../../core/utils';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -64,13 +65,11 @@ const CREATE_COMBO = gql`
 const ComboProduct = ({
   shopProductObj,
   handleComboProductSelect,
-  selectedShopProducts
+  selectedShopProducts,
+  shop
 }) => {
   const {
     id,
-    shop: {
-      properties: { publicUsername }
-    },
     offeredPrice,
     product: {
       thumb,
@@ -79,6 +78,10 @@ const ComboProduct = ({
       brand: { publicUsername: brandUsername, title: brandName }
     }
   } = shopProductObj.node;
+
+  const {
+    properties: { publicUsername }
+  } = shop;
 
   const productSlug = slugGenerator(title);
   const shopProduct = `/shop/${publicUsername}/product/${productSlug}/${id}`;
@@ -198,7 +201,7 @@ const AddNewCombo = ({
 
   if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
   if (error) return <ErrorPage></ErrorPage>;
-  if (data && data.shopProducts.count < 1) {
+  if (data && data.shopProducts && data.shopProducts.count < 2) {
     return (
       <>
         <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
@@ -218,7 +221,7 @@ const AddNewCombo = ({
     );
   }
   if (data && data.shopProducts.pageInfo.startCursor) {
-    const { edges: shopProducts, pageInfo } = data.shopProducts;
+    const { edges: shopProducts, pageInfo, shop } = data.shopProducts;
     return (
       <>
         <SEO title='Create combo'></SEO>
@@ -240,7 +243,8 @@ const AddNewCombo = ({
                   key={id}
                   selectedShopProducts={selectedShopProducts}
                   handleComboProductSelect={handleComboProductSelect}
-                  shopProductObj={shopProductObj}></ComboProduct>
+                  shopProductObj={shopProductObj}
+                  shop={shop}></ComboProduct>
               );
             })}
           </Grid>
@@ -286,20 +290,42 @@ const ReviewComboSelection = ({
             variables: { shopUsername: shopUsername }
           });
 
-          cache.writeQuery({
-            query: SHOP_COMBOS,
-            variables: { shopUsername },
-            data: {
-              shopCombos: {
-                ...shopCombos,
-                edges: shopCombos.edges.concat({
-                  node: { ...combo },
-                  __typename: shopCombos.edges[0]['__typename']
-                })
+          if (shopCombos.count === 0) {
+            // it's the first combo being added after SHOP_COMBOS query has
+            // been cached
+            cache.writeQuery({
+              query: SHOP_COMBOS,
+              variables: { shopUsername: shopUsername },
+              data: {
+                shopCombos: {
+                  ...shopCombos,
+                  pageInfo: newPageInfo,
+                  count: 1,
+                  edges: [
+                    { node: combo, __typename: 'ComboNodeConnectionsEdge' }
+                  ]
+                }
               }
-            }
-          });
-        } catch {}
+            });
+          } else {
+            cache.writeQuery({
+              query: SHOP_COMBOS,
+              variables: { shopUsername },
+              data: {
+                shopCombos: {
+                  ...shopCombos,
+                  count: shopCombos.count + 1,
+                  edges: shopCombos.edges.concat({
+                    node: { ...combo },
+                    __typename: shopCombos.edges[0]['__typename']
+                  })
+                }
+              }
+            });
+          }
+        } catch {
+          // query SHOP_COMBOS has not been executed yet.
+        }
       }
     }
   );
@@ -392,6 +418,13 @@ const ReviewComboSelection = ({
                       onBlur={handleBlur}
                       margin='normal'
                       variant='outlined'
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            Combo
+                          </InputAdornment>
+                        )
+                      }}
                     />
                   </ListItem>
                   <ListItem>
@@ -539,6 +572,16 @@ const ReviewComboSelection = ({
                   disabled={isSubmitting || loading || data}>
                   Create combo
                 </Button>
+                {data && (
+                  <>
+                    <Typography style={{ color: 'green' }}>
+                      Combo has been successfully created
+                    </Typography>
+                    <Link to={`/dashboard/shop/${shopUsername}/combos`}>
+                      Click here to see
+                    </Link>
+                  </>
+                )}
                 <br></br>
                 <br></br>
                 <Button

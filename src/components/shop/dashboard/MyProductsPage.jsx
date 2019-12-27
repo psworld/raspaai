@@ -7,7 +7,6 @@ import { SHOP_PRODUCTS } from '../ShopHomePage';
 import PaginationWithState from '../../templates/PaginationWithState';
 import DashboardShopProductGrid from '../../templates/dashboard/DashboardShopProductGrid';
 
-import Grid from '@material-ui/core/Grid';
 import { Typography } from '@material-ui/core';
 import Link from '../../core/Link';
 
@@ -24,11 +23,12 @@ const ProductGrid = ({ phrase, publicShopUsername }) => {
   if (error) return <ErrorPage></ErrorPage>;
 
   if (data && data.shopProducts.pageInfo.startCursor) {
-    const { edges: shopProducts, pageInfo } = data.shopProducts;
+    const { edges: shopProducts, pageInfo, shop } = data.shopProducts;
     return (
       <>
         <DashboardShopProductGrid
-          shopProducts={shopProducts}></DashboardShopProductGrid>
+          shopProducts={shopProducts}
+          shop={shop}></DashboardShopProductGrid>
 
         <br></br>
         <br></br>

@@ -4,16 +4,18 @@ import Link from '../core/Link';
 import { slugGenerator } from '../core/utils';
 import ProductCollage from './dashboard/ProductCollage';
 
-const ComboElement = ({ comboNode }) => {
-  const {
-    id: comboId,
-    name: comboName,
-    thumbs,
-    offeredPrice,
-    shop: {
+const ComboElement = ({ comboNode, shop }) => {
+  const { id: comboId, name: comboName, thumbs, offeredPrice } = comboNode;
+
+  if (shop) {
+    var {
       properties: { title: shopName, publicUsername: shopUsername }
-    }
-  } = comboNode;
+    } = shop;
+  } else {
+    var {
+      properties: { title: shopName, publicUsername: shopUsername }
+    } = comboNode.shop;
+  }
 
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
@@ -43,13 +45,14 @@ const ComboElement = ({ comboNode }) => {
   );
 };
 
-const CombosGrid = ({ comboNodeEdges }) => {
+const CombosGrid = ({ comboNodeEdges, shop }) => {
   return (
     <>
       {comboNodeEdges.map(combo => {
         return (
           <ComboElement
             key={combo.node.id}
+            shop={shop}
             comboNode={combo.node}></ComboElement>
         );
       })}

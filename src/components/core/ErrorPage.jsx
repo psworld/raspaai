@@ -1,3 +1,3 @@
-import React from "react"
+import React from 'react';
 
-export default () => <p>We encountered an error, please try again</p>
+export default () => <p>We encountered an error, please try again later ...</p>;

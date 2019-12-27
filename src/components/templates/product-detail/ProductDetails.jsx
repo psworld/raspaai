@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import ListItemText from '@material-ui/core/ListItemText';
 
-import Link from '../../core/Link';
+import Link, { MenuItemLink } from '../../core/Link';
 import ProductImageCarousel from './ProductImageCarousel';
 import {
   Table,
@@ -25,6 +25,7 @@ import { VIEWER } from '../../navbar/ToolBarMenu';
 import { green } from '@material-ui/core/colors';
 import { navigate } from 'gatsby';
 import { getJsonFriendlyString } from '../../shop/dashboard/components/ShopReturnRefundPolicy';
+import { activeStoreTime } from '../../core/utils';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -62,6 +63,9 @@ const ADD_TO_CART = gql`
                   properties {
                     publicUsername
                     title
+                    openAt
+                    closeAt
+                    isOpenToday
                   }
                 }
                 product {
@@ -100,7 +104,10 @@ const ProductDetails = props => {
           title: shopName,
           address,
           contactNumber,
-          returnRefundPolicy
+          returnRefundPolicy,
+          openAt,
+          closeAt,
+          isOpenToday
         }
       }
     } = shopProduct;
@@ -128,6 +135,10 @@ const ProductDetails = props => {
     shopProductId,
     quantity: 1
   };
+
+  // store is open or not
+  const isActiveStoreTime = activeStoreTime(openAt, closeAt);
+  const isStoreOpenNow = isActiveStoreTime && isOpenToday;
 
   const { data: viewerData } = useQuery(VIEWER);
   if (viewerData) {
@@ -242,6 +253,17 @@ const ProductDetails = props => {
                 </Typography>
               </ListItem>
               <Divider />
+              <ListItem>
+                <ListItemText
+                  style={{ color: isStoreOpenNow ? 'green' : 'red' }}
+                  primary={
+                    <MenuItemLink
+                      to={`/shop/${shopPublicUsername}/about#active-time`}>
+                      {isStoreOpenNow ? 'Store is open' : 'Store is closed'}
+                    </MenuItemLink>
+                  }
+                />
+              </ListItem>
               <ListItem>
                 <ListItemText
                   style={{ color: inStock ? 'green' : 'red' }}
@@ -363,6 +385,11 @@ const ProductDetails = props => {
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Return Refund Policy
             </Typography>
+            <ListItem>
+              <Typography variant='body2'>
+                * Not applicable on food items
+              </Typography>
+            </ListItem>
             <br></br>
             {JSON.parse(getJsonFriendlyString(returnRefundPolicy)).map(
               (policy, index) => (

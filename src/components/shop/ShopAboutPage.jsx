@@ -11,6 +11,7 @@ import ErrorPage from '../core/ErrorPage';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { getJsonFriendlyString } from './dashboard/components/ShopReturnRefundPolicy';
+import { MenuItemLink } from '../core/Link';
 
 const SHOP = gql`
   query($publicShopUsername: String!) {
@@ -25,6 +26,9 @@ const SHOP = gql`
         address
         contactNumber
         returnRefundPolicy
+        isOpenToday
+        openAt
+        closeAt
       }
     }
   }
@@ -39,19 +43,26 @@ const ShopAboutPage = ({ shopUsername }) => {
   if (error) return <ErrorPage></ErrorPage>;
 
   if (data) {
-    const {
+    let {
       shop: {
         geometry: { coordinates },
         properties: {
           title: shopName,
           address,
           contactNumber,
-          returnRefundPolicy
+          returnRefundPolicy,
+          openAt,
+          closeAt,
+          isOpenToday
         }
       }
     } = data;
     const lat = coordinates[1];
     const lng = coordinates[0];
+
+    openAt = new Date(`2002-10-06T${openAt}+05:30`).toLocaleTimeString();
+    closeAt = new Date(`2002-10-06T${closeAt}+05:30`).toLocaleTimeString();
+
     return (
       <Container maxWidth='sm'>
         <Paper style={{ marginTop: 10 }}>
@@ -60,7 +71,7 @@ const ShopAboutPage = ({ shopUsername }) => {
             variant='h3'
             component='h1'
             align='center'>
-            {shopName}
+            <MenuItemLink to={`/shop/${shopUsername}`}>{shopName}</MenuItemLink>
           </Typography>
           <br></br>
           <List>
@@ -86,6 +97,23 @@ const ShopAboutPage = ({ shopUsername }) => {
                 rel='noopener noreferrer'>
                 Click here to see address on google maps
               </a>
+            </ListItem>
+
+            <ListItem>
+              <Typography variant='h4' id='active-time'>
+                Active time
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>
+                {isOpenToday ? 'Store is open today' : 'Store is closed today'}
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>Opens at {openAt}</Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>Closes at {closeAt}</Typography>
             </ListItem>
 
             <ListItem>

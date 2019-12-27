@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import slugGenerator from '../../core/slugGenerator';
 import Link from '../../core/Link';
 import Button from '@material-ui/core/Button';
 
@@ -20,6 +19,7 @@ import gql from 'graphql-tag';
 import { SHOP_PRODUCTS } from '../../shop/ShopHomePage';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import ProductThumb from '../ProductThumb';
+import { slugGenerator, emptyPageInfo, newPageInfo } from '../../core/utils';
 
 const MODIFY_SHOP_PRODUCT = gql`
   mutation(
@@ -58,6 +58,7 @@ const MODIFY_SHOP_PRODUCT = gql`
         shop {
           id
           properties {
+            title
             publicUsername
           }
         }
@@ -248,23 +249,46 @@ const DashboardProductElement = props => {
                         const { shopProducts } = cache.readQuery({
                           query: SHOP_PRODUCTS,
                           variables: {
-                            publicShopUsername: publicUsername
+                            publicShopUsername: publicUsername,
+                            withBrand: true
                           }
                         });
 
-                        const updatedShopProducts = shopProducts.edges.filter(
+                        const newShopProductEdges = shopProducts.edges.filter(
                           e => e.node.id !== id
                         );
-
-                        cache.writeQuery({
-                          query: SHOP_PRODUCTS,
-                          data: {
-                            shopProducts: {
-                              ...shopProducts,
-                              edges: updatedShopProducts
+                        if (newShopProductEdges.length > 0) {
+                          cache.writeQuery({
+                            query: SHOP_PRODUCTS,
+                            variables: {
+                              publicShopUsername: publicUsername,
+                              withBrand: true
+                            },
+                            data: {
+                              shopProducts: {
+                                ...shopProducts,
+                                count: newShopProductEdges.length,
+                                edges: newShopProductEdges
+                              }
                             }
-                          }
-                        });
+                          });
+                        } else if (newShopProductEdges.length === 0) {
+                          cache.writeQuery({
+                            query: SHOP_PRODUCTS,
+                            variables: {
+                              publicShopUsername: publicUsername,
+                              withBrand: true
+                            },
+                            data: {
+                              shopProducts: {
+                                ...shopProducts,
+                                pageInfo: emptyPageInfo,
+                                count: 0,
+                                edges: []
+                              }
+                            }
+                          });
+                        }
                       }
                     })
                   }
@@ -288,6 +312,7 @@ const DashboardProductElement = props => {
                       action: 'add',
                       withBrand: true
                     },
+
                     update(
                       store,
                       {
@@ -304,18 +329,51 @@ const DashboardProductElement = props => {
                         }
                       });
 
-                      const newEdges = [newShopProduct, ...shopProducts.edges];
+                      if (shopProducts.edges.length === 0) {
+                        // If the added product is the first product so we do not have
+                        // previous edges i.e edges = []
+                        store.writeQuery({
+                          query: SHOP_PRODUCTS,
+                          variables: {
+                            publicShopUsername: publicUsername,
+                            withBrand: true
+                          },
+                          data: {
+                            shopProducts: {
+                              pageInfo: newPageInfo,
+                              count: 1,
+                              shop: newShopProduct.shop,
+                              edges: [
+                                {
+                                  node: newShopProduct,
+                                  __typename: 'ShopProductNodeConnectionsEdge'
+                                }
+                              ],
+                              __typename: 'ShopProductNodeConnectionsConnection'
+                            }
+                          }
+                        });
+                      } else {
+                        const newEdges = shopProducts.edges.concat({
+                          node: newShopProduct,
+                          __typename: shopProducts.edges[0]['__typename']
+                        });
 
-                      store.writeQuery({
-                        query: SHOP_PRODUCTS,
-                        variables: {
-                          publicShopUsername: publicUsername,
-                          withBrand: true
-                        },
-                        data: {
-                          shopProducts: { ...shopProducts, edges: newEdges }
-                        }
-                      });
+                        store.writeQuery({
+                          query: SHOP_PRODUCTS,
+                          variables: {
+                            publicShopUsername: publicUsername,
+                            withBrand: true
+                          },
+                          data: {
+                            shopProducts: {
+                              ...shopProducts,
+                              count: newEdges.length,
+                              edges: newEdges
+                            }
+                          }
+                        });
+                      }
                     }
                   })
                 }>

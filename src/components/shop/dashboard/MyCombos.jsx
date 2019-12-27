@@ -15,6 +15,7 @@ import Link from '../../core/Link';
 import PaginationWithState from '../../templates/PaginationWithState';
 import slugGenerator from '../../core/slugGenerator';
 import ProductCollage from '../../templates/dashboard/ProductCollage';
+import { emptyPageInfo } from '../../core/utils';
 
 export const SHOP_COMBOS = gql`
   query(
@@ -28,13 +29,21 @@ export const SHOP_COMBOS = gql`
       phrase: $phrase
       first: 10
       after: $endCursor
-    ) @connection(key: "shopCombos", filter: ["shopUsername", "phrase"]) {
+    ) @connection(key: "shopCombos", filter: ["publicShopUsername", "phrase"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
         startCursor
         endCursor
       }
+      shop @include(if: $withShop) {
+        id
+        properties {
+          title
+          publicUsername
+        }
+      }
+      count
       edges {
         node {
           id
@@ -42,13 +51,6 @@ export const SHOP_COMBOS = gql`
           name
           thumbs
           isAvailable
-          shop @include(if: $withShop) {
-            id
-            properties {
-              title
-              publicUsername
-            }
-          }
         }
       }
     }
@@ -193,13 +195,7 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
             shopCombos: {
               ...shopCombos,
               edges: [],
-              pageInfo: {
-                hasNextPage: false,
-                hasPreviousPage: false,
-                startCursor: null,
-                endCursor: null,
-                __typename: 'PageInfo'
-              }
+              pageInfo: emptyPageInfo
             }
           }
         });
@@ -209,7 +205,7 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
 
   if (data.shopCombos.pageInfo.startCursor) {
     const {
-      shopCombos: { edges: shopComboEdges }
+      shopCombos: { edges: shopComboEdges, shop }
     } = data;
 
     return (
@@ -221,7 +217,8 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
                 key={shopCombo.node.id}
                 shopUsername={shopUsername}
                 handleClickOpen={handleClickOpen}
-                shopComboNode={shopCombo.node}></ComboGridItem>
+                shopComboNode={shopCombo.node}
+                shop={shop}></ComboGridItem>
             );
           })}
           {/* Confirmation dialog */}

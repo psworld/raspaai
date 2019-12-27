@@ -32,7 +32,7 @@ import singularOrPlural from '../components/core/utils';
 export const MY_ORDERS = gql`
   query($userId: ID!, $endCursor: String) {
     userOrders(user: $userId, after: $endCursor, first: 5, orderBy: "-created")
-      @connection(key: "userOrders", filter: ["userId"]) {
+      @connection(key: "userOrders", filter: ["user"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage

@@ -92,7 +92,7 @@ export const SHOP_ORDERS = gql`
       first: 10
       orderBy: "order__created"
       clientTrackingId: $shopOrderTrackingId
-    ) @connection(key: "shopOrders", filter: ["status", "shopId"]) {
+    ) @connection(key: "shopOrders", filter: ["status", "shop"]) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -267,6 +267,8 @@ export const OrderItem = ({
 export const ShopOrder = ({
   shopOrderNode,
   shopId,
+  shopUsername,
+  shopName,
   currentShopOrderStatus,
   setShowResponseSnackbar
 }) => {
@@ -495,9 +497,8 @@ export const ShopOrder = ({
               <OrderItem
                 orderItemNode={orderItemNode}
                 classes={classes}
-                // shopUsername={shopUsername}
-                // shopName={shopName}
-              ></OrderItem>
+                shopUsername={shopUsername}
+                shopName={shopName}></OrderItem>
             </Paper>
           );
         })}
@@ -578,7 +579,10 @@ const OrderBase = ({ status }) => {
   const {
     data: {
       viewer: {
-        shop: { id: shopId }
+        shop: {
+          id: shopId,
+          properties: { title: shopName, publicUsername: shopUsername }
+        }
       }
     }
   } = useQuery(VIEWER);
@@ -687,6 +691,8 @@ const OrderBase = ({ status }) => {
               currentShopOrderStatus={status}
               setShowResponseSnackbar={setShowResponseSnackbar}
               shopId={shopId}
+              shopUsername={shopUsername}
+              shopName={shopName}
               shopOrderNode={shopOrderNodeObj.node}></ShopOrder>
           );
         })}

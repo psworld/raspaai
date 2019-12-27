@@ -140,11 +140,11 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
                 <SearchBar
                   isBrand={isBrand}
                   publicUsername={publicUsername}></SearchBar>
-                <IconButton color='inherit'>
+                {/* <IconButton color='inherit'>
                   <Badge badgeContent={4} color='secondary'>
                     <NotificationsIcon />
                   </Badge>
-                </IconButton>
+                </IconButton> */}
               </Toolbar>
             </AppBar>
             <Drawer
