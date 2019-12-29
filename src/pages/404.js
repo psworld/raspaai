@@ -3,7 +3,8 @@ import React from 'react';
 import Layout from '../components/layout';
 import SEO from '../components/seo';
 // const browser = typeof window !== "undefined" && window
-
+// "@material-ui/icons": "^4.5.1",
+//     "@material-ui/lab": "^4.0.0-alpha.37",
 export const NotFoundPageWithoutLayout = () => (
   <>
     <SEO title='404: Not found' />
