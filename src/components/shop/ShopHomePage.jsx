@@ -1,28 +1,23 @@
-import React from 'react';
-
-import Typography from '@material-ui/core/Typography';
+import { Divider, Toolbar } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useQuery } from 'react-apollo';
 import ErrorPage from '../core/ErrorPage';
+import Link, { MenuItemLink } from '../core/Link';
+import { getIsStoreOpenNow } from '../core/utils';
 import SEO from '../seo';
-
+import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
 import ProductGridSkeleton from '../skeletons/ProductGridSkeleton';
-
-import TitleAndSearchToolbar from '../templates/TitleAndSearchToolbar';
+import CombosGrid from '../templates/CombosGrid';
+import MainFeaturedPost from '../templates/MainFeaturedPost';
 import PaginationWithState from '../templates/PaginationWithState';
 import ShopProductGrid from '../templates/ShopProductGrid';
-import MainFeaturedPost from '../templates/MainFeaturedPost';
-import BrandShopHomeSkeleton from '../skeletons/BrandShopHomeSkeleton';
-import { Toolbar, Divider } from '@material-ui/core';
-import Link, { MenuItemLink } from '../core/Link';
-
-import { makeStyles } from '@material-ui/core/styles';
-import { navigate } from 'gatsby';
+import TitleAndSearchToolbar from '../templates/TitleAndSearchToolbar';
 import { SHOP_COMBOS } from './dashboard/MyCombos';
-import CombosGrid from '../templates/CombosGrid';
-import { activeStoreTime } from '../core/utils';
 
 const useStyles = makeStyles(theme => ({
   toolbarSecondary: {
@@ -184,6 +179,7 @@ const SHOP = gql`
         heroImage
         openAt
         closeAt
+        offDays
         isOpenToday
       }
     }
@@ -229,14 +225,17 @@ const ShopHomePage = props => {
   if (data && data.shop) {
     let {
       geometry: { coordinates },
-      properties: { title, heroImage, openAt, closeAt, isOpenToday }
+      properties: { title, heroImage, openAt, closeAt, isOpenToday, offDays }
     } = data.shop;
     const lat = coordinates[1];
     const lng = coordinates[0];
 
-    const isActiveStoreTime = activeStoreTime(openAt, closeAt);
-
-    const isStoreOpenNow = isActiveStoreTime && isOpenToday;
+    const isStoreOpenNow = getIsStoreOpenNow(
+      openAt,
+      closeAt,
+      offDays,
+      isOpenToday
+    );
 
     return (
       <>

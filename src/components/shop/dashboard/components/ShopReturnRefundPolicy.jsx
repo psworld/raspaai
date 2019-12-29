@@ -1,20 +1,18 @@
-import React from 'react';
 import {
-  Typography,
-  List,
-  ListItem,
   Button,
   Container,
-  TextField
+  List,
+  ListItem,
+  TextField,
+  Typography
 } from '@material-ui/core';
-
-import { useQuery, useMutation } from 'react-apollo';
+import { GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
-import Loading from '../../../core/Loading';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import Link from '../../../core/Link';
-import { resolve } from 'url';
-import { GraphQLError } from 'graphql';
+import Loading from '../../../core/Loading';
 
 const SHOP_RETURN_REFUND_POLICY = gql`
   query($publicShopUsername: String!) {
@@ -42,16 +40,11 @@ const MODIFY_RETURN_REFUND_POLICY = gql`
   }
 `;
 
-export function getJsonFriendlyString(string) {
-  return string.replace(/\'/g, '"');
-}
 const EditPolicy = ({ defaultReturnRefundPolicy }) => {
   const [returnRefundPolicy, setReturnRefundPolicy] = React.useState(
     defaultReturnRefundPolicy
   );
 
-  console.info('returnRefundPolicy', returnRefundPolicy)
-  
   const [modify, { loading, error, data }] = useMutation(
     MODIFY_RETURN_REFUND_POLICY,
     {
@@ -136,7 +129,7 @@ export const EditReturnRefundPolicy = ({ shopUsername }) => {
       {data && data.shop && (
         <EditPolicy
           defaultReturnRefundPolicy={JSON.parse(
-            getJsonFriendlyString(data.shop.properties.returnRefundPolicy)
+            data.shop.properties.returnRefundPolicy
           )}></EditPolicy>
       )}
     </Container>
@@ -154,13 +147,13 @@ const ShopReturnRefundPolicy = ({ publicUsername }) => {
       {error && <ErrorPage error={error}></ErrorPage>}
       {data && data.shop && (
         <List>
-          {JSON.parse(
-            getJsonFriendlyString(data.shop.properties.returnRefundPolicy)
-          ).map((policy, index) => (
-            <ListItem key={index}>
-              <Typography>{policy}</Typography>
-            </ListItem>
-          ))}
+          {JSON.parse(data.shop.properties.returnRefundPolicy).map(
+            (policy, index) => (
+              <ListItem key={index}>
+                <Typography>{policy}</Typography>
+              </ListItem>
+            )
+          )}
           <ListItem>
             <Button
               variant='contained'

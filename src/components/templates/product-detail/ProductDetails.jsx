@@ -1,31 +1,28 @@
-import React from 'react';
-
-import Grid from '@material-ui/core/Grid';
-
-import ListItem from '@material-ui/core/ListItem';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import ListItemText from '@material-ui/core/ListItemText';
-
-import Link, { MenuItemLink } from '../../core/Link';
-import ProductImageCarousel from './ProductImageCarousel';
 import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
-  Drawer
+  Drawer,
+  List,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
 } from '@material-ui/core';
+import { green } from '@material-ui/core/colors';
+import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
+import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import { CART_ITEMS } from '../../../pages/cart';
+import Link, { MenuItemLink } from '../../core/Link';
+import { getIsStoreOpenNow } from '../../core/utils';
 import { VIEWER } from '../../navbar/ToolBarMenu';
-import { green } from '@material-ui/core/colors';
-import { navigate } from 'gatsby';
-import { getJsonFriendlyString } from '../../shop/dashboard/components/ShopReturnRefundPolicy';
-import { activeStoreTime } from '../../core/utils';
+import ProductImageCarousel from './ProductImageCarousel';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -84,6 +81,22 @@ const ADD_TO_CART = gql`
   }
 `;
 
+export const ReturnRefundPolicy = ({ returnRefundPolicy }) => (
+  <List>
+    <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
+      Return Refund Policy
+    </Typography>
+    <ListItem style={{ paddingTop: 0, marginTop: 5 }}>
+      <Typography variant='body2'>* Not applicable on food items</Typography>
+    </ListItem>
+    {JSON.parse(returnRefundPolicy).map((policy, index) => (
+      <ListItem key={index}>
+        <Typography variant='body1'>{policy}</Typography>
+      </ListItem>
+    ))}
+  </List>
+);
+
 const ProductDetails = props => {
   const {
     product,
@@ -107,6 +120,7 @@ const ProductDetails = props => {
           returnRefundPolicy,
           openAt,
           closeAt,
+          offDays,
           isOpenToday
         }
       }
@@ -137,8 +151,12 @@ const ProductDetails = props => {
   };
 
   // store is open or not
-  const isActiveStoreTime = activeStoreTime(openAt, closeAt);
-  const isStoreOpenNow = isActiveStoreTime && isOpenToday;
+  const isStoreOpenNow = getIsStoreOpenNow(
+    openAt,
+    closeAt,
+    offDays,
+    isOpenToday
+  );
 
   const { data: viewerData } = useQuery(VIEWER);
   if (viewerData) {
@@ -382,22 +400,9 @@ const ProductDetails = props => {
             <br></br>
             <br></br>
             <Divider></Divider>
-            <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
-              Return Refund Policy
-            </Typography>
-            <ListItem>
-              <Typography variant='body2'>
-                * Not applicable on food items
-              </Typography>
-            </ListItem>
-            <br></br>
-            {JSON.parse(getJsonFriendlyString(returnRefundPolicy)).map(
-              (policy, index) => (
-                <ListItem>
-                  <Typography variant='body1'>{policy}</Typography>
-                </ListItem>
-              )
-            )}
+
+            <ReturnRefundPolicy
+              returnRefundPolicy={returnRefundPolicy}></ReturnRefundPolicy>
             <br></br>
           </Grid>
         ) : (

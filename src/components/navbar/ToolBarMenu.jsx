@@ -75,7 +75,7 @@ export const UserToolBar = ({
           color='inherit'>
           <Badge
             variant='dot'
-            invisible={data && data.cartLines.length === 0}
+            invisible={data ? data.cartLines.length === 0 : true}
             color='secondary'>
             <ShoppingCart />
           </Badge>

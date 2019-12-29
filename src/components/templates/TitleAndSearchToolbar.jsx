@@ -1,16 +1,12 @@
-import React from 'react';
-
+import { Divider, IconButton, InputBase, Paper } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import SearchIcon from '@material-ui/icons/Search';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import TextField from '@material-ui/core/TextField';
 import CloseIcon from '@material-ui/icons/Close';
-
+import SearchIcon from '@material-ui/icons/Search';
 import { navigate } from 'gatsby';
-import { Paper, InputBase, IconButton, Divider } from '@material-ui/core';
+import React from 'react';
 
 const useStyles = makeStyles(theme => ({
   toolbar: {
@@ -23,7 +19,7 @@ const useStyles = makeStyles(theme => ({
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    width: 400
+    width: 'auto'
   },
   input: {
     marginLeft: theme.spacing(1),

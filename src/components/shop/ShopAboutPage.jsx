@@ -1,17 +1,18 @@
-import React from 'react';
 import {
-  Typography,
   Container,
   List,
   ListItem,
-  Paper
+  Paper,
+  Typography
 } from '@material-ui/core';
-import Loading from '../core/Loading';
-import ErrorPage from '../core/ErrorPage';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useQuery } from 'react-apollo';
-import { getJsonFriendlyString } from './dashboard/components/ShopReturnRefundPolicy';
+import ErrorPage from '../core/ErrorPage';
 import { MenuItemLink } from '../core/Link';
+import Loading from '../core/Loading';
+import { getDayName, getIsStoreOpenNow } from '../core/utils';
+import MainFeaturedPost from '../templates/MainFeaturedPost';
 
 const SHOP = gql`
   query($publicShopUsername: String!) {
@@ -27,8 +28,10 @@ const SHOP = gql`
         contactNumber
         returnRefundPolicy
         isOpenToday
+        heroImage
         openAt
         closeAt
+        offDays
       }
     }
   }
@@ -51,14 +54,23 @@ const ShopAboutPage = ({ shopUsername }) => {
           address,
           contactNumber,
           returnRefundPolicy,
+          heroImage,
           openAt,
           closeAt,
+          offDays,
           isOpenToday
         }
       }
     } = data;
     const lat = coordinates[1];
     const lng = coordinates[0];
+
+    const isStoreOpenNow = getIsStoreOpenNow(
+      openAt,
+      closeAt,
+      offDays,
+      isOpenToday
+    );
 
     openAt = new Date(`2002-10-06T${openAt}+05:30`).toLocaleTimeString();
     closeAt = new Date(`2002-10-06T${closeAt}+05:30`).toLocaleTimeString();
@@ -74,6 +86,7 @@ const ShopAboutPage = ({ shopUsername }) => {
             <MenuItemLink to={`/shop/${shopUsername}`}>{shopName}</MenuItemLink>
           </Typography>
           <br></br>
+          <MainFeaturedPost img={heroImage} title={shopName}></MainFeaturedPost>
           <List>
             <ListItem>
               <Typography id='address' variant='h4'>
@@ -106,7 +119,15 @@ const ShopAboutPage = ({ shopUsername }) => {
             </ListItem>
             <ListItem>
               <Typography>
-                {isOpenToday ? 'Store is open today' : 'Store is closed today'}
+                {isStoreOpenNow ? 'Store is open now' : 'Store is closed now'}
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>
+                Close on{' '}
+                {JSON.parse(offDays).map(day => (
+                  <>{getDayName(day)} </>
+                ))}
               </Typography>
             </ListItem>
             <ListItem>
@@ -132,13 +153,11 @@ const ShopAboutPage = ({ shopUsername }) => {
                 Return Refund Policy
               </Typography>
             </ListItem>
-            {JSON.parse(getJsonFriendlyString(returnRefundPolicy)).map(
-              (policy, index) => (
-                <ListItem key={index}>
-                  <Typography>{policy}</Typography>
-                </ListItem>
-              )
-            )}
+            {JSON.parse(returnRefundPolicy).map((policy, index) => (
+              <ListItem key={index}>
+                <Typography>{policy}</Typography>
+              </ListItem>
+            ))}
           </List>
         </Paper>
       </Container>

@@ -1,26 +1,26 @@
-import React from 'react';
 import {
+  Button,
+  Divider,
   Grid,
   ListItem,
-  Typography,
-  Divider,
   ListItemText,
-  Button
+  Typography
 } from '@material-ui/core';
-import ProductCollage from '../templates/dashboard/ProductCollage';
+import { green } from '@material-ui/core/colors';
 import { gql } from 'apollo-boost';
-import { useQuery, useMutation } from 'react-apollo';
-import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
+import { navigate } from 'gatsby';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+import { CART_ITEMS } from '../../pages/cart';
 import ErrorPage from '../core/ErrorPage';
 import Link from '../core/Link';
-import SEO from '../seo';
-import ProductThumb from '../templates/ProductThumb';
 import slugGenerator from '../core/slugGenerator';
-import { green } from '@material-ui/core/colors';
-import { getJsonFriendlyString } from '../shop/dashboard/components/ShopReturnRefundPolicy';
 import { VIEWER } from '../navbar/ToolBarMenu';
-import { navigate } from 'gatsby';
-import { CART_ITEMS } from '../../pages/cart';
+import SEO from '../seo';
+import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
+import ProductCollage from '../templates/dashboard/ProductCollage';
+import { ReturnRefundPolicy } from '../templates/product-detail/ProductDetails';
+import ProductThumb from '../templates/ProductThumb';
 
 const COMBO = gql`
   query($comboId: ID!) {
@@ -272,7 +272,9 @@ const Combo = ({ comboId }) => {
       <Grid container>
         <SEO title={`${name} | ${shopName}`} description={description}></SEO>
         <Grid item xs={12} sm={6} md={4}>
-          <ProductCollage thumbs={data.combo.thumbs} title={name}></ProductCollage>
+          <ProductCollage
+            thumbs={data.combo.thumbs}
+            title={name}></ProductCollage>
         </Grid>
 
         <Grid
@@ -412,18 +414,9 @@ const Combo = ({ comboId }) => {
           <br></br>
           <br></br>
           <Divider></Divider>
-          <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
-            Return Refund Policy
-          </Typography>
-          <br></br>
-          {JSON.parse(getJsonFriendlyString(returnRefundPolicy)).map(
-            (policy, index) => (
-              <ListItem key={index}>
-                <Typography variant='body1'>{policy}</Typography>
-              </ListItem>
-            )
-          )}
-          <br></br>
+
+          <ReturnRefundPolicy
+            returnRefundPolicy={returnRefundPolicy}></ReturnRefundPolicy>
         </Grid>
       </Grid>
     );
