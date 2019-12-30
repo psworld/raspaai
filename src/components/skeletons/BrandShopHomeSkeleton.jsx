@@ -8,7 +8,7 @@ const BrandShopHomeSkeleton = () => {
   return (
     <>
       <HeroImageSkeleton></HeroImageSkeleton>
-      <Skeleton height={40}></Skeleton>
+      <Skeleton height={60}></Skeleton>
       <Divider></Divider>
       <ProductGridSkeleton></ProductGridSkeleton>
     </>

@@ -55,6 +55,10 @@ const SHOP_PRODUCT = gql`
           address
           contactNumber
           returnRefundPolicy
+          openAt
+          closeAt
+          offDays
+          isOpenToday
         }
       }
       offeredPrice

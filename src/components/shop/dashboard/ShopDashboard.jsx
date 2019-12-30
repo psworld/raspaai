@@ -8,7 +8,7 @@ import OrderRouter from './components/orders/OrderRouter';
 import { EditReturnRefundPolicy } from './components/ShopReturnRefundPolicy';
 import MyCombos from './MyCombos';
 import AddNewCombo from './AddNewCombo';
-import { NotFoundPageWithoutLayout } from '../../../pages/404';
+import { ShopDashboardProfile } from '../dashboard/components/Dashboard';
 
 const ShopDashboard = props => {
   const { shopUsername } = props;
@@ -23,6 +23,9 @@ const ShopDashboard = props => {
           path='/'
           shopUsername={shopUsername}></ShopDashboardHomePage>
         <MyProductsPage path='products'></MyProductsPage>
+        <ShopDashboardProfile
+          path='profile'
+          shopUsername={shopUsername}></ShopDashboardProfile>
         <EditReturnRefundPolicy
           shopUsername={shopUsername}
           path='return-refund-policy/edit'></EditReturnRefundPolicy>
@@ -44,7 +47,7 @@ const ShopDashboard = props => {
           path='products/search/:phrase'></MyProductsPage>
         <OrderRouter shopUsername={shopUsername} path='orders/*'></OrderRouter>
 
-        <NotFoundPageWithoutLayout default></NotFoundPageWithoutLayout>
+        {/* <NotFoundPageWithoutLayout default></NotFoundPageWithoutLayout> */}
       </Router>
     </DashboardLayout>
   );

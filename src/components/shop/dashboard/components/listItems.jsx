@@ -41,7 +41,7 @@ export const mainListItems = (publicUsername, isBrand) => {
 
       <ListItem
         component={MenuItemLink}
-        to={isBrand ? `/brand/${publicUsername}` : `/shop/${publicUsername}`}
+        to={isBrand ? `/brand/${publicUsername}` : `${baseUrl}/profile`}
         button>
         <ListItemIcon>
           <StoreIcon></StoreIcon>

@@ -43,7 +43,7 @@ const HomePageSkeleton = () => {
             We are getting the best results please wait...
           </Typography>
         </Container>
-        <div className={classes.heroButtons}>
+        {/* <div className={classes.heroButtons}>
           <Grid container justify="center">
             <Grid item>
               <Skeleton width="30%"></Skeleton>
@@ -52,7 +52,7 @@ const HomePageSkeleton = () => {
               <Skeleton width="30%"></Skeleton>
             </Grid>
           </Grid>
-        </div>
+        </div> */}
       </div>
       <ProductGridSkeleton />
     </React.Fragment>

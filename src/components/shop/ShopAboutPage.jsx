@@ -14,7 +14,7 @@ import Loading from '../core/Loading';
 import { getDayName, getIsStoreOpenNow } from '../core/utils';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
 
-const SHOP = gql`
+export const SHOP = gql`
   query($publicShopUsername: String!) {
     shop(publicShopUsername: $publicShopUsername) {
       id
@@ -64,7 +64,6 @@ const ShopAboutPage = ({ shopUsername }) => {
     } = data;
     const lat = coordinates[1];
     const lng = coordinates[0];
-
     const isStoreOpenNow = getIsStoreOpenNow(
       openAt,
       closeAt,

@@ -24,12 +24,14 @@ export const getDayName = day => {
 export const activeDay = offDays => {
   // a list of off days [0, 6]
   const today = new Date().getDay();
-
   try {
-    JSON.parse(offDays).find(day => day === today);
-    return false;
+    const isOffDay = JSON.parse(offDays).find(day => day === today);
+    if (typeof isOffDay === 'undefined') {
+      // Its an active day
+      return true;
+    } else return false;
   } catch {
-    return true;
+    throw new Error('Error parsing offDays');
   }
 };
 
@@ -45,7 +47,7 @@ export const activeStoreTime = (startTime, endTime) => {
       1}-${currentDateTime.getDate()}T${endTime}+05:30`
   );
 
-  return startDateTime < currentDateTime && currentDateTime < endDateTime;
+  return currentDateTime > startDateTime && currentDateTime < endDateTime;
 };
 
 // check is the store is open now or not

@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
 
 const HeroImageSkeleton = () => {
   const classes = useStyles();
-  return <Skeleton className={classes.cardMedia}></Skeleton>;
+  return <Skeleton variant='rect' className={classes.cardMedia}></Skeleton>;
 };
 
 export default HeroImageSkeleton;

@@ -63,6 +63,12 @@ const PlanInfoCard = ({
   productSpace,
   noOfProducts
 }) => {
+  console.info(planExpiryDate);
+
+  const today = new Date();
+
+  const planExpiringToday =
+    today.toDateString() === planExpiryDate.toDateString();
   return (
     <React.Fragment>
       {/* <Title>Plan Details</Title> */}
@@ -84,7 +90,9 @@ const PlanInfoCard = ({
       {/* <Typography>Total Product Space: {productSpace}</Typography> */}
 
       <Typography>
-        Days left : {parseInt((planExpiryDate - new Date()) / 8.64e7)}
+        {planExpiringToday
+          ? `Your plan will expire today at ${planExpiryDate.toLocaleTimeString()}`
+          : `Days left : ${parseInt((planExpiryDate - new Date()) / 8.64e7)}`}
       </Typography>
       {/* <div>
         <Link to={`${window.location.pathname}/plan`}>View Details</Link>

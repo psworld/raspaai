@@ -7,13 +7,12 @@ const ProductSkeleton = () => {
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box width={'100%'} px={1} my={2}>
-        <Skeleton width={'100%'} style={{ paddingTop: '125%' }}></Skeleton>
+        <Skeleton variant='rect' style={{ paddingTop: '125%' }}></Skeleton>
 
         {/* <Box paddingRight={2}> */}
         <Skeleton></Skeleton>
-
-        <Skeleton width='60%'></Skeleton>
-        <Skeleton width='30%'></Skeleton>
+        <Skeleton variant='text' width='60%'></Skeleton>
+        <Skeleton variant='text' width='30%'></Skeleton>
       </Box>
     </Grid>
   );

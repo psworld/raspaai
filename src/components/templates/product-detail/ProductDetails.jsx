@@ -60,9 +60,6 @@ const ADD_TO_CART = gql`
                   properties {
                     publicUsername
                     title
-                    openAt
-                    closeAt
-                    isOpenToday
                   }
                 }
                 product {
@@ -151,12 +148,8 @@ const ProductDetails = props => {
   };
 
   // store is open or not
-  const isStoreOpenNow = getIsStoreOpenNow(
-    openAt,
-    closeAt,
-    offDays,
-    isOpenToday
-  );
+  const isStoreOpenNow =
+    isShopProduct && getIsStoreOpenNow(openAt, closeAt, offDays, isOpenToday);
 
   const { data: viewerData } = useQuery(VIEWER);
   if (viewerData) {

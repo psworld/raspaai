@@ -21,7 +21,7 @@ const ShopRouter = () => {
         <ShopAboutPage path='/shop/:shopUsername/about/:sectionId'></ShopAboutPage>
         <ShopHomePage path='/shop/:shopUsername/search/:phrase'></ShopHomePage>
         <ShopHomePage path='/shop/:shopUsername'></ShopHomePage>
-        <NotFoundPage default></NotFoundPage>
+        {/* <NotFoundPage default></NotFoundPage> */}
       </Router>
     </Layout>
   );

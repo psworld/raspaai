@@ -52,12 +52,11 @@ const BrandProductPage = props => {
   }
 
   if (data && data.product) {
-    console.info(data);
     const {
       product,
       product: { title, description }
     } = data;
-    console.info('passed');
+
     return (
       <>
         <SEO

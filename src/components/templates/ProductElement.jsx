@@ -66,13 +66,16 @@ const ProductElement = ({
     }
   );
 
+  const lengthLimit = 60;
+
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box px={1} my={1}>
         <Link to={isBrand ? brandProduct : shopProduct}>
           <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
           <Typography title={title} variant='body2' color='textPrimary'>
-            {title}
+            {title.substring(0, lengthLimit)}
+            {title.length > lengthLimit && '...'}
           </Typography>
         </Link>
         <Typography display='block' variant='caption' color='primary'>
