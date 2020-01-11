@@ -7,7 +7,6 @@ import ShopHomePage from '../components/shop/ShopHomePage';
 // import ShopApplicationStatus from '../components/shop/ShopApplicationStatus';
 import ShopAboutPage from '../components/shop/ShopAboutPage';
 import Combo from '../components/shop-product/Combo';
-import NotFoundPage from './404';
 
 const ShopRouter = () => {
   return (

@@ -19,6 +19,7 @@ import Link from '../../core/Link';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
+import { navigate } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -65,37 +66,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SUBMIT_BRAND_APPLICATION = gql`
-  mutation(
-    $publicUsername: String!
-    $imgName: String!
-    $heroImg64: String!
-    $userEmail: String!
-    $brandName: String!
-  ) {
-    brandRegisterApplication(
-      input: {
-        publicUsername: $publicUsername
-        imgName: $imgName
-        userEmail: $userEmail
-        heroImg64: $heroImg64
-        brandName: $brandName
-      }
-    ) {
-      brandApplication {
+const ADMIN_ADD_BRAND = gql`
+  mutation($data: AdminAddBrandInput!) {
+    adminAddBrand(input: $data) {
+      brand {
         id
-        brand {
-          publicUsername
-          application {
-            id
-            status {
-              id
-              statusCode
-              title
-              description
-            }
-          }
-        }
+        publicUsername
       }
     }
   }
@@ -115,16 +91,22 @@ const AddNewBrand = () => {
   });
   const { brandName, brandUsername, userEmail } = values;
 
-  // Mutation for application submit
-  const [submitApplication, { loading, error, data, called }] = useMutation(
-    SUBMIT_BRAND_APPLICATION,
+  // Mutation for creating brand
+  const [createBrand, { loading, error, data, called }] = useMutation(
+    ADMIN_ADD_BRAND,
     {
       variables: {
-        publicUsername: brandUsername,
-        brandName,
-        userEmail,
-        imgName: img ? img.file.name : null,
-        heroImg64: img ? img.base64 : null
+        data: {
+          publicUsername: brandUsername,
+          brandName,
+          userEmail,
+          imgName: img ? img.file.name : null,
+          heroImg64: img ? img.base64 : null
+        }
+      },
+      onCompleted(data) {
+        const brandUsername = data.adminAddBrand.brand.publicUsername;
+        navigate(`/brand/${brandUsername}`);
       }
     }
   );
@@ -250,13 +232,12 @@ const AddNewBrand = () => {
               </Grid>
               <Grid item md={12} xs={12}>
                 {error && (
-                  <GraphqlErrorMessage
-                    error={error}></GraphqlErrorMessage>
+                  <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
                 )}
               </Grid>
               <Button
                 disabled={loading || data}
-                onClick={submitApplication}
+                onClick={createBrand}
                 fullWidth
                 variant='contained'
                 color='secondary'

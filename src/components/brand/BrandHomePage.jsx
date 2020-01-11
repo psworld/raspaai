@@ -175,7 +175,11 @@ const BrandHomePage = props => {
       </>
     );
   }
-  return <h1>No brand found</h1>;
+  return (
+    <Typography variant='h4' align='center'>
+      No brand found with username {publicBrandUsername}
+    </Typography>
+  );
 };
 
 export default BrandHomePage;

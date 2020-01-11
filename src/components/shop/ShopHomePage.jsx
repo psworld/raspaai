@@ -181,6 +181,8 @@ const SHOP = gql`
         closeAt
         offDays
         isOpenToday
+        isActive
+        contactNumber
       }
     }
   }
@@ -193,6 +195,25 @@ const sections = [
   { id: 'Contact', url: '#contact' },
   { id: 'Return refund policy', url: '#return-refund-policy' }
 ];
+
+export const InactiveShop = ({ contactNumber, shopName, shopUsername }) => {
+  return (
+    <div style={{ marginTop: 20 }}>
+      <Typography style={{ color: 'red' }} variant='h5' align='center'>
+        This shop is currently inactive
+      </Typography>
+
+      <Typography style={{ marginTop: 10 }} align='center'>
+        <a
+          href={`https://wa.me/91${contactNumber}?text=Hey chief we need your products.%0aKindly reactivate your shop *${shopName}* at ${window.location.origin}/shop/${shopUsername}`}
+          target='_blank'
+          rel='noopener noreferrer'>
+          <b>Send a request to owner to reactivate the shop.</b>
+        </a>
+      </Typography>
+    </div>
+  );
+};
 
 const ShopHomePage = props => {
   const { shopUsername, phrase } = props;
@@ -225,7 +246,16 @@ const ShopHomePage = props => {
   if (data && data.shop) {
     let {
       geometry: { coordinates },
-      properties: { title, heroImage, openAt, closeAt, isOpenToday, offDays }
+      properties: {
+        title,
+        heroImage,
+        openAt,
+        closeAt,
+        isOpenToday,
+        offDays,
+        isActive,
+        contactNumber
+      }
     } = data.shop;
     const lat = coordinates[1];
     const lng = coordinates[0];
@@ -248,41 +278,52 @@ const ShopHomePage = props => {
           setSearchPhrase={setSearchPhrase}
           handleClearSearch={handleClearSearch}
           lat={lat}
-          lng={lng}></TitleAndSearchToolbar>
-        <Toolbar
-          component='nav'
-          variant='dense'
-          className={classes.toolbarSecondary}>
-          {sections.map(section => (
-            <Link
-              key={section.id}
-              to={`${window.location.pathname}/about/${section.url}`}
-              color='inherit'
-              noWrap
-              variant='body2'
-              className={classes.toolbarLink}>
-              {section.id}
-            </Link>
-          ))}
-        </Toolbar>
-        <Divider></Divider>
-        <Typography align='center' variant='h6'>
-          <MenuItemLink to={`${window.location.pathname}/about/#active-time`}>
-            {isStoreOpenNow ? (
-              <span style={{ color: 'green' }}>Store is open now</span>
-            ) : (
-              <span style={{ color: 'red' }}>Store is closed for now</span>
-            )}
-          </MenuItemLink>
-        </Typography>
-        <Combos
-          shop={data.shop}
-          phrase={phrase}
-          shopUsername={shopUsername}></Combos>
-        <ShopProducts
-          shop={data.shop}
-          phrase={phrase}
-          shopUsername={shopUsername}></ShopProducts>
+          lng={lng}
+          isActive={isActive}></TitleAndSearchToolbar>
+        {isActive ? (
+          <>
+            <Toolbar
+              component='nav'
+              variant='dense'
+              className={classes.toolbarSecondary}>
+              {sections.map(section => (
+                <Link
+                  key={section.id}
+                  to={`${window.location.pathname}/about/${section.url}`}
+                  color='inherit'
+                  noWrap
+                  variant='body2'
+                  className={classes.toolbarLink}>
+                  {section.id}
+                </Link>
+              ))}
+            </Toolbar>
+            <Divider></Divider>
+            <Typography align='center' variant='h6'>
+              <MenuItemLink
+                to={`${window.location.pathname}/about/#active-time`}>
+                {isStoreOpenNow ? (
+                  <span style={{ color: 'green' }}>Store is open now</span>
+                ) : (
+                  <span style={{ color: 'red' }}>Store is closed for now</span>
+                )}
+              </MenuItemLink>
+            </Typography>
+            <Combos
+              shop={data.shop}
+              phrase={phrase}
+              shopUsername={shopUsername}></Combos>
+            <ShopProducts
+              shop={data.shop}
+              phrase={phrase}
+              shopUsername={shopUsername}></ShopProducts>
+          </>
+        ) : (
+          <InactiveShop
+            contactNumber={contactNumber}
+            shopName={title}
+            shopUsername={shopUsername}></InactiveShop>
+        )}
       </>
     );
   } else {

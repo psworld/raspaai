@@ -49,7 +49,7 @@ const CATEGORIES = gql`
           id
           name
           technicalDetailsTemplate
-          producttypeSet {
+          types {
             edges {
               node {
                 id
@@ -132,8 +132,8 @@ export const ModifyBrandProduct = ({
       : null;
 
   const currentCategoryProductTypes =
-    currentCategory && currentCategory.producttypeSet.edges.length !== 0
-      ? currentCategory.producttypeSet.edges
+    currentCategory && currentCategory.types.edges.length !== 0
+      ? currentCategory.types.edges
       : null;
 
   const currentProductType =
@@ -364,7 +364,9 @@ export const ModifyBrandProduct = ({
   // modify product
   const [modifyProduct, { loading, error, data }] = useMutation(
     MODIFY_BRAND_PRODUCT,
-    { variables: { data: modifyBrandProductInput } }
+    {
+      variables: { data: modifyBrandProductInput }
+    }
   );
 
   //Character length limit

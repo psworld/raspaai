@@ -2,7 +2,6 @@ import React from 'react';
 
 const GraphqlErrorMessage = ({ error, critical = false }) => {
   const color = critical ? 'red' : 'green';
-  console.info(error);
   return (
     <div>
       {error.graphQLErrors.map((err, index) => (

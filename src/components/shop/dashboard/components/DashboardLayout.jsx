@@ -18,18 +18,13 @@ import { useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import { VIEWER } from '../../../navbar/ToolBarMenu';
 import { navigate } from 'gatsby';
+import { Typography, Button } from '@material-ui/core';
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex'
-  },
-  container: {
-    paddingTop: theme.spacing(1),
-    // paddingBottom: theme.spacing(4),
-    paddingLeft: 3,
-    paddingRight: 3
   },
   toolbar: {
     paddingRight: 24 // keep right padding when drawer closed
@@ -90,6 +85,19 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     // height: '100vh',
     overflow: 'auto'
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    marginBottom: theme.spacing(4)
+  },
+  paper: {
+    padding: theme.spacing(2),
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column'
+  },
+  fixedHeight: {
+    height: 240
   }
 }));
 
@@ -116,59 +124,81 @@ const DashboardLayout = ({ children, publicUsername, isBrand = false }) => {
       ? viewer.isBrandOwner && viewer.brand.publicUsername
       : viewer.isShopOwner && viewer.shop.properties.publicUsername;
 
+    const isShopActive = isBrand ? true : viewer.shop.properties.isActive;
+
     if (userRegisteredPublicUsername === publicUsername || viewer.isSuperuser) {
       return (
         <>
-          <CssBaseline />
           <div className={classes.root}>
+            <CssBaseline />
             <AppBar
               position='absolute'
               className={clsx(classes.appBar, open && classes.appBarShift)}>
               <Toolbar className={classes.toolbar}>
-                <IconButton
-                  edge='start'
-                  color='inherit'
-                  aria-label='open drawer'
-                  onClick={handleDrawerOpen}
-                  className={clsx(
-                    classes.menuButton,
-                    open && classes.menuButtonHidden
-                  )}>
-                  <MenuIcon />
-                </IconButton>
-
-                <SearchBar
-                  isBrand={isBrand}
-                  publicUsername={publicUsername}></SearchBar>
-                {/* <IconButton color='inherit'>
-                  <Badge badgeContent={4} color='secondary'>
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton> */}
+                {isShopActive && (
+                  <>
+                    <IconButton
+                      edge='start'
+                      color='inherit'
+                      aria-label='open drawer'
+                      onClick={handleDrawerOpen}
+                      className={clsx(
+                        classes.menuButton,
+                        open && classes.menuButtonHidden
+                      )}>
+                      <MenuIcon />
+                    </IconButton>
+                    <SearchBar
+                      isBrand={isBrand}
+                      publicUsername={publicUsername}></SearchBar>
+                  </>
+                )}
               </Toolbar>
             </AppBar>
-            <Drawer
-              variant='permanent'
-              classes={{
-                paper: clsx(
-                  classes.drawerPaper,
-                  !open && classes.drawerPaperClose
-                )
-              }}
-              open={open}>
-              <div className={classes.toolbarIcon}>
-                <IconButton onClick={handleDrawerClose}>
-                  <ChevronLeftIcon />
-                </IconButton>
-              </div>
-              <Divider />
-              <List>{mainListItems(publicUsername, isBrand)}</List>
-              <Divider />
-              {/* <List>{secondaryListItems}</List> */}
-            </Drawer>
+            {isShopActive && (
+              <Drawer
+                variant='permanent'
+                classes={{
+                  paper: clsx(
+                    classes.drawerPaper,
+                    !open && classes.drawerPaperClose
+                  )
+                }}
+                open={open}>
+                <div className={classes.toolbarIcon}>
+                  <IconButton onClick={handleDrawerClose}>
+                    <ChevronLeftIcon />
+                  </IconButton>
+                </div>
+                <Divider />
+                <List>{mainListItems(publicUsername, isBrand)}</List>
+                <Divider />
+                {/* <List>{secondaryListItems}</List> */}
+              </Drawer>
+            )}
             <main className={classes.content}>
               <div className={classes.appBarSpacer} />
-              {children}
+              {isShopActive ? (
+                <>{children}</>
+              ) : (
+                <div style={{ marginTop: 20 }}>
+                  <Typography variant='h5' align='center'>
+                    Your shop plans have expired. Recharge to continue the
+                    service
+                  </Typography>
+                  <br></br>
+                  <center>
+                    <Button
+                      onClick={() =>
+                        navigate(`/dashboard/shop/${publicUsername}/plans/buy`)
+                      }
+                      variant='contained'
+                      color='secondary'>
+                      Buy plans
+                    </Button>
+                  </center>
+                </div>
+              )}
             </main>
           </div>
         </>

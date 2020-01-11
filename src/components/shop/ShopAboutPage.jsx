@@ -5,6 +5,7 @@ import {
   Paper,
   Typography
 } from '@material-ui/core';
+import { format } from 'date-fns';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
@@ -71,8 +72,8 @@ const ShopAboutPage = ({ shopUsername }) => {
       isOpenToday
     );
 
-    openAt = new Date(`2002-10-06T${openAt}+05:30`).toLocaleTimeString();
-    closeAt = new Date(`2002-10-06T${closeAt}+05:30`).toLocaleTimeString();
+    openAt = format(new Date(`2002-10-06T${openAt}+05:30`), 'h:mm a');
+    closeAt = format(new Date(`2002-10-06T${closeAt}+05:30`), 'h:mm a');
 
     return (
       <Container maxWidth='sm'>
@@ -117,16 +118,23 @@ const ShopAboutPage = ({ shopUsername }) => {
               </Typography>
             </ListItem>
             <ListItem>
-              <Typography>
+              <Typography
+                style={isStoreOpenNow ? { color: 'green' } : { color: 'red' }}>
                 {isStoreOpenNow ? 'Store is open now' : 'Store is closed now'}
               </Typography>
             </ListItem>
             <ListItem>
               <Typography>
-                Close on{' '}
-                {JSON.parse(offDays).map(day => (
-                  <>{getDayName(day)} </>
-                ))}
+                {JSON.parse(offDays).length === 0 ? (
+                  <>Open on all days</>
+                ) : (
+                  <>
+                    Close on{' '}
+                    {JSON.parse(offDays).map(day => (
+                      <>{getDayName(day)} </>
+                    ))}
+                  </>
+                )}
               </Typography>
             </ListItem>
             <ListItem>

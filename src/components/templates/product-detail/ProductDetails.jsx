@@ -23,6 +23,7 @@ import Link, { MenuItemLink } from '../../core/Link';
 import { getIsStoreOpenNow } from '../../core/utils';
 import { VIEWER } from '../../navbar/ToolBarMenu';
 import ProductImageCarousel from './ProductImageCarousel';
+import { InactiveShop } from '../../shop/ShopHomePage';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -118,7 +119,8 @@ const ProductDetails = props => {
           openAt,
           closeAt,
           offDays,
-          isOpenToday
+          isOpenToday,
+          isActive
         }
       }
     } = shopProduct;
@@ -264,23 +266,32 @@ const ProductDetails = props => {
                 </Typography>
               </ListItem>
               <Divider />
-              <ListItem>
-                <ListItemText
-                  style={{ color: isStoreOpenNow ? 'green' : 'red' }}
-                  primary={
-                    <MenuItemLink
-                      to={`/shop/${shopPublicUsername}/about#active-time`}>
-                      {isStoreOpenNow ? 'Store is open' : 'Store is closed'}
-                    </MenuItemLink>
-                  }
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  style={{ color: inStock ? 'green' : 'red' }}
-                  primary={inStock ? 'In stock' : 'Out of stock'}
-                />
-              </ListItem>
+              {isActive ? (
+                <>
+                  <ListItem>
+                    <ListItemText
+                      style={{ color: isStoreOpenNow ? 'green' : 'red' }}
+                      primary={
+                        <MenuItemLink
+                          to={`/shop/${shopPublicUsername}/about#active-time`}>
+                          {isStoreOpenNow ? 'Store is open' : 'Store is closed'}
+                        </MenuItemLink>
+                      }
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      style={{ color: inStock ? 'green' : 'red' }}
+                      primary={inStock ? 'In stock' : 'Out of stock'}
+                    />
+                  </ListItem>
+                </>
+              ) : (
+                <InactiveShop
+                  contactNumber={contactNumber}
+                  shopName={shopName}
+                  shopUsername={shopPublicUsername}></InactiveShop>
+              )}
             </>
           )}
           <Divider />
@@ -320,7 +331,7 @@ const ProductDetails = props => {
             </TableBody>
           </Table>
         </Grid>
-        {shopProduct ? (
+        {shopProduct && isActive ? (
           <Grid
             style={{ paddingLeft: 8, paddingRight: 8, marginTop: 8 }}
             item

@@ -89,9 +89,7 @@ const ShopOwnerEmailVerification = ({
         onClick={sendEmail}>
         Verify Email
       </Button>
-      {error && (
-        <GraphqlErrorMessage message={error.message}></GraphqlErrorMessage>
-      )}
+      {error && <GraphqlErrorMessage message={error}></GraphqlErrorMessage>}
     </Container>
   );
 };

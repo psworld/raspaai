@@ -8,6 +8,7 @@ import { useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import Loading from '../../../core/Loading';
 import Link from '../../../core/Link';
+import { differenceInDays, format, differenceInHours } from 'date-fns';
 
 const BRAND_PLAN_INFO = gql`
   query($publicBrandUsername: String!) {
@@ -63,12 +64,7 @@ const PlanInfoCard = ({
   productSpace,
   noOfProducts
 }) => {
-  console.info(planExpiryDate);
-
-  const today = new Date();
-
-  const planExpiringToday =
-    today.toDateString() === planExpiryDate.toDateString();
+  const expiryDate = format(planExpiryDate, 'MMM d, y h:m a');
   return (
     <React.Fragment>
       {/* <Title>Plan Details</Title> */}
@@ -76,9 +72,7 @@ const PlanInfoCard = ({
         ₹ {price} plan
       </Typography>
       {/* <Typography>Validity: {validityDuration.split(",")[0]}</Typography> */}
-      <Typography color='textSecondary'>
-        expires on {planExpiryDate.toDateString()}
-      </Typography>
+      <Typography color='textSecondary'>Expires on {expiryDate}</Typography>
       <Typography>
         {productSpace - noOfProducts} product space remaining out of total{' '}
         {productSpace}
@@ -89,14 +83,9 @@ const PlanInfoCard = ({
       </Typography>
       {/* <Typography>Total Product Space: {productSpace}</Typography> */}
 
-      <Typography>
-        {planExpiringToday
-          ? `Your plan will expire today at ${planExpiryDate.toLocaleTimeString()}`
-          : `Days left : ${parseInt((planExpiryDate - new Date()) / 8.64e7)}`}
-      </Typography>
-      {/* <div>
-        <Link to={`${window.location.pathname}/plan`}>View Details</Link>
-      </div> */}
+      <div>
+        <Link to={`${window.location.pathname}/plans`}>View Details</Link>
+      </div>
     </React.Fragment>
   );
 };

@@ -37,15 +37,20 @@ export const activeDay = offDays => {
 
 // check if the store is in active time period
 export const activeStoreTime = (startTime, endTime) => {
+  const startTimeList = startTime.split(':');
+  const endTimeList = endTime.split(':');
+
   const currentDateTime = new Date();
-  const startDateTime = new Date(
-    `${currentDateTime.getFullYear()}-${currentDateTime.getMonth() +
-      1}-${currentDateTime.getDate()}T${startTime}+05:30`
+
+  const startDateTime = new Date();
+  startDateTime.setHours(
+    parseInt(startTimeList[0]),
+    parseInt(startTimeList[1]),
+    0
   );
-  const endDateTime = new Date(
-    `${currentDateTime.getFullYear()}-${currentDateTime.getMonth() +
-      1}-${currentDateTime.getDate()}T${endTime}+05:30`
-  );
+
+  const endDateTime = new Date();
+  endDateTime.setHours(parseInt(endTimeList[0]), parseInt(endTimeList[1]), 0);
 
   return currentDateTime > startDateTime && currentDateTime < endDateTime;
 };

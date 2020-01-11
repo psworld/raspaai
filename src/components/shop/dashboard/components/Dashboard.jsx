@@ -42,11 +42,14 @@ const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
-    // overflow: 'auto',
+    overflow: 'auto',
     flexDirection: 'column'
   },
+  spacing: {
+    padding: theme.spacing(1)
+  },
   fixedHeight: {
-    height: 240
+    minHeight: 240
   },
   formControl: {
     margin: theme.spacing(1),
@@ -232,6 +235,7 @@ const ShopOffDays = ({ offDays: defaultValue }) => {
 const ShopOpenCloseTime = ({ openAt, closeAt }) => {
   const defaultOpenTime = new Date(`2002-10-06T${openAt}+05:30`);
   const defaultCloseTime = new Date(`2002-10-06T${closeAt}+05:30`);
+
   const [openTime, setOpenTime] = React.useState(defaultOpenTime);
   const [closeTime, setCloseTime] = React.useState(defaultCloseTime);
 
@@ -264,11 +268,14 @@ const ShopOpenCloseTime = ({ openAt, closeAt }) => {
   };
 
   const validateChanges = () => {
-    if (defaultOpenTime === openTime || defaultCloseTime === closeTime) {
+    if (
+      defaultOpenTime.getTime() !== openTime.getTime() ||
+      defaultCloseTime.getTime() !== closeTime.getTime()
+    ) {
+      return true;
+    } else {
       // nothing has changed
       return false;
-    } else {
-      return true;
     }
   };
 
@@ -472,24 +479,24 @@ export default function Dashboard({ publicUsername, isBrand = false }) {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
-    <Grid container spacing={2}>
+    <Grid container>
       {/* Chart */}
       {!isBrand && (
-        <Grid item xs={12} md={8} lg={9}>
-          <Paper>
+        <Grid className={classes.spacing} item xs={12} md={8} lg={9}>
+          <Paper className={fixedHeightPaper}>
             <ShopReturnRefundPolicy publicUsername={publicUsername} />
           </Paper>
         </Grid>
       )}
       {/* Recent Deposits */}
-      <Grid item xs={12} md={4} lg={3}>
+      <Grid className={classes.spacing} item xs={12} md={4} lg={3}>
         <Paper className={fixedHeightPaper}>
           <PlanInfo isBrand={isBrand} publicUsername={publicUsername} />
         </Paper>
       </Grid>
       {/* Recent Orders */}
       {!isBrand && (
-        <Grid item xs={12}>
+        <Grid className={classes.spacing} item xs={12}>
           <Paper className={classes.paper}>
             <Orders />
           </Paper>

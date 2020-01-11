@@ -59,6 +59,7 @@ const SHOP_PRODUCT = gql`
           closeAt
           offDays
           isOpenToday
+          isActive
         }
       }
       offeredPrice

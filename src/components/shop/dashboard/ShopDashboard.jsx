@@ -1,14 +1,15 @@
-import React from 'react';
 import { Router } from '@reach/router';
-import ShopDashboardHomePage from './ShopDashboardHomePage';
-import MyProductsPage from './MyProductsPage';
-import DashboardLayout from './components/DashboardLayout';
+import React from 'react';
+import { ShopDashboardProfile } from '../dashboard/components/Dashboard';
+import AddNewCombo from './AddNewCombo';
 import AddNewProduct from './AddNewProduct';
+import DashboardLayout from './components/DashboardLayout';
 import OrderRouter from './components/orders/OrderRouter';
+import MyShopPlans from './components/plans/MyShopPlans';
 import { EditReturnRefundPolicy } from './components/ShopReturnRefundPolicy';
 import MyCombos from './MyCombos';
-import AddNewCombo from './AddNewCombo';
-import { ShopDashboardProfile } from '../dashboard/components/Dashboard';
+import MyProductsPage from './MyProductsPage';
+import ShopDashboardHomePage from './ShopDashboardHomePage';
 
 const ShopDashboard = props => {
   const { shopUsername } = props;
@@ -23,6 +24,7 @@ const ShopDashboard = props => {
           path='/'
           shopUsername={shopUsername}></ShopDashboardHomePage>
         <MyProductsPage path='products'></MyProductsPage>
+        <MyShopPlans path='plans' shopUsername={shopUsername}></MyShopPlans>
         <ShopDashboardProfile
           path='profile'
           shopUsername={shopUsername}></ShopDashboardProfile>

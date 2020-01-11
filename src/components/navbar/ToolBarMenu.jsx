@@ -40,16 +40,7 @@ export const VIEWER = gql`
         id
         properties {
           publicUsername
-          application {
-            id
-            submittedAt
-            updatedAt
-            status {
-              id
-              statusCode
-              title
-            }
-          }
+          isActive
         }
       }
     }
