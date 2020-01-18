@@ -7,6 +7,7 @@ import SEO from '../seo';
 import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
 import ProductDetails from '../templates/product-detail/ProductDetails';
 import { Typography } from '@material-ui/core';
+import Link from '../core/Link';
 
 // const seeThisOnGoogleMaps = "https://www.google.co.in/maps/place/31.708324,76.931868/@31.7082658,76.931412,16z/"
 
@@ -54,6 +55,7 @@ const SHOP_PRODUCT = gql`
           title
           address
           contactNumber
+          heroImage
           returnRefundPolicy
           openAt
           closeAt
@@ -118,7 +120,20 @@ const ShopProductPage = props => {
     );
   }
 
-  return <Typography>No product found ...</Typography>;
+  return (
+    <>
+      <Typography variant='h5' align='center' style={{ marginTop: '10vh' }}>
+        Sorry, product not found. This product might have been deleted by shop
+        owner.
+      </Typography>
+      <br></br>
+      <center>
+        <Typography component={Link} to={`/shop/${shopUsername}`} variant='h6'>
+          Check other products from {shopUsername}
+        </Typography>
+      </center>
+    </>
+  );
 };
 
 export default ShopProductPage;

@@ -118,7 +118,7 @@ const AvailablePlans = ({
   if (loading) return <Loading></Loading>;
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
-    const productSpaces = [25, 50, 75, 100];
+    const productSpaces = [20, 50, 75, 100];
     const { edges: availablePlanNodeEdges } = data.availablePlans;
 
     const groupedPlanNodeEdges = {};

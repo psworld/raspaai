@@ -1,27 +1,22 @@
-import React from 'react';
-
+import { Drawer } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
+import Grid from '@material-ui/core/Grid';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { Formik } from 'formik';
+import { navigate } from 'gatsby';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useMutation } from 'react-apollo';
+import * as yup from 'yup';
+import GraphqlErrorMessage from '../core/GraphqlErrorMessage';
 import EmailInput from '../core/input/EmailInput';
 import PasswordInput from '../core/input/PasswordInput';
-
-import { useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
 import Link from '../core/Link';
 import { VIEWER } from '../navbar/ToolBarMenu';
-import GraphqlErrorMessage from '../core/GraphqlErrorMessage';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { Drawer } from '@material-ui/core';
-import { navigate } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -73,31 +68,13 @@ const SIGNIN = gql`
         brand {
           id
           publicUsername
-          application {
-            id
-            submittedAt
-            updatedAt
-            status {
-              id
-              statusCode
-              title
-            }
-          }
+          isActive
         }
         shop {
           id
           properties {
             publicUsername
-            application {
-              id
-              submittedAt
-              updatedAt
-              status {
-                id
-                statusCode
-                title
-              }
-            }
+            isActive
           }
         }
       }
@@ -108,7 +85,8 @@ const SIGNIN = gql`
 export default function SigninForm({ message, redirectUrl }) {
   const classes = useStyles();
 
-  const [signin, { called, loading, error, data }] = useMutation(SIGNIN, {
+  const [signin, { loading, error }] = useMutation(SIGNIN, {
+    // refetchQueries: [{ query: CART_ITEMS }],
     update(
       store,
       {
@@ -121,9 +99,12 @@ export default function SigninForm({ message, redirectUrl }) {
         query: VIEWER,
         data: { viewer: user }
       });
+
       redirectUrl ? navigate(redirectUrl) : window.history.back();
     },
-    onCompleted: data => localStorage.setItem('token', data.loginUser.token)
+    onCompleted: data => {
+      localStorage.setItem('token', data.loginUser.token);
+    }
     // data.loginUser.rememberMe
     //   ? localStorage.setItem('token', data.loginUser.token)
     //   : sessionStorage.setItem('token', data.loginUser.token)
@@ -149,17 +130,17 @@ export default function SigninForm({ message, redirectUrl }) {
         rememberMe: yup.bool()
       })}
       onSubmit={(values, { setSubmitting }) => {
-        const { email, password, rememberMe } = values;
+        const { email, password } = values;
 
         signin({
-          variables: { email, password, rememberMe }
+          variables: { email, password }
         });
 
         setSubmitting(false);
       }}>
       {formik => {
         const {
-          values: { email, password, rememberMe },
+          values: { email, password },
           handleBlur,
           handleChange,
           touched,

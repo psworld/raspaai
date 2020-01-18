@@ -21,6 +21,14 @@ export const getDayName = day => {
   return days[day];
 };
 
+export const getDateFromHours = hrsStr => {
+  // hrsStr = '08:00:00', '23:09:00'
+  const hrsStrSplit = hrsStr.split(':');
+  const dateFromHrs = new Date();
+  dateFromHrs.setHours(hrsStrSplit[0], hrsStrSplit[1], 0);
+  return dateFromHrs;
+};
+
 export const activeDay = offDays => {
   // a list of off days [0, 6]
   const today = new Date().getDay();

@@ -1,21 +1,29 @@
-import React from 'react';
-import { Typography, Grid, Container, Button } from '@material-ui/core';
+import {
+  Button,
+  Container,
+  Grid,
+  Typography,
+  Box,
+  TextField,
+  InputAdornment
+} from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
-import { useQuery, useMutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
-import SEO from '../../seo';
-import Loading from '../../core/Loading';
-import ErrorPage from '../../core/ErrorPage';
-import Link from '../../core/Link';
-import PaginationWithState from '../../templates/PaginationWithState';
-import slugGenerator from '../../core/slugGenerator';
-import ProductCollage from '../../templates/dashboard/ProductCollage';
-import { emptyPageInfo } from '../../core/utils';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+import ErrorPage from '../../../core/ErrorPage';
+import Link from '../../../core/Link';
+import Loading from '../../../core/Loading';
+import slugGenerator from '../../../core/slugGenerator';
+import { emptyPageInfo } from '../../../core/utils';
+import SEO from '../../../seo';
+import ProductCollage from '../../../templates/dashboard/ProductCollage';
+import PaginationWithState from '../../../templates/PaginationWithState';
+import SearchBar from '../../../templates/dashboard/SearchBar';
 
 export const SHOP_COMBOS = gql`
   query(
@@ -110,30 +118,72 @@ const DELETE_COMBO = gql`
 const ComboGridItem = ({ shopComboNode, shopUsername, handleClickOpen }) => {
   const { id: comboId, name: comboName, thumbs, offeredPrice } = shopComboNode;
 
+  const [newOfferedPrice, setNewOfferedPrice] = React.useState(offeredPrice);
+
+  const handleChange = e => {
+    let value = e.target.value;
+    try {
+      value = parseInt(value);
+      setNewOfferedPrice(value);
+    } catch {}
+  };
+
+  // const validChanges = () => {
+  //   if (Number.isInteger(newOfferedPrice)) {
+  //     if (
+  //       (newOfferedPrice === offeredPrice && newInStock === inStock) ||
+  //       newOfferedPrice > mrp
+  //     ) {
+  //       return false;
+  //     }
+
+  //     return true;
+  //   } else return false;
+  // };
+
   const comboSlug = slugGenerator(comboName);
   return (
     <Grid key={comboId} item xs={6} sm={4} md={3} lg={2}>
-      <Link to={`/shop/${shopUsername}/combo/${comboSlug}/${comboId}`}>
-        <ProductCollage thumbs={thumbs} title={comboName}></ProductCollage>
-        <Typography variant='body2'>{comboName}</Typography>
-      </Link>
-      <Typography
-        variant='body2'
-        style={{
-          color: 'green'
-        }}>
-        &#8377; {offeredPrice}
-      </Typography>
+      <Box width='100%' px={1} my={2}>
+        <Link to={`/shop/${shopUsername}/combo/${comboSlug}/${comboId}`}>
+          <ProductCollage thumbs={thumbs} title={comboName}></ProductCollage>
+          <Typography variant='body2'>{comboName}</Typography>
+        </Link>
 
-      <Button variant='contained' color='primary'>
-        Edit
-      </Button>
-      <Button
-        onClick={() => handleClickOpen(comboId)}
-        variant='contained'
-        color='secondary'>
-        Delete
-      </Button>
+        <Typography style={{ color: 'green' }} variant='h6'>
+          &#8377; {offeredPrice}
+        </Typography>
+        {/* <TextField
+          onChange={handleChange}
+          placeholder={'Offered Price'}
+          id='newOfferedPrice'
+          value={newOfferedPrice}
+          name='newOfferedPrice'
+          type='number'
+          margin='dense'
+          variant='outlined'
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start' style={{ color: 'green' }}>
+                &#8377;
+              </InputAdornment>
+            )
+          }}
+          InputLabelProps={{
+            shrink: true
+          }}
+        /> */}
+
+        {/* <Button variant='contained' color='primary'>
+          Edit
+        </Button> */}
+        <Button
+          onClick={() => handleClickOpen(comboId)}
+          variant='contained'
+          color='secondary'>
+          Delete
+        </Button>
+      </Box>
     </Grid>
   );
 };
@@ -209,8 +259,24 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
     } = data;
 
     return (
-      <Container>
-        <Grid container spacing={1}>
+      <>
+        <br></br>
+        <center>
+          <Button
+            component={Link}
+            to={`${window.location.pathname}/add`}
+            variant='contained'
+            color='primary'>
+            Add new Combos
+          </Button>
+        </center>
+        <br></br>
+        <SearchBar
+          placeholder='Search your combos'
+          defaultPhrase={phrase}
+          searchUrlBase={window.location.pathname}></SearchBar>
+        <br></br>
+        <Grid container>
           {shopComboEdges.map(shopCombo => {
             return (
               <ComboGridItem
@@ -237,7 +303,7 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
             fetchMore={fetchMore}
             pageInfo={data.shopCombos.pageInfo}></PaginationWithState>
         </Grid>
-      </Container>
+      </>
     );
   }
   if (phrase) {
@@ -253,12 +319,14 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
         You do not have any combos in your shop.
       </Typography>
       <br></br>
-      <Typography
-        variant='h5'
-        component={Link}
-        to={`${window.location.pathname}/create`}>
-        Create Combo
-      </Typography>
+      <center>
+        <Typography
+          variant='h5'
+          component={Link}
+          to={`${window.location.pathname}/create`}>
+          Create Combo
+        </Typography>
+      </center>
     </>
   );
 };

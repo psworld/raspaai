@@ -1,8 +1,10 @@
 import DateFnsUtils from '@date-io/date-fns';
 import {
+  Button,
   Checkbox,
   Chip,
   Container,
+  Divider,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -12,9 +14,7 @@ import {
   ListItem,
   MenuItem,
   Select,
-  Typography,
-  Divider,
-  Button
+  Typography
 } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -23,10 +23,11 @@ import {
   KeyboardTimePicker,
   MuiPickersUtilsProvider
 } from '@material-ui/pickers';
+import { gql } from 'apollo-boost';
 import clsx from 'clsx';
 import 'date-fns';
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
+import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import Link, { MenuItemLink } from '../../../core/Link';
 import Loading from '../../../core/Loading';
@@ -36,7 +37,6 @@ import { SHOP } from '../../ShopAboutPage';
 import Orders from './Orders';
 import PlanInfo from './PlanInfo';
 import ShopReturnRefundPolicy from './ShopReturnRefundPolicy';
-import { gql } from 'apollo-boost';
 
 const useStyles = makeStyles(theme => ({
   paper: {

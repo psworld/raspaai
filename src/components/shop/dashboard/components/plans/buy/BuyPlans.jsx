@@ -120,7 +120,11 @@ const BuyPlans = () => {
         <form
           ref={formRef}
           method='post'
-          action='https://securegw-stage.paytm.in/order/process'
+          action={
+            process.env.GATSBY_PAYTM_STAGE
+              ? `https://securegw-stage.paytm.in/order/process`
+              : ''
+          }
           name='paytm'>
           <table>
             <tbody>
@@ -162,11 +166,12 @@ const BuyPlans = () => {
               handlePlanSelect={handlePlanSelect}
               selectedPlan={selectedPlan.id}
               headingClasses={classes.heading}
-              fab={StickyButton}></AvailablePlans>
+              // fab={StickyButton}
+              ></AvailablePlans>
           </>
         );
-      case 2:
-        return <PaytmForm></PaytmForm>;
+      // case 2:
+      //   return <PaytmForm></PaytmForm>;
 
       default:
         return <ErrorPage></ErrorPage>;

@@ -34,7 +34,7 @@ const ComboElement = ({ comboNode, shop }) => {
           <Link to={`/shop/${shopUsername}`}>{shopName}</Link>
         </Typography>
         <Typography
-          variant='body2'
+          variant='h6'
           style={{
             color: 'green'
           }}>

@@ -21,7 +21,8 @@ import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
 import ProductCollage from '../templates/dashboard/ProductCollage';
 import { ReturnRefundPolicy } from '../templates/product-detail/ProductDetails';
 import ProductThumb from '../templates/ProductThumb';
-import { getIsStoreOpenNow } from '../core/utils';
+import { getIsStoreOpenNow, getDateFromHours } from '../core/utils';
+import { format } from 'date-fns';
 
 const COMBO = gql`
   query($comboId: ID!) {
@@ -161,7 +162,9 @@ const ComboItem = ({ shopUsername, comboProductNode }) => {
               <ListItem>
                 <Typography>
                   MRP:
-                  <span style={{ color: green[800] }}>&#x20b9;{mrp}</span>
+                  <span style={{ color: green[800] }}>
+                    &#x20b9;{mrp ? mrp : offeredPrice}
+                  </span>
                 </Typography>
               </ListItem>
             </Grid>
@@ -273,8 +276,10 @@ const Combo = ({ comboId }) => {
     let totalCost = 0;
 
     products.edges.forEach(comboProduct => {
-      totalCost +=
-        comboProduct.node.quantity * comboProduct.node.shopProduct.product.mrp;
+      const comboNode = comboProduct.node;
+      const mrp = comboNode.shopProduct.product.mrp;
+      const price = mrp ? mrp : comboNode.shopProduct.offeredPrice;
+      totalCost += comboNode.quantity * price;
     });
 
     // store is open or not
@@ -284,6 +289,8 @@ const Combo = ({ comboId }) => {
       offDays,
       isOpenToday
     );
+    const storeOpenTime = format(getDateFromHours(openAt), 'h:mm a');
+    const storeCloseTime = format(getDateFromHours(closeAt), 'h:mm a');
     return (
       <Grid container>
         <SEO title={`${name} | ${shopName}`} description={description}></SEO>
@@ -359,6 +366,9 @@ const Combo = ({ comboId }) => {
               }
             />
           </ListItem>
+          <ListItem>Opens at {storeOpenTime}</ListItem>
+          <ListItem></ListItem>
+          <ListItem>Closes at {storeCloseTime}</ListItem>
           <ListItem>
             <ListItemText
               style={{ color: isAvailable ? 'green' : 'red' }}

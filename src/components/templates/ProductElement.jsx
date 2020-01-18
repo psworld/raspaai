@@ -86,7 +86,7 @@ const ProductElement = ({
             {isBrand ? brandName : shopName}
           </Link>
         </Typography>
-        <Typography variant='body1' style={{ color: 'green' }}>
+        <Typography variant='h6' style={{ color: 'green' }}>
           {isBrand ? <>M.R.P &#8377; {mrp}</> : <>&#8377; {offeredPrice}</>}
         </Typography>
         {isBrandDashboardProduct && (

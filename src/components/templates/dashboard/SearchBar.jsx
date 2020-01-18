@@ -42,31 +42,24 @@ const useStyles = makeStyles(theme => ({
 const SearchBar = props => {
   const classes = useStyles();
 
-  const {
-    publicUsername,
-    isBrand = false,
-    isAddNewShopProductSearch = false
+  let {
+    searchUrlBase = '',
+    placeholder = 'Search products ...',
+    defaultPhrase
   } = props;
+  // searchUrlBase is windows.pathname from that page
+  const [searchPhrase, setSearchPhrase] = React.useState(
+    defaultPhrase ? defaultPhrase : ''
+  );
 
-  const [searchPhrase, setSearchPhrase] = React.useState('');
-
-  const shopSearch = `/dashboard/shop/${publicUsername}/products/search/${searchPhrase}`;
-  const brandSearch = `/dashboard/brand/${publicUsername}/products/search/${searchPhrase}`;
-  const addNewShopProductSearch = `/dashboard/shop/${publicUsername}/products/add/search/${searchPhrase}`;
-
-  const placeholder = isAddNewShopProductSearch
-    ? 'Search products to add them to your shop ...'
-    : 'Search products ...';
+  if (searchUrlBase.includes('/search/')) {
+    searchUrlBase = searchUrlBase.split('/search')[0];
+  }
+  const searchUrl = `${searchUrlBase}/search/${searchPhrase}`;
 
   const handleSearch = () => {
     if (searchPhrase.replace(/\s/g, '').length > 1) {
-      navigate(
-        isAddNewShopProductSearch
-          ? addNewShopProductSearch
-          : isBrand
-          ? brandSearch
-          : shopSearch
-      );
+      navigate(searchUrl);
     }
   };
 

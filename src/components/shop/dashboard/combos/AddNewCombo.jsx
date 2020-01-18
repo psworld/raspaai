@@ -7,18 +7,19 @@ import {
   List,
   ListItem,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Box
 } from '@material-ui/core';
-import SEO from '../../seo';
+import SEO from '../../../seo';
 import { useQuery, useMutation } from 'react-apollo';
-import { SHOP_PRODUCTS } from '../ShopHomePage';
-import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
-import ErrorPage from '../../core/ErrorPage';
-import PaginationWithState from '../../templates/PaginationWithState';
-import Link from '../../core/Link';
-import ProductThumb from '../../templates/ProductThumb';
-import slugGenerator from '../../core/slugGenerator';
-import ProductCollage from '../../templates/dashboard/ProductCollage';
+import { SHOP_PRODUCTS } from '../../ShopHomePage';
+import ProductGridSkeleton from '../../../skeletons/ProductGridSkeleton';
+import ErrorPage from '../../../core/ErrorPage';
+import PaginationWithState from '../../../templates/PaginationWithState';
+import Link from '../../../core/Link';
+import ProductThumb from '../../../templates/ProductThumb';
+import slugGenerator from '../../../core/slugGenerator';
+import ProductCollage from '../../../templates/dashboard/ProductCollage';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 
@@ -32,7 +33,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { gql } from 'apollo-boost';
-import { newPageInfo } from '../../core/utils';
+import { newPageInfo } from '../../../core/utils';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -89,97 +90,99 @@ const ComboProduct = ({
   const isSelected = selectedShopProducts[id];
 
   return (
-    <Grid key={id} item xs={6} sm={4} md={3} lg={2}>
-      <Link to={shopProduct}>
-        <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
-        <Typography variant='body2'>{title}</Typography>
-      </Link>
-
-      <Typography display='block' variant='caption' color='textSecondary'>
-        <Link to={`/brand/${brandUsername}`}>
-          By <span style={{ color: '#5050FF' }}>{brandName}</span>
+    <Grid item xs={6} sm={4} md={3} lg={2}>
+      <Box width='100%' px={1} my={2}>
+        <Link to={shopProduct}>
+          <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
+          <Typography variant='body2'>{title}</Typography>
         </Link>
-      </Typography>
 
-      <Typography variant='body1' style={{ color: 'green' }}>
-        &#8377; {offeredPrice}
-      </Typography>
+        <Typography display='block' variant='caption' color='textSecondary'>
+          <Link to={`/brand/${brandUsername}`}>
+            By <span style={{ color: '#5050FF' }}>{brandName}</span>
+          </Link>
+        </Typography>
 
-      <Formik
-        initialValues={{ quantity: 1 }}
-        validationSchema={yup.object().shape({
-          quantity: yup
-            .number('Invalid quantity')
-            .min(1, 'Quantity must not be less than 1')
-            .max(10, 'Quantity should not be larger than 10')
-            .required('Quantity is required')
-        })}
-        onSubmit={(values, { setSubmitting }) => {
-          setSubmitting(false);
-          const combObj = {
-            name: title,
-            thumb,
-            mrp,
-            offeredPrice,
-            quantity: values.quantity
-          };
-          handleComboProductSelect(id, combObj);
-        }}>
-        {formik => {
-          const {
-            values,
-            touched,
-            errors,
-            isSubmitting,
-            handleChange,
-            handleBlur,
-            handleSubmit
-          } = formik;
-          const { quantity } = values;
+        <Typography variant='body1' style={{ color: 'green' }}>
+          &#8377; {offeredPrice}
+        </Typography>
 
-          function hasError(id, bool) {
-            if (touched[id] && errors[id]) {
-              return bool ? true : errors[id];
-            } else {
-              return false;
+        <Formik
+          initialValues={{ quantity: 1 }}
+          validationSchema={yup.object().shape({
+            quantity: yup
+              .number('Invalid quantity')
+              .min(1, 'Quantity must not be less than 1')
+              .max(10, 'Quantity should not be larger than 10')
+              .required('Quantity is required')
+          })}
+          onSubmit={(values, { setSubmitting }) => {
+            setSubmitting(false);
+            const combObj = {
+              name: title,
+              thumb,
+              mrp,
+              offeredPrice,
+              quantity: values.quantity
+            };
+            handleComboProductSelect(id, combObj);
+          }}>
+          {formik => {
+            const {
+              values,
+              touched,
+              errors,
+              isSubmitting,
+              handleChange,
+              handleBlur,
+              handleSubmit
+            } = formik;
+            const { quantity } = values;
+
+            function hasError(id, bool) {
+              if (touched[id] && errors[id]) {
+                return bool ? true : errors[id];
+              } else {
+                return false;
+              }
             }
-          }
 
-          return (
-            <>
-              <TextField
-                value={quantity}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder='Quantity'
-                id='quantity'
-                label={hasError('quantity', true) ? hasError('quantity') : ''}
-                error={hasError('quantity', true)}
-                name='quantity'
-                type='number'
-                margin='dense'
-                variant='outlined'
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>Qty: </InputAdornment>
-                  )
-                }}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
+            return (
+              <>
+                <TextField
+                  value={quantity}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder='Quantity'
+                  id='quantity'
+                  label={hasError('quantity', true) ? hasError('quantity') : ''}
+                  error={hasError('quantity', true)}
+                  name='quantity'
+                  type='number'
+                  margin='dense'
+                  variant='outlined'
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>Qty: </InputAdornment>
+                    )
+                  }}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                />
 
-              <Button
-                color={isSelected ? 'primary' : 'default'}
-                disabled={isSubmitting}
-                onClick={handleSubmit}
-                variant='contained'>
-                {isSelected ? 'Selected' : 'Select'}
-              </Button>
-            </>
-          );
-        }}
-      </Formik>
+                <Button
+                  color={isSelected ? 'primary' : 'default'}
+                  disabled={isSubmitting}
+                  onClick={handleSubmit}
+                  variant='contained'>
+                  {isSelected ? 'Selected' : 'Select'}
+                </Button>
+              </>
+            );
+          }}
+        </Formik>
+      </Box>
     </Grid>
   );
 };
@@ -211,12 +214,14 @@ const AddNewCombo = ({
           Add more products to your shop for creating a combo.
         </Typography>
         <br></br>
-        <Typography
-          variant='h5'
-          component={Link}
-          to={`/dashboard/shop/${shopUsername}/products/add`}>
-          Add Products
-        </Typography>
+        <center>
+          <Typography
+            variant='h5'
+            component={Link}
+            to={`/dashboard/shop/${shopUsername}/products/add`}>
+            Add Products
+          </Typography>
+        </center>
       </>
     );
   }
@@ -225,30 +230,36 @@ const AddNewCombo = ({
     return (
       <>
         <SEO title='Create combo'></SEO>
-        <Typography algin='center' variant='h5'>
-          Create product combos for your shop.
-        </Typography>
         <br></br>
-        <Button onClick={handleNext} variant='contained' color='primary'>
-          Continue
-        </Button>
+        <center>
+          <Typography algin='center' variant='h5'>
+            Create product combos for your shop.
+          </Typography>
+          <br></br>
+          <Button
+            disabled={Object.keys(selectedShopProducts).length < 2}
+            onClick={handleNext}
+            variant='contained'
+            color='primary'>
+            Continue
+          </Button>
+        </center>
         <br></br>
         <br></br>
-        <Container>
-          <Grid container spacing={2}>
-            {shopProducts.map(shopProductObj => {
-              const { id } = shopProductObj.node;
-              return (
-                <ComboProduct
-                  key={id}
-                  selectedShopProducts={selectedShopProducts}
-                  handleComboProductSelect={handleComboProductSelect}
-                  shopProductObj={shopProductObj}
-                  shop={shop}></ComboProduct>
-              );
-            })}
-          </Grid>
-        </Container>
+        <Grid container>
+          {shopProducts.map(shopProductObj => {
+            const { id } = shopProductObj.node;
+            return (
+              <ComboProduct
+                key={id}
+                selectedShopProducts={selectedShopProducts}
+                handleComboProductSelect={handleComboProductSelect}
+                shopProductObj={shopProductObj}
+                shop={shop}></ComboProduct>
+            );
+          })}
+        </Grid>
+
         <br></br>
         <PaginationWithState
           fetchMore={fetchMore}
@@ -458,7 +469,9 @@ const ReviewComboSelection = ({
                                 quantity
                               } = shopProduct;
 
-                              totalMrp += mrp * quantity;
+                              totalMrp += mrp
+                                ? mrp * quantity
+                                : offeredPrice * quantity;
                               totalOfferedPrice += offeredPrice * quantity;
                               totalQuantity += quantity;
 
@@ -467,7 +480,9 @@ const ReviewComboSelection = ({
                                   <TableCell component='th' scope='row'>
                                     {name}
                                   </TableCell>
-                                  <TableCell align='right'>{mrp}</TableCell>
+                                  <TableCell align='right'>
+                                    {mrp ? mrp : offeredPrice}
+                                  </TableCell>
                                   <TableCell align='right'>
                                     {offeredPrice}
                                   </TableCell>

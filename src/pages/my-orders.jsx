@@ -418,35 +418,45 @@ const OrderList = ({ viewer, classes }) => {
       userOrders: { pageInfo, edges: orders }
     } = data;
     return (
-      <Grid container>
+      <>
         {orders.length === 0 ? (
-          <div>
+          <div style={{ marginTop: 10 }}>
             <Typography variant='h5' align='center'>
-              You do not have any orders right now ...
+              You have not placed any orders.
             </Typography>
             <br></br>
-            <Button color='primary' component={Link} to='/' variant='contained'>
-              Continue Shopping
-            </Button>
+            <center>
+              <Button
+                color='primary'
+                component={Link}
+                to='/'
+                variant='contained'>
+                Continue Shopping
+              </Button>
+            </center>
           </div>
         ) : (
           <>
             <Typography align='center' component='h1' variant='h4'>
               Your Orders
             </Typography>
-            {orders.map(orderNodeObj => (
-              <Grid key={orderNodeObj.node.id} item xs={12}>
-                <List>
-                  <Order classes={classes} orderNodeObj={orderNodeObj}></Order>
-                </List>
-              </Grid>
-            ))}
+            <Grid container>
+              {orders.map(orderNodeObj => (
+                <Grid key={orderNodeObj.node.id} item xs={12}>
+                  <List>
+                    <Order
+                      classes={classes}
+                      orderNodeObj={orderNodeObj}></Order>
+                  </List>
+                </Grid>
+              ))}
+            </Grid>
             <PaginationWithState
               fetchMore={fetchMore}
               pageInfo={pageInfo}></PaginationWithState>
           </>
         )}
-      </Grid>
+      </>
     );
   }
   return <Typography>No orders found</Typography>;

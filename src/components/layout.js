@@ -37,7 +37,9 @@ const Layout = ({ children, searchPhrase = null }) => {
         searchPhrase={searchPhrase}
         siteTitle={data.site.siteMetadata.title}
       />
-      <main>{children}</main>
+
+      <main style={{ minHeight: '50vh' }}>{children}</main>
+
       <Footer social={data.site.siteMetadata.social}></Footer>
     </>
   );

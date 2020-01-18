@@ -18,7 +18,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
 } from '@material-ui/core';
 import { Carousel } from 'react-responsive-carousel';
 import { makeStyles } from '@material-ui/core/styles';
@@ -46,12 +46,14 @@ const CATEGORIES = gql`
         node {
           id
           name
+          username
           technicalDetailsTemplate
           types {
             edges {
               node {
                 id
                 name
+                username
                 technicalDetailsTemplate
               }
             }
@@ -72,9 +74,11 @@ const ADD_BRAND_PRODUCT = gql`
         description
         longDescription
         technicalDetails
+        isService
         category {
           id
           name
+          username
         }
       }
     }
@@ -131,6 +135,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
           .node
       : null;
   // category types filtering end
+  const currentCategoryUsername = currentCategory && currentCategory.username;
 
   const [technicalDetailsValues, setTechnicalDetailsValues] = React.useState(
     {}
@@ -165,7 +170,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
 
     const currentImagePosition = imagesList[currentImageIndex].node.position;
 
-    // img that is already at new position swap the positions
+    // img that is already at new position, swap the positions
     // sometimes there is no image at new position
     // so only swap when both parties are available
     if (
@@ -282,6 +287,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
         ...values,
         [name]: parseInt(event.target.value)
       });
+    } else if (name === 'isService') {
+      setValues({
+        ...values,
+        [name]: !values.isService
+      });
     } else {
       setValues({
         ...values,
@@ -373,7 +383,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                 );
               })}
             </Carousel>
-            <Grid container spacing={2}>
+            <Grid container>
               <Grid item xs={6}>
                 <InputLabel htmlFor='add-product-images'>
                   <Button color='primary' variant='contained' component='span'>
@@ -518,6 +528,10 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             name='mrp'
             type='number'
             margin='dense'
+            disabled={
+              currentCategoryUsername === 'food' ||
+              currentCategoryUsername === 'services'
+            }
             variant='outlined'
             InputProps={{
               startAdornment: (

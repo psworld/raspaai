@@ -87,11 +87,10 @@ export const ProductGrid = props => {
               isBrandDashboardProduct
             }></BrandProductGrid>
         </Grid>
-        <Grid item>
-          <PaginationWithState
-            pageInfo={pageInfo}
-            fetchMore={fetchMore}></PaginationWithState>
-        </Grid>
+        <br></br>
+        <PaginationWithState
+          pageInfo={pageInfo}
+          fetchMore={fetchMore}></PaginationWithState>
       </>
     );
   }

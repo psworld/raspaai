@@ -20,10 +20,12 @@ import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import { CART_ITEMS } from '../../../pages/cart';
 import Link, { MenuItemLink } from '../../core/Link';
-import { getIsStoreOpenNow } from '../../core/utils';
+import { getIsStoreOpenNow, getDateFromHours } from '../../core/utils';
 import { VIEWER } from '../../navbar/ToolBarMenu';
 import ProductImageCarousel from './ProductImageCarousel';
 import { InactiveShop } from '../../shop/ShopHomePage';
+import { format } from 'date-fns';
+import MainFeaturedPost from '../MainFeaturedPost';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -67,6 +69,8 @@ const ADD_TO_CART = gql`
                   id
                   title
                   thumb
+                  isService
+                  isFood
                 }
                 offeredPrice
               }
@@ -113,6 +117,7 @@ const ProductDetails = props => {
         geometry: { coordinates },
         properties: {
           title: shopName,
+          heroImage,
           address,
           contactNumber,
           returnRefundPolicy,
@@ -152,6 +157,11 @@ const ProductDetails = props => {
   // store is open or not
   const isStoreOpenNow =
     isShopProduct && getIsStoreOpenNow(openAt, closeAt, offDays, isOpenToday);
+
+  const storeOpenTime =
+    isShopProduct && format(getDateFromHours(openAt), 'h:mm a');
+  const storeCloseTime =
+    isShopProduct && format(getDateFromHours(closeAt), 'h:mm a');
 
   const { data: viewerData } = useQuery(VIEWER);
   if (viewerData) {
@@ -227,23 +237,25 @@ const ProductDetails = props => {
           </ListItem>
 
           <Divider />
-          <ListItem style={{ paddingBottom: 0 }}>
-            &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;
-            <Typography variant='body2'>
-              M.R.P:{' '}
-              <span
-                style={
-                  isShopProduct
-                    ? {
-                        textDecorationLine: 'line-through',
-                        color: '#FA8072'
-                      }
-                    : { color: '#FA8072' }
-                }>
-                &#x20b9; {mrp}
-              </span>
-            </Typography>
-          </ListItem>
+          {mrp && (
+            <ListItem style={{ paddingBottom: 0 }}>
+              &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;
+              <Typography variant='body2'>
+                M.R.P:{' '}
+                <span
+                  style={
+                    isShopProduct
+                      ? {
+                          textDecorationLine: 'line-through',
+                          color: '#FA8072'
+                        }
+                      : { color: '#FA8072' }
+                  }>
+                  &#x20b9; {mrp}
+                </span>
+              </Typography>
+            </ListItem>
+          )}
           {isShopProduct && (
             <>
               <ListItem style={{ marginTop: 0, marginBottom: 0 }}>
@@ -255,16 +267,18 @@ const ProductDetails = props => {
                   </span>
                 </Typography>
               </ListItem>
-              <ListItem style={{ paddingTop: 0 }}>
-                &ensp;&ensp;&ensp;&ensp;
-                <Typography variant='body2'>
-                  You Save:{' '}
-                  <span style={{ color: '#4169E1' }}>
-                    &#x20b9; {mrp - offeredPrice} (
-                    {Math.round(((mrp - offeredPrice) / mrp) * 100)}%)
-                  </span>
-                </Typography>
-              </ListItem>
+              {mrp && (
+                <ListItem style={{ paddingTop: 0 }}>
+                  &ensp;&ensp;&ensp;&ensp;
+                  <Typography variant='body2'>
+                    You Save:{' '}
+                    <span style={{ color: '#4169E1' }}>
+                      &#x20b9; {mrp - offeredPrice} (
+                      {Math.round(((mrp - offeredPrice) / mrp) * 100)}%)
+                    </span>
+                  </Typography>
+                </ListItem>
+              )}
               <Divider />
               {isActive ? (
                 <>
@@ -279,6 +293,9 @@ const ProductDetails = props => {
                       }
                     />
                   </ListItem>
+                  <ListItem>Opens at {storeOpenTime}</ListItem>
+                  <ListItem></ListItem>
+                  <ListItem>Closes at {storeCloseTime}</ListItem>
                   <ListItem>
                     <ListItemText
                       style={{ color: inStock ? 'green' : 'red' }}
@@ -338,28 +355,37 @@ const ProductDetails = props => {
             xs={12}
             sm={12}
             md={2}>
-            <Button
-              onClick={() =>
-                viewer === null
-                  ? navigate('/signin')
-                  : !called
-                  ? addItemToCart()
-                  : null
-              }
-              variant='contained'
-              color='primary'
-              style={{ width: '100%' }}>
-              <Typography align='center'>
-                {loading ? 'Adding' : 'Add to cart'}
-              </Typography>
-            </Button>
-
-            {data && (
-              <Typography align='center' style={{ color: green[600] }}>
-                Item added successfully to cart
-              </Typography>
+            {mrp && (
+              <>
+                <Button
+                  onClick={() =>
+                    viewer === null
+                      ? navigate('/signin')
+                      : !called
+                      ? addItemToCart()
+                      : null
+                  }
+                  variant='contained'
+                  color='primary'
+                  style={{ width: '100%' }}>
+                  <Typography align='center'>
+                    {loading ? 'Adding' : 'Add to cart'}
+                  </Typography>
+                </Button>
+                {data && (
+                  <Typography align='center' style={{ color: green[600] }}>
+                    Item added successfully to cart
+                  </Typography>
+                )}
+                <br></br>
+                <Divider></Divider>
+                <br></br>
+              </>
             )}
-            <Divider></Divider>
+
+            <MainFeaturedPost
+              img={heroImage}
+              title={shopName}></MainFeaturedPost>
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Contact Details
             </Typography>

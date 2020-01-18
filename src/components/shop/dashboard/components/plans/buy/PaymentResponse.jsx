@@ -166,11 +166,8 @@ const PaymentResponse = ({ status, orderId }) => {
         </TableContainer>
         <Fab
           onClick={() =>
-            window.location.href(
-              `${window.location.origin}/dashboard/shop/${shopUsername}/plans`
-            )
+            (window.location.href = `${window.location.origin}/dashboard/shop/${shopUsername}/plans`)
           }
-          // disabled={loading || called || data}
           disabled={loading || !viewerData}
           color='primary'
           variant='extended'

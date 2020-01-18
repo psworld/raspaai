@@ -53,7 +53,10 @@ export default function ShopsPage() {
   //   variables: { category, endCursor: pageInfo[pageNo - 1].startCursor }
   // });
 
-  const shopActionList = [{ title: 'Add shop', url: 'add' }];
+  const shopActionList = [
+    { title: 'Add shop', url: 'add' },
+    { title: 'Add plan to shop', url: 'add-plan' }
+  ];
 
   return (
     <div>

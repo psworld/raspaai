@@ -1,21 +1,24 @@
-import React from 'react';
 import { Router } from '@reach/router';
-import DashboardLayout from '../../shop/dashboard/components/DashboardLayout';
-import BrandDashboardHomePage from './BrandDashboardHomePage';
-import AddNewBrandProduct from './AddNewBrandProduct';
-import MyProductsPage from './MyProductsPage';
-import EditBrandProduct from './EditBrandProduct';
+import React from 'react';
 import { NotFoundPageWithoutLayout } from '../../../pages/404';
+import AddNewBrandProduct from './AddNewBrandProduct';
+import BrandDashboardHomePage from './BrandDashboardHomePage';
+import BrandDashboardLayout from './BrandDashboardLayout';
+import EditBrandProduct, {
+  AddDeleteImages
+} from './edit-product/EditBrandProduct';
+import MyProductsPage from './MyProductsPage';
 
-const BrandDashboard = props => {
+const BrandDashboardRouter = props => {
   const { brandUsername } = props;
   return (
-    <DashboardLayout isBrand={true} publicUsername={brandUsername}>
+    <BrandDashboardLayout publicUsername={brandUsername}>
       <Router>
         <BrandDashboardHomePage
           path='/'
           brandUsername={brandUsername}></BrandDashboardHomePage>
         <EditBrandProduct path='product/edit/:productSlug/:id'></EditBrandProduct>
+        <AddDeleteImages path='product/edit/:productSlug/:id/images/:action'></AddDeleteImages>
         <AddNewBrandProduct
           path='products/add'
           brandUsername={brandUsername}></AddNewBrandProduct>
@@ -27,8 +30,8 @@ const BrandDashboard = props => {
           path='products/search/:phrase'></MyProductsPage>
         <NotFoundPageWithoutLayout default></NotFoundPageWithoutLayout>
       </Router>
-    </DashboardLayout>
+    </BrandDashboardLayout>
   );
 };
 
-export default BrandDashboard;
+export default BrandDashboardRouter;

@@ -26,6 +26,7 @@ import { useQuery, useMutation } from 'react-apollo';
 import ToolBarMenuSkeleton from '../skeletons/ToolBarMenuSkeleton';
 import gql from 'graphql-tag';
 import { Paper } from '@material-ui/core';
+import { CART_ITEMS } from '../../pages/cart';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -152,6 +153,10 @@ export default function NavBar({ searchPhrase }) {
         }
       }
     ) => {
+      cache.writeQuery({
+        query: CART_ITEMS,
+        data: { cartLines: [] }
+      });
       cache.writeQuery({
         query: VIEWER,
         data: { viewer: null }

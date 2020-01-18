@@ -17,7 +17,7 @@ import MainFeaturedPost from '../templates/MainFeaturedPost';
 import PaginationWithState from '../templates/PaginationWithState';
 import ShopProductGrid from '../templates/ShopProductGrid';
 import TitleAndSearchToolbar from '../templates/TitleAndSearchToolbar';
-import { SHOP_COMBOS } from './dashboard/MyCombos';
+import { SHOP_COMBOS } from './dashboard/combos/MyCombos';
 
 const useStyles = makeStyles(theme => ({
   toolbarSecondary: {
@@ -329,12 +329,16 @@ const ShopHomePage = props => {
   } else {
     return (
       <>
-        <Typography component='h1' variant='h3' align='center'>
-          No shop found with username{' '}
+        <Typography
+          style={{ marginTop: '10vh' }}
+          component='h1'
+          variant='h5'
+          align='center'>
+          Sorry, no shop found with username{' '}
           <span style={{ color: 'blue' }}>{shopUsername}</span>
         </Typography>
         <br></br>
-        <Typography variant='h4' color='primary' align='center'>
+        <Typography variant='h6' color='primary' align='center'>
           Check the username and try again.
         </Typography>
       </>

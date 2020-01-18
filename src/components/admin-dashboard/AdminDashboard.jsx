@@ -11,6 +11,7 @@ import { VIEWER } from '../navbar/ToolBarMenu';
 import { useQuery } from 'react-apollo';
 import ErrorPage from '../core/ErrorPage';
 import AddShop from './shops/add-shop/AddShop';
+import AddPlanToShop from './shops/AddPlanToShop';
 
 const AdminDashboard = () => {
   const { loading, error, data } = useQuery(VIEWER);
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
         <Router>
           <AdminDashboardHomePage path='/'></AdminDashboardHomePage>
           <AddShop path='shops/add'></AddShop>
+          <AddPlanToShop path='shops/add-plan'></AddPlanToShop>
           <ShopPage path='shops/:shopUsername'></ShopPage>
           <ShopsPage path='shops'></ShopsPage>
           <BrandsPage path='brands'></BrandsPage>

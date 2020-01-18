@@ -25,16 +25,7 @@ export const VIEWER = gql`
       brand {
         id
         publicUsername
-        application {
-          id
-          submittedAt
-          updatedAt
-          status {
-            id
-            statusCode
-            title
-          }
-        }
+        isActive
       }
       shop {
         id

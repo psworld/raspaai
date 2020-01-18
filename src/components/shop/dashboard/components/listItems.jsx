@@ -1,29 +1,27 @@
-import React from 'react';
+import { yellow } from '@material-ui/core/colors';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import AcUnitIcon from '@material-ui/icons/AcUnit';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import FastFoodIcon from '@material-ui/icons/Fastfood';
+import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
+import LayersIcon from '@material-ui/icons/Layers';
 // import PeopleIcon from "@material-ui/icons/People"
 // import BarChartIcon from "@material-ui/icons/BarChart"
 import RemoveShoppingCartIcon from '@material-ui/icons/RemoveShoppingCart';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
-import LayersIcon from '@material-ui/icons/Layers';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import StoreIcon from '@material-ui/icons/Store';
 import ViewQuiltIcon from '@material-ui/icons/ViewQuilt';
-import HomeIcon from '@material-ui/icons/Home';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import React from 'react';
 import RaspaaiIcon from '../../../../images/raspaai.svg';
 import { MenuItemLink } from '../../../core/Link';
-import { yellow } from '@material-ui/core/colors';
 
-export const mainListItems = (publicUsername, isBrand) => {
+export const mainListItems = publicUsername => {
   const shopDashboard = `/dashboard/shop/${publicUsername}`;
-  const brandDashboard = `/dashboard/brand/${publicUsername}`;
-  const baseUrl = isBrand ? brandDashboard : shopDashboard;
+  const baseUrl = shopDashboard;
   return (
     <div>
       <ListItem component={MenuItemLink} to={baseUrl} button>
@@ -39,73 +37,67 @@ export const mainListItems = (publicUsername, isBrand) => {
         <ListItemText primary='Raspaai' />
       </ListItem>
 
-      <ListItem
-        component={MenuItemLink}
-        to={isBrand ? `/brand/${publicUsername}` : `${baseUrl}/profile`}
-        button>
+      <ListItem component={MenuItemLink} to={`${baseUrl}/profile`} button>
         <ListItemIcon>
           <StoreIcon></StoreIcon>
         </ListItemIcon>
-        <ListItemText primary={isBrand ? 'My Brand' : 'My Shop'} />
+        <ListItemText primary={'My Shop'} />
       </ListItem>
+
       <ListItem component={MenuItemLink} to={`${baseUrl}/products`} button>
         <ListItemIcon>
           <LayersIcon />
         </ListItemIcon>
-        <ListItemText primary='My Products' />
+        <ListItemText primary='Products' />
       </ListItem>
-      <ListItem component={MenuItemLink} to={`${baseUrl}/products/add`} button>
+      <ListItem button component={MenuItemLink} to={`${baseUrl}/services`}>
         <ListItemIcon>
-          <AddBoxIcon></AddBoxIcon>
+          <AcUnitIcon></AcUnitIcon>
         </ListItemIcon>
-        <ListItemText primary='Add product' />
+        <ListItemText primary='Services'></ListItemText>
       </ListItem>
-      {!isBrand && (
-        <>
-          <ListItem button component={MenuItemLink} to={`${baseUrl}/combos`}>
-            <ListItemIcon>
-              <ViewQuiltIcon></ViewQuiltIcon>
-            </ListItemIcon>
-            <ListItemText primary='My combos'></ListItemText>
-          </ListItem>
-          <ListItem
-            button
-            component={MenuItemLink}
-            to={`${baseUrl}/combos/create`}>
-            <ListItemIcon>
-              <LibraryAddIcon></LibraryAddIcon>
-            </ListItemIcon>
-            <ListItemText primary='Create combo'></ListItemText>
-          </ListItem>
-          <ListItem
-            button
-            component={MenuItemLink}
-            to={`${baseUrl}/orders/pending`}>
-            <ListItemIcon>
-              <HourglassEmptyIcon style={{ color: yellow[900] }} />
-            </ListItemIcon>
-            <ListItemText primary='Pending Orders' />
-          </ListItem>
-          <ListItem
-            button
-            component={MenuItemLink}
-            to={`${baseUrl}/orders/fulfilled`}>
-            <ListItemIcon>
-              <ShoppingCartIcon style={{ color: 'green' }} />
-            </ListItemIcon>
-            <ListItemText primary='Successful Orders' />
-          </ListItem>
-          <ListItem
-            button
-            component={MenuItemLink}
-            to={`${baseUrl}/orders/cancelled`}>
-            <ListItemIcon>
-              <RemoveShoppingCartIcon color='secondary' />
-            </ListItemIcon>
-            <ListItemText primary='Unsuccessful Orders' />
-          </ListItem>
-        </>
-      )}
+      <ListItem button component={MenuItemLink} to={`${baseUrl}/food`}>
+        <ListItemIcon>
+          <FastFoodIcon></FastFoodIcon>
+        </ListItemIcon>
+        <ListItemText primary='Food'></ListItemText>
+      </ListItem>
+
+      <ListItem button component={MenuItemLink} to={`${baseUrl}/combos`}>
+        <ListItemIcon>
+          <ViewQuiltIcon></ViewQuiltIcon>
+        </ListItemIcon>
+        <ListItemText primary='Combos'></ListItemText>
+      </ListItem>
+
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/pending`}>
+        <ListItemIcon>
+          <HourglassEmptyIcon style={{ color: yellow[900] }} />
+        </ListItemIcon>
+        <ListItemText primary='Pending Orders' />
+      </ListItem>
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/fulfilled`}>
+        <ListItemIcon>
+          <ShoppingCartIcon style={{ color: 'green' }} />
+        </ListItemIcon>
+        <ListItemText primary='Successful Orders' />
+      </ListItem>
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/cancelled`}>
+        <ListItemIcon>
+          <RemoveShoppingCartIcon color='secondary' />
+        </ListItemIcon>
+        <ListItemText primary='Unsuccessful Orders' />
+      </ListItem>
+
       {/*
       <ListItem button>
         <ListItemIcon>

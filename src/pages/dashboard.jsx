@@ -1,8 +1,7 @@
 import React from 'react';
 import { Router } from '@reach/router';
-import ShopDashboard from '../components/shop/dashboard/ShopDashboard';
-import BrandDashboard from '../components/brand/Dashboard/BrandDashboard';
-import NotFoundPage from './404';
+import ShopDashboardRouter from '../components/shop/dashboard/ShopDashboardRouter';
+import BrandDashboardRouter from '../components/brand/Dashboard/BrandDashboardRouter';
 import BuyPlans from '../components/shop/dashboard/components/plans/buy/BuyPlans';
 import PaymentResponse from '../components/shop/dashboard/components/plans/buy/PaymentResponse';
 
@@ -12,9 +11,8 @@ const Dashboard = () => {
       <PaymentResponse path='/dashboard/shop/plans/buy/payment/:status/:orderId'></PaymentResponse>
       <BuyPlans path='/dashboard/shop/:shopUsername/plans/buy'></BuyPlans>
 
-      <ShopDashboard path='/dashboard/shop/:shopUsername/*'></ShopDashboard>
-      <BrandDashboard path='/dashboard/brand/:brandUsername/*'></BrandDashboard>
-      <NotFoundPage default></NotFoundPage>
+      <ShopDashboardRouter path='/dashboard/shop/:shopUsername/*'></ShopDashboardRouter>
+      <BrandDashboardRouter path='/dashboard/brand/:brandUsername/*'></BrandDashboardRouter>
     </Router>
   );
 };

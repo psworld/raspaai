@@ -1,20 +1,21 @@
 /* eslint-disable no-script-url */
 
-import React from 'react';
+import { Button } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
+import { format } from 'date-fns';
+import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useQuery } from 'react-apollo';
-
 import ErrorPage from '../../../core/ErrorPage';
 import Loading from '../../../core/Loading';
-import Link from '../../../core/Link';
-import { differenceInDays, format, differenceInHours } from 'date-fns';
 
 const BRAND_PLAN_INFO = gql`
   query($publicBrandUsername: String!) {
     brand(publicBrandUsername: $publicBrandUsername) {
       id
       publicUsername
+      occupiedSpace
       activePlan {
         id
         addedAt
@@ -28,7 +29,6 @@ const BRAND_PLAN_INFO = gql`
           validityDuration
         }
       }
-      noOfProducts
     }
   }
 `;
@@ -38,7 +38,7 @@ const PLAN_INFO = gql`
     shop(publicShopUsername: $publicShopUsername) {
       id
       properties {
-        noOfProducts
+        occupiedSpace
         activePlan {
           id
           addedAt
@@ -62,7 +62,7 @@ const PlanInfoCard = ({
   price,
   planExpiryDate,
   productSpace,
-  noOfProducts
+  occupiedSpace
 }) => {
   const expiryDate = format(planExpiryDate, 'MMM d, y h:m a');
   return (
@@ -73,9 +73,10 @@ const PlanInfoCard = ({
       </Typography>
       {/* <Typography>Validity: {validityDuration.split(",")[0]}</Typography> */}
       <Typography color='textSecondary'>Expires on {expiryDate}</Typography>
-      <Typography>
-        {productSpace - noOfProducts} product space remaining out of total{' '}
-        {productSpace}
+      <br></br>
+      <Typography variant='body1'>
+        <b>{productSpace - occupiedSpace}</b> product space remaining out of
+        total {productSpace}
         {/* <CircularProgress
           variant="static"
           value={availableProductSpaceTage}
@@ -83,9 +84,13 @@ const PlanInfoCard = ({
       </Typography>
       {/* <Typography>Total Product Space: {productSpace}</Typography> */}
 
-      <div>
-        <Link to={`${window.location.pathname}/plans`}>View Details</Link>
-      </div>
+      <br></br>
+      <Button
+        onClick={() => navigate(`${window.location.pathname}/plans`)}
+        variant='contained'
+        color='secondary'>
+        View Details
+      </Button>
     </React.Fragment>
   );
 };
@@ -97,24 +102,21 @@ const BrandPlanInfo = ({ publicUsername }) => {
   if (loading) return <Loading></Loading>;
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
-    const { id, noOfProducts, activePlan } = data.brand;
+    const { occupiedSpace, activePlan } = data.brand;
     if (activePlan) {
       const {
         dateEnd,
-        dateStart,
-        addedAt,
-        plan: { planId, price, productSpace, validityDuration }
+        plan: { price, productSpace }
       } = activePlan;
 
       const planExpiryDate = new Date(dateEnd);
-      const planIssuedAt = new Date(dateStart);
 
       return (
         <PlanInfoCard
           price={price}
           planExpiryDate={planExpiryDate}
           productSpace={productSpace}
-          noOfProducts={noOfProducts}></PlanInfoCard>
+          occupiedSpace={occupiedSpace}></PlanInfoCard>
       );
     }
 
@@ -130,27 +132,22 @@ const ShopPlanInfo = ({ publicUsername }) => {
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
     const {
-      id,
       properties: {
-        planIssuedAt: planIssuedAtStr,
-        planExpiryDate: planExpiryDateStr,
-        noOfProducts,
+        occupiedSpace,
         activePlan: {
           dateEnd,
-          dateStart,
-          addedAt,
-          plan: { planId, price, productSpace, validityDuration }
+          plan: { price, productSpace }
         }
       }
     } = data.shop;
     const planExpiryDate = new Date(dateEnd);
-    const planIssuedAt = new Date(dateStart);
+
     return (
       <PlanInfoCard
         price={price}
         planExpiryDate={planExpiryDate}
         productSpace={productSpace}
-        noOfProducts={noOfProducts}></PlanInfoCard>
+        occupiedSpace={occupiedSpace}></PlanInfoCard>
     );
   }
 };

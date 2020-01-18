@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
     bottom: theme.spacing(1)
   },
   paper: {
-    padding: theme.spacing(1, 2)
+    padding: theme.spacing(1)
   },
   heading: {
     padding: theme.spacing(1, 2),
@@ -67,6 +67,9 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.grey[700],
     borderRadius: 0
     // backgroundColor: theme.palette.success.dark
+  },
+  container: {
+    padding: theme.spacing(1)
   }
 }));
 
@@ -229,7 +232,7 @@ const MyShopPlans = ({ shopUsername }) => {
               {shopName}
             </Typography>
           </Paper>
-          <Container>
+          <Container className={classes.container}>
             {activePlan ? (
               <div style={{ marginTop: 20, marginBottom: 20 }}>
                 <Grid container spacing={2}>
@@ -252,7 +255,7 @@ const MyShopPlans = ({ shopUsername }) => {
                 <Typography align='center'>
                   <b>Upcoming Plan(s)</b>
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                   {upcomingPlans.map(plan => (
                     <Grid key={plan.node.id} item xs={12} sm={6} md={4}>
                       <UpcomingPlan plan={plan}></UpcomingPlan>
@@ -268,7 +271,7 @@ const MyShopPlans = ({ shopUsername }) => {
                   variant='contained'
                   component={Link}
                   to={`${window.location.pathname}/buy`}>
-                  Buy plans
+                  View more plans
                 </Button>
               </div>
             )}
