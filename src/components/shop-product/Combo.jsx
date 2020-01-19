@@ -23,6 +23,7 @@ import { ReturnRefundPolicy } from '../templates/product-detail/ProductDetails';
 import ProductThumb from '../templates/ProductThumb';
 import { getIsStoreOpenNow, getDateFromHours } from '../core/utils';
 import { format } from 'date-fns';
+import MainFeaturedPost from '../templates/MainFeaturedPost';
 
 const COMBO = gql`
   query($comboId: ID!) {
@@ -35,6 +36,7 @@ const COMBO = gql`
         }
         properties {
           title
+          heroImage
           publicUsername
           contactNumber
           address
@@ -256,6 +258,7 @@ const Combo = ({ comboId }) => {
         geometry: { coordinates },
         properties: {
           title: shopName,
+          heroImage,
           publicUsername: shopUsername,
           address,
           contactNumber,
@@ -404,8 +407,12 @@ const Combo = ({ comboId }) => {
           sm={12}
           md={2}>
           <AddComboToCart viewer={viewer} comboId={comboId}></AddComboToCart>
-
+          <br></br>
           <Divider></Divider>
+          <br></br>
+          <MainFeaturedPost
+            img={heroImage}
+            title={shopUsername}></MainFeaturedPost>
           <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
             Contact Details
           </Typography>

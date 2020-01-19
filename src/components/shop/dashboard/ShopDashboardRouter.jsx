@@ -41,7 +41,7 @@ const ShopDashboardRouter = props => {
           path='combos/search/:phrase'></MyCombos>
         <AddNewComboHOC
           shopUsername={shopUsername}
-          path='combos/add'></AddNewComboHOC>
+          path='combos/create'></AddNewComboHOC>
         <MyCombos shopUsername={shopUsername} path='combos'></MyCombos>
 
         <AddNewProduct

@@ -1,12 +1,4 @@
-import {
-  Button,
-  Container,
-  Grid,
-  Typography,
-  Box,
-  TextField,
-  InputAdornment
-} from '@material-ui/core';
+import { Box, Button, Grid, Typography } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -17,13 +9,13 @@ import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import Link from '../../../core/Link';
-import Loading from '../../../core/Loading';
 import slugGenerator from '../../../core/slugGenerator';
 import { emptyPageInfo } from '../../../core/utils';
 import SEO from '../../../seo';
+import ProductGridSkeleton from '../../../skeletons/ProductGridSkeleton';
 import ProductCollage from '../../../templates/dashboard/ProductCollage';
-import PaginationWithState from '../../../templates/PaginationWithState';
 import SearchBar from '../../../templates/dashboard/SearchBar';
+import PaginationWithState from '../../../templates/PaginationWithState';
 
 export const SHOP_COMBOS = gql`
   query(
@@ -207,10 +199,7 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
     setConfirmationDialogOpen(false);
   };
 
-  const [
-    deleteCombo,
-    { loading, error, data: deleteComboData, called }
-  ] = useMutation(DELETE_COMBO, {
+  const [deleteCombo, { loading }] = useMutation(DELETE_COMBO, {
     onCompleted() {
       handleClose();
     },
@@ -253,18 +242,61 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
     }
   });
 
-  if (data.shopCombos.pageInfo.startCursor) {
-    const {
-      shopCombos: { edges: shopComboEdges, shop }
-    } = data;
+  const {
+    shopCombos: { edges: shopComboEdges, shop }
+  } = data;
 
+  return (
+    <Grid container>
+      {shopComboEdges.map(shopCombo => {
+        return (
+          <ComboGridItem
+            key={shopCombo.node.id}
+            shopUsername={shopUsername}
+            handleClickOpen={handleClickOpen}
+            shopComboNode={shopCombo.node}
+            shop={shop}></ComboGridItem>
+        );
+      })}
+      {/* Confirmation dialog */}
+
+      <ConfirmationDialog
+        isOpen={confirmationDialogOpen}
+        title='Are you sure to delete this combo ?'
+        disabled={loading}
+        handleClose={handleClose}
+        handleContinue={deleteCombo}
+        variables={deleteComboMutationVariables}></ConfirmationDialog>
+
+      <br></br>
+      <br></br>
+      <PaginationWithState
+        fetchMore={fetchMore}
+        pageInfo={data.shopCombos.pageInfo}></PaginationWithState>
+    </Grid>
+  );
+};
+
+const MyCombos = ({ shopUsername, phrase }) => {
+  const { loading, error, data, fetchMore } = useQuery(SHOP_COMBOS, {
+    variables: { shopUsername, phrase }
+  });
+
+  if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
+  if (error) return <ErrorPage></ErrorPage>;
+  if (data && data.shopCombos.pageInfo.startCursor) {
+    let addNewUrl = `${window.location.pathname}`;
+    if (addNewUrl.includes('/search')) {
+      addNewUrl = addNewUrl.split('/search')[0];
+    }
     return (
       <>
+        <SEO title='Combos'></SEO>
         <br></br>
         <center>
           <Button
             component={Link}
-            to={`${window.location.pathname}/add`}
+            to={`${addNewUrl}/create`}
             variant='contained'
             color='primary'>
             Add new Combos
@@ -276,41 +308,27 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
           defaultPhrase={phrase}
           searchUrlBase={window.location.pathname}></SearchBar>
         <br></br>
-        <Grid container>
-          {shopComboEdges.map(shopCombo => {
-            return (
-              <ComboGridItem
-                key={shopCombo.node.id}
-                shopUsername={shopUsername}
-                handleClickOpen={handleClickOpen}
-                shopComboNode={shopCombo.node}
-                shop={shop}></ComboGridItem>
-            );
-          })}
-          {/* Confirmation dialog */}
-
-          <ConfirmationDialog
-            isOpen={confirmationDialogOpen}
-            title='Are you sure to delete this combo ?'
-            disabled={loading}
-            handleClose={handleClose}
-            handleContinue={deleteCombo}
-            variables={deleteComboMutationVariables}></ConfirmationDialog>
-
-          <br></br>
-          <br></br>
-          <PaginationWithState
-            fetchMore={fetchMore}
-            pageInfo={data.shopCombos.pageInfo}></PaginationWithState>
-        </Grid>
+        <ComboGrid
+          shopUsername={shopUsername}
+          fetchMore={fetchMore}
+          phrase={phrase}
+          data={data}></ComboGrid>
       </>
     );
   }
   if (phrase) {
     return (
-      <Typography align='center' style={{ margin: 4 }} variant='h5'>
-        No results found for - <b>{phrase}</b>
-      </Typography>
+      <>
+        <br></br>
+        <SearchBar
+          placeholder='Search your combos'
+          defaultPhrase={phrase}
+          searchUrlBase={window.location.pathname}></SearchBar>
+        <br></br>
+        <Typography align='center' style={{ margin: 4 }} variant='h5'>
+          No results found for - <b>{phrase}</b>
+        </Typography>
+      </>
     );
   }
   return (
@@ -327,27 +345,6 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
           Create Combo
         </Typography>
       </center>
-    </>
-  );
-};
-
-const MyCombos = ({ shopUsername, phrase }) => {
-  const { loading, error, data, fetchMore } = useQuery(SHOP_COMBOS, {
-    variables: { shopUsername, phrase }
-  });
-
-  return (
-    <>
-      <SEO title='Combos'></SEO>
-      {loading && <Loading></Loading>}
-      {error && <ErrorPage></ErrorPage>}
-      {data && (
-        <ComboGrid
-          shopUsername={shopUsername}
-          fetchMore={fetchMore}
-          phrase={phrase}
-          data={data}></ComboGrid>
-      )}
     </>
   );
 };
