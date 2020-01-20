@@ -92,7 +92,11 @@ export const SHOP_ORDERS = gql`
       first: 10
       orderBy: "order__created"
       clientTrackingId: $shopOrderTrackingId
-    ) @connection(key: "shopOrders", filter: ["status", "shop"]) {
+    )
+      @connection(
+        key: "shopOrders"
+        filter: ["status", "shop", "clientTrackingId"]
+      ) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -336,7 +340,8 @@ export const ShopOrder = ({
           query: SHOP_ORDERS,
           variables: {
             shopId,
-            status: currentShopOrderStatus
+            status: currentShopOrderStatus,
+            shopOrderTrackingId: null
           }
         });
 
@@ -350,7 +355,8 @@ export const ShopOrder = ({
           query: SHOP_ORDERS,
           variables: {
             shopId,
-            status: currentShopOrderStatus
+            status: currentShopOrderStatus,
+            shopOrderTrackingId: null
           },
           data: {
             shopOrders: {
@@ -362,19 +368,47 @@ export const ShopOrder = ({
           }
         });
 
+        // remove from searched shopOrderTrackingId queries if exist
         try {
-          const { shopOrders: newStatusShopOrders } = store.readQuery({
+          store.readQuery({
             query: SHOP_ORDERS,
             variables: {
               shopId,
-              status: newStatus.toLowerCase()
+              status: currentShopOrderStatus,
+              shopOrderTrackingId
             }
           });
           store.writeQuery({
             query: SHOP_ORDERS,
             variables: {
               shopId,
-              status: newStatus.toLowerCase()
+              status: currentShopOrderStatus,
+              shopOrderTrackingId
+            },
+            data: {
+              shopOrders: {
+                ...oldStatusShopOrders,
+                edges: []
+              }
+            }
+          });
+        } catch {}
+
+        try {
+          const { shopOrders: newStatusShopOrders } = store.readQuery({
+            query: SHOP_ORDERS,
+            variables: {
+              shopId,
+              status: newStatus.toLowerCase(),
+              shopOrderTrackingId: null
+            }
+          });
+          store.writeQuery({
+            query: SHOP_ORDERS,
+            variables: {
+              shopId,
+              status: newStatus.toLowerCase(),
+              shopOrderTrackingId: null
             },
             data: {
               shopOrders: {
@@ -594,22 +628,25 @@ const OrderBase = ({ status }) => {
 
   const { phrase, shopOrderTrackingId } = search;
 
-  const { loading, error, data, fetchMore } = useQuery(SHOP_ORDERS, {
-    variables: {
-      shopId,
-      status,
-      shopOrderTrackingId
+  const { loading, error, data, fetchMore, refetch, networkStatus } = useQuery(
+    SHOP_ORDERS,
+    {
+      variables: {
+        shopId,
+        status,
+        shopOrderTrackingId
+      },
+      notifyOnNetworkStatusChange: true
     }
-  });
+  );
 
   const handleSearch = () => {
     if (phrase.length === 6 || phrase.length === 7) {
-      if (phrase.includes === '-') {
+      if (phrase.includes('-')) {
         setSearch({ ...search, shopOrderTrackingId: phrase });
       } else {
         const goodSearchPhrase =
           phrase.substring(0, 3) + '-' + phrase.substring(3);
-
         setSearch({ ...search, shopOrderTrackingId: goodSearchPhrase });
       }
     } else if (phrase.length === 0) {
@@ -644,37 +681,51 @@ const OrderBase = ({ status }) => {
         handleClose={handleResponseSnackbarClose}
         variant='success'
         message='Status changed successfully'></ResponseSnackbar>
-      {shopOrdersEdges && shopOrdersEdges.length !== 0 && (
-        <Paper className={classes.searchRoot}>
-          <InputBase
-            className={classes.input}
-            value={phrase}
-            onChange={e => setSearch({ ...search, phrase: e.target.value })}
-            onKeyPress={e => e.key === 'Enter' && handleSearch()}
-            placeholder='Search Tracking Id'
-            inputProps={{ 'aria-label': 'search tracking id' }}
-          />
-          <IconButton
-            onClick={handleClearSearch}
-            className={classes.iconButton}
-            aria-label='clear'>
-            <CloseIcon />
-          </IconButton>
-          <Divider className={classes.divider} orientation='vertical' />
-          <IconButton
-            color='primary'
-            onClick={() => handleSearch()}
-            className={classes.iconButton}
-            aria-label='directions'>
-            <SearchIcon />
-          </IconButton>
-        </Paper>
-      )}
-      {loading && (
-        <>
-          <br></br>
-          <Loading></Loading>
-        </>
+
+      <Paper className={classes.searchRoot}>
+        <InputBase
+          className={classes.input}
+          value={phrase}
+          onChange={e => setSearch({ ...search, phrase: e.target.value })}
+          onKeyPress={e => e.key === 'Enter' && handleSearch()}
+          placeholder='Search Tracking Id'
+          inputProps={{ 'aria-label': 'search tracking id' }}
+        />
+        <IconButton
+          onClick={handleClearSearch}
+          className={classes.iconButton}
+          aria-label='clear'>
+          <CloseIcon />
+        </IconButton>
+        <Divider className={classes.divider} orientation='vertical' />
+        <IconButton
+          color='primary'
+          onClick={() => handleSearch()}
+          className={classes.iconButton}
+          aria-label='directions'>
+          <SearchIcon />
+        </IconButton>
+      </Paper>
+      <br></br>
+      <Button
+        disabled={networkStatus === 4}
+        variant='contained'
+        color='primary'
+        onClick={() => refetch()}>
+        Refresh orders
+      </Button>
+
+      {networkStatus === 4 ? (
+        <Typography align='center' variant='h6' style={{ color: 'green' }}>
+          Refetching!
+        </Typography>
+      ) : (
+        loading && (
+          <>
+            <br></br>
+            <Loading></Loading>
+          </>
+        )
       )}
       <br></br>
       <br></br>

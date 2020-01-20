@@ -45,6 +45,7 @@ export const MY_ORDERS = gql`
           created
           referenceId
           user {
+            id
             email
           }
           status
