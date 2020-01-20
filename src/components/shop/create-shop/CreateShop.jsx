@@ -28,7 +28,7 @@ const CreateShop = () => {
   const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
   // files
   const [img, setImg] = React.useState(false);
-  console.info(JSON.parse(atob(localSavedLocationData.localSavedLocation)));
+
   const handleFileChange = files => {
     const file = files[0];
 

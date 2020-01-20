@@ -81,7 +81,6 @@ const RESET_PASSWORD = gql`
 `;
 
 const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
-  console.info(jwtData);
   const { jwtEncodedStr } = jwtData.forgotPasswordEmailVerification;
 
   const [setNewPassword, { loading, error, data, called }] = useMutation(
@@ -307,7 +306,9 @@ const ResetPassword = () => {
   };
   const [sendConfirmationEmail, { loading, error, data }] = useMutation(
     FORGOT_PASSWORD_EMAIL_VERIFICATION,
-    { onCompleted: () => nextStep() }
+    {
+      onCompleted: () => nextStep()
+    }
   );
 
   return (

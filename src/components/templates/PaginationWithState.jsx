@@ -17,7 +17,6 @@ const PaginationWithState = props => {
                 ...other
               },
               updateQuery: (previousResults, { loading, fetchMoreResult }) => {
-                console.info(fetchMoreResult);
                 if (loading) {
                   setLoading(true);
                 }

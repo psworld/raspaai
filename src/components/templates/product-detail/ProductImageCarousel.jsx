@@ -7,7 +7,7 @@ import styles from 'react-responsive-carousel/lib/styles/carousel.min.css';
 const ProductImageCarousel = ({ imagesNodeList, alt }) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
-  console.info(imagesNodeList);
+
   return (
     <Carousel showThumbs={matches} infiniteLoop showArrows={true}>
       {imagesNodeList.map(imgObj => {
