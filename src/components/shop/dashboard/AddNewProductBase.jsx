@@ -15,7 +15,7 @@ import { newPageInfo } from '../../core/utils';
 import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
 import PaginationWithState from '../../templates/PaginationWithState';
 import ProductThumb from '../../templates/ProductThumb';
-import { DASHBOARD_SHOP_PRODUCTS } from './MyProductsBase';
+import { DASHBOARD_SHOP_PRODUCTS, getTypeName } from './MyProductsBase';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import { SHOP_PRODUCTS } from '../ShopHomePage';
 import SearchBar from '../../templates/dashboard/SearchBar';
@@ -302,6 +302,8 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
     }
   });
 
+  const typeName = getTypeName(productType);
+
   if (loading) return <ProductGridSkeleton></ProductGridSkeleton>;
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
@@ -364,7 +366,7 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
     }
     return (
       <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
-        Sorry, no services available at the moment
+        Sorry, no {typeName} available at the moment
       </Typography>
     );
   }

@@ -380,7 +380,7 @@ const DashboardShopProductGrid = ({
   );
 };
 
-const getTypeName = type => {
+export const getTypeName = type => {
   switch (type) {
     case 'is_service':
       return 'services';
