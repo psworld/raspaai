@@ -36,6 +36,7 @@ import ResponseSnackbar from './ResponseSnackbar';
 import PaginationWithState from '../../../../templates/PaginationWithState';
 import ProductCollage from '../../../../templates/dashboard/ProductCollage';
 import { slugGenerator } from '../../../../core/utils';
+import { format } from 'date-fns';
 
 const useStyles = makeStyles(theme => ({
   order: {
@@ -293,12 +294,8 @@ export const ShopOrder = ({
 
   // Formatting date and time
   const dateObj = new Date(dateStr);
-  const date = `${dateObj.getDate()} ${dateObj.toLocaleString('default', {
-    month: 'short'
-  })}`;
-  const orderPlacedTime = dateObj.toLocaleTimeString('default', {
-    timeStyle: 'short'
-  });
+  const date = format(dateObj, 'd MMM');
+  const orderPlacedTime = format(dateObj, 'h:mm a');
 
   // For collapse and show
   const [open, setOpen] = React.useState(false);
