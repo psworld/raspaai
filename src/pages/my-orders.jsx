@@ -471,7 +471,7 @@ const MyOrders = () => {
         title='Your orders'
         description='Your Orders | Track all of your orders'></SEO>
       <Container style={{ padding: 0 }} maxWidth='md'>
-        <UserCheck nextUrl={`?next=${window.location.pathname}`}>
+        <UserCheck nextUrl={`?next=/my-orders`}>
           <OrderList classes={classes}></OrderList>
         </UserCheck>
       </Container>
