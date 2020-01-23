@@ -1,25 +1,22 @@
-import React from 'react';
 import {
+  Avatar,
   Button,
   Card,
   CardMedia,
-  InputLabel,
-  Typography,
   Container,
   Grid,
+  InputLabel,
   TextField,
-  Avatar,
-  InputAdornment,
+  Typography,
   useMediaQuery
 } from '@material-ui/core';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { useTheme } from '@material-ui/core/styles';
-import { makeStyles } from '@material-ui/core/styles';
-import Link from '../../core/Link';
+import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useMutation } from 'react-apollo';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
-import { navigate } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   card: {

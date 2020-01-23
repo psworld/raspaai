@@ -1,13 +1,13 @@
-import React from "react"
-import { Router } from "@reach/router"
-import AdminDashboard from "../components/admin-dashboard/AdminDashboard"
+import React from 'react';
+import { Router } from '@reach/router';
+import AdminDashboardRouter from '../components/admin-dashboard/AdminDashboardRouter';
 
 const Raspaai = () => {
   return (
     <Router>
-      <AdminDashboard path="/raspaai/dashboard/*"></AdminDashboard>
+      <AdminDashboardRouter path='/raspaai/dashboard/*'></AdminDashboardRouter>
     </Router>
-  )
-}
+  );
+};
 
-export default Raspaai
+export default Raspaai;

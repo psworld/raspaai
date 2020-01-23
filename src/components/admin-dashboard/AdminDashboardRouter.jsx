@@ -12,8 +12,10 @@ import { useQuery } from 'react-apollo';
 import ErrorPage from '../core/ErrorPage';
 import AddShop from './shops/add-shop/AddShop';
 import AddPlanToShop from './shops/AddPlanToShop';
+import AddPlanToBrand from './brands/AddPlanToBrand';
+import NotFoundPage from '../../pages/404';
 
-const AdminDashboard = () => {
+const AdminDashboardRouter = () => {
   const { loading, error, data } = useQuery(VIEWER);
   if (loading) return <p>Loading</p>;
   if (error) return <ErrorPage></ErrorPage>;
@@ -23,13 +25,15 @@ const AdminDashboard = () => {
       <AdminDashboardLayout>
         <Router>
           <AdminDashboardHomePage path='/'></AdminDashboardHomePage>
-          <AddShop path='shops/add'></AddShop>
           <AddPlanToShop path='shops/add-plan'></AddPlanToShop>
+          <AddShop path='shops/add'></AddShop>
           <ShopPage path='shops/:shopUsername'></ShopPage>
           <ShopsPage path='shops'></ShopsPage>
+          <AddPlanToBrand path='brands/add-plan'></AddPlanToBrand>
+          <AddNewBrand path='brands/add'></AddNewBrand>
           <BrandsPage path='brands'></BrandsPage>
-          <BrandPage path='brands/:brandUsername/:applicationId'></BrandPage>
-          <AddNewBrand path='brand/add'></AddNewBrand>
+          {/* <BrandPage path='brands/:brandUsername/:applicationId'></BrandPage> */}
+          <NotFoundPage default></NotFoundPage>
         </Router>
       </AdminDashboardLayout>
     );
@@ -38,4 +42,4 @@ const AdminDashboard = () => {
   }
 };
 
-export default AdminDashboard;
+export default AdminDashboardRouter;

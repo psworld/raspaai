@@ -21,9 +21,11 @@ const BRAND_PLAN_INFO = gql`
         addedAt
         dateStart
         dateEnd
+        isValid
         plan {
           id
           planId
+          name
           price
           productSpace
           validityDuration
@@ -62,14 +64,15 @@ const PlanInfoCard = ({
   price,
   planExpiryDate,
   productSpace,
-  occupiedSpace
+  occupiedSpace,
+  planName
 }) => {
   const expiryDate = format(planExpiryDate, 'MMM d, y h:m a');
   return (
     <React.Fragment>
       {/* <Title>Plan Details</Title> */}
       <Typography component='p' variant='h6'>
-        ₹ {price} plan
+        {planName}
       </Typography>
       {/* <Typography>Validity: {validityDuration.split(",")[0]}</Typography> */}
       <Typography color='textSecondary'>Expires on {expiryDate}</Typography>
@@ -106,18 +109,39 @@ const BrandPlanInfo = ({ publicUsername }) => {
     if (activePlan) {
       const {
         dateEnd,
-        plan: { price, productSpace }
+        isValid,
+        plan: { price, productSpace, name: planName }
       } = activePlan;
 
       const planExpiryDate = new Date(dateEnd);
 
-      return (
-        <PlanInfoCard
-          price={price}
-          planExpiryDate={planExpiryDate}
-          productSpace={productSpace}
-          occupiedSpace={occupiedSpace}></PlanInfoCard>
-      );
+      if (isValid) {
+        return (
+          <PlanInfoCard
+            price={price}
+            planExpiryDate={planExpiryDate}
+            planName={planName}
+            productSpace={productSpace}
+            occupiedSpace={occupiedSpace}></PlanInfoCard>
+        );
+      } else {
+        return (
+          <>
+            <Typography variant='h6'>Your current plan has expired.</Typography>
+            <Typography color='textSecondary'>
+              If you have already bought a plan then do not worry, it will get
+              updated within a day.
+            </Typography>
+            <br></br>
+            <Button
+              onClick={() => navigate(`${window.location.pathname}/plans`)}
+              variant='contained'
+              color='secondary'>
+              View Details
+            </Button>
+          </>
+        );
+      }
     }
 
     return <Typography>You do not have any active plans</Typography>;
@@ -136,7 +160,7 @@ const ShopPlanInfo = ({ publicUsername }) => {
         occupiedSpace,
         activePlan: {
           dateEnd,
-          plan: { price, productSpace }
+          plan: { price, name: planName, productSpace }
         }
       }
     } = data.shop;
@@ -147,6 +171,7 @@ const ShopPlanInfo = ({ publicUsername }) => {
         price={price}
         planExpiryDate={planExpiryDate}
         productSpace={productSpace}
+        planName={planName}
         occupiedSpace={occupiedSpace}></PlanInfoCard>
     );
   }

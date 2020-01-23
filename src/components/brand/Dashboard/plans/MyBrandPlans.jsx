@@ -12,39 +12,36 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { gql } from 'apollo-boost';
-import { format, differenceInHours } from 'date-fns/esm';
+import { differenceInDays, addWeeks } from 'date-fns';
+import { differenceInHours, format } from 'date-fns/esm';
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import ErrorPage from '../../../../core/ErrorPage';
-import Link from '../../../../core/Link';
-import Loading from '../../../../core/Loading';
-import SEO from '../../../../seo';
-import { differenceInDays } from 'date-fns';
+import ErrorPage from '../../../core/ErrorPage';
+import Link from '../../../core/Link';
+import Loading from '../../../core/Loading';
+import SEO from '../../../seo';
 
-const SHOP_PLANS = gql`
-  query($shopUsername: String!) {
-    shop(publicShopUsername: $shopUsername) {
+const BRAND_PLANS = gql`
+  query($brandUsername: String!) {
+    brand(publicBrandUsername: $brandUsername) {
       id
-      properties {
-        title
-        occupiedSpace
-        plans {
-          edges {
-            node {
+      occupiedSpace
+      plans {
+        edges {
+          node {
+            id
+            isActive
+            isValid
+            dateStart
+            dateEnd
+            addedAt
+            plan {
               id
-              isActive
-              isValid
-              dateStart
-              dateEnd
-              addedAt
-              plan {
-                id
-                planId
-                name
-                price
-                validityDuration
-                productSpace
-              }
+              planId
+              name
+              price
+              validityDuration
+              productSpace
             }
           }
         }
@@ -73,12 +70,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const MyShopPlans = ({ shopUsername }) => {
+const MyBrandPlans = ({ brandUsername }) => {
   const classes = useStyles();
 
   // All bought plans of the shop
-  const { loading, error, data } = useQuery(SHOP_PLANS, {
-    variables: { shopUsername }
+  const { loading, error, data } = useQuery(BRAND_PLANS, {
+    variables: { brandUsername }
   });
 
   const ActivePlan = ({ activePlan, occupiedSpace }) => {
@@ -99,12 +96,12 @@ const MyShopPlans = ({ shopUsername }) => {
         ? `${differenceInHours(expiryDateObj, new Date())} hrs`
         : `${timeLeft} days`;
     const expiryDate = format(expiryDateObj, 'MMM d, y h:mm a');
+    const isTrialPlan = planName.includes('free');
 
-    const isFreePlan = planName.includes('free');
     return (
       <Paper className={classes.paper}>
         <Typography variant='h6'>
-          <b>{isFreePlan ? planName : `MRP ${price}`}</b>
+          <b>{isTrialPlan ? planName : `MRP ${price}`}</b>
         </Typography>
         <Typography variant='body2'>
           Expires on {expiryDate}
@@ -188,11 +185,25 @@ const MyShopPlans = ({ shopUsername }) => {
     );
   };
 
-  const DoNotHaveActivePlans = () => {
+  const DoNotHaveActivePlans = ({ activePlanEndDate }) => {
+    const brandTerminationDateObj = addWeeks(new Date(activePlanEndDate), 1);
+    const terminationDate = format(brandTerminationDateObj, 'MMM d, y h:m a');
     return (
       <>
         <Typography variant='h5' align='center'>
-          You do not have any shop plans
+          You do not have any active brand plans
+        </Typography>
+        <br></br>
+        <Typography variant='h5' align='center'>
+          Your brand account will be terminated on <b>{terminationDate}</b>
+        </Typography>
+        <Typography variant='body1' align='center'>
+          * Termination of brand account includes deleting all the brand
+          products and brand itself.
+        </Typography>
+        <br></br>
+        <Typography variant='h6' align='center'>
+          To avoid termination recharge immediately.
         </Typography>
         <div style={{ margin: 30 }}>
           <center>
@@ -201,7 +212,7 @@ const MyShopPlans = ({ shopUsername }) => {
               variant='contained'
               component={Link}
               to={`${window.location.pathname}/buy`}>
-              Buy plans
+              View plans
             </Button>
           </center>
         </div>
@@ -213,30 +224,31 @@ const MyShopPlans = ({ shopUsername }) => {
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
     const {
-      properties: {
-        title: shopName,
-        occupiedSpace,
-        plans: { edges: planNodeEdges }
-      }
-    } = data.shop;
+      title: brandName,
+      occupiedSpace,
+      plans: { edges: planNodeEdges }
+    } = data.brand;
 
     if (planNodeEdges.length > 0) {
       const activePlan = planNodeEdges.find(plan => plan.node.isValid === true);
-
+      const pseudoActivePlan = planNodeEdges.find(
+        plan => plan.node.isActive === true
+      );
+      const activePlanEndDate = pseudoActivePlan.node.dateEnd;
       const upcomingPlans = planNodeEdges.filter(
         plan => new Date(plan.node.dateStart) > new Date()
       );
       return (
         <>
           <SEO
-            title='My shop plans'
+            title='My brand plans'
             description='Current and upcoming plans.'></SEO>
           <Paper className={classes.heading}>
             <Typography variant='h6' align='center'>
-              My shop plans
+              My brand plans
             </Typography>
             <Typography variant='h6' align='center'>
-              {shopName}
+              {brandName}
             </Typography>
           </Paper>
           <Container className={classes.container}>
@@ -254,7 +266,8 @@ const MyShopPlans = ({ shopUsername }) => {
                 </Grid>
               </div>
             ) : (
-              <DoNotHaveActivePlans></DoNotHaveActivePlans>
+              <DoNotHaveActivePlans
+                activePlanEndDate={activePlanEndDate}></DoNotHaveActivePlans>
             )}
             <Divider></Divider>
             {upcomingPlans.length > 0 && (
@@ -289,14 +302,14 @@ const MyShopPlans = ({ shopUsername }) => {
       return (
         <>
           <SEO
-            title='My shop plans'
+            title='My Brand plans'
             description='Current and upcoming plans.'></SEO>
           <Paper className={classes.heading}>
             <Typography variant='h6' align='center'>
-              My shop plans
+              My Brand plans
             </Typography>
             <Typography variant='h6' align='center'>
-              {shopName}
+              {brandName}
             </Typography>
           </Paper>
           <DoNotHaveActivePlans></DoNotHaveActivePlans>
@@ -306,4 +319,4 @@ const MyShopPlans = ({ shopUsername }) => {
   }
 };
 
-export default MyShopPlans;
+export default MyBrandPlans;

@@ -8,6 +8,8 @@ import EditBrandProduct, {
   AddDeleteImages
 } from './edit-product/EditBrandProduct';
 import MyProductsPage from './MyProductsPage';
+import MyBrandPlans from './plans/MyBrandPlans';
+import AvailablePlans from './plans/buy/AvailablePlans';
 
 const BrandDashboardRouter = props => {
   const { brandUsername } = props;
@@ -17,6 +19,8 @@ const BrandDashboardRouter = props => {
         <BrandDashboardHomePage
           path='/'
           brandUsername={brandUsername}></BrandDashboardHomePage>
+        <MyBrandPlans path='plans' brandUsername={brandUsername}></MyBrandPlans>
+        <AvailablePlans path='plans/buy'></AvailablePlans>
         <EditBrandProduct path='product/edit/:productSlug/:id'></EditBrandProduct>
         <AddDeleteImages path='product/edit/:productSlug/:id/images/:action'></AddDeleteImages>
         <AddNewBrandProduct

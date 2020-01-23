@@ -42,7 +42,8 @@ const AvailablePlans = ({
   handlePlanSelect,
   selectedPlan,
   headingClasses,
-  fab
+  fab,
+  filterFreePlans = true
 }) => {
   const { loading, error, data } = useQuery(AVAILABLE_PLANS);
 
@@ -69,7 +70,7 @@ const AvailablePlans = ({
           />
         </TableCell>
         <TableCell component='th' scope='row' padding='none'>
-          &#8377;{price}
+          {!filterFreePlans ? planName : <>&#8377;{price}</>}
         </TableCell>
         <TableCell align='right'>{validityDuration.split(',')[0]}</TableCell>
         <TableCell align='right'>{productSpace}</TableCell>
@@ -127,7 +128,7 @@ const AvailablePlans = ({
                         />
                       </TableCell>
                       <TableCell component='th' scope='row' padding='none'>
-                        &#8377;{price}
+                        {!filterFreePlans ? planName : <>&#8377;{price}</>}
                       </TableCell>
                       <TableCell align='right'>
                         {validityDuration.split(',')[0]}
@@ -148,7 +149,13 @@ const AvailablePlans = ({
   if (error) return <ErrorPage></ErrorPage>;
   if (data) {
     const productSpaces = [20, 50, 75, 100];
-    const { edges: availablePlanNodeEdges } = data.availablePlans;
+    let { edges: availablePlanNodeEdges } = data.availablePlans;
+
+    availablePlanNodeEdges = filterFreePlans
+      ? availablePlanNodeEdges.filter(
+          plan => !plan.node.planId.includes('free')
+        )
+      : availablePlanNodeEdges;
 
     const groupedPlanNodeEdges = {};
 

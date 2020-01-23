@@ -337,7 +337,9 @@ const Cart = () => {
   return (
     <Layout>
       <SEO title='Shopping Cart' description='Shopping Cart'></SEO>
-      <UserCheck withViewerProp={false}>
+      <UserCheck
+        nextUrl={`?next=${window.location.pathname}`}
+        withViewerProp={false}>
         {loading && <Loading></Loading>}
         {error && <ErrorPage></ErrorPage>}
         {data && data.cartLines && data.cartLines.length !== 0 && (

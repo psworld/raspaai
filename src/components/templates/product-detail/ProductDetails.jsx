@@ -360,7 +360,7 @@ const ProductDetails = props => {
                 <Button
                   onClick={() =>
                     viewer === null
-                      ? navigate('/signin')
+                      ? navigate(`/signin/?next=${window.location.pathname}`)
                       : !called
                       ? addItemToCart()
                       : null

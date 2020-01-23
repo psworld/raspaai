@@ -5,7 +5,7 @@ import Loading from './Loading';
 import ErrorPage from './ErrorPage';
 import { navigate } from 'gatsby';
 
-const UserCheck = ({ children, withViewerProp = true }) => {
+const UserCheck = ({ children, withViewerProp = true, nextUrl = '' }) => {
   const { loading, error, data } = useQuery(VIEWER);
 
   if (loading) return <Loading></Loading>;
@@ -21,7 +21,7 @@ const UserCheck = ({ children, withViewerProp = true }) => {
       return <>{children}</>;
     }
   }
-  return <>{navigate('/signin')}</>;
+  return <>{navigate(`/signin/${nextUrl}`)}</>;
 };
 
 export default UserCheck;

@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-  Grid,
   Container,
   Typography,
+  Grid,
   TextField,
   List,
   ListItem,
@@ -10,41 +10,37 @@ import {
   ListItemText,
   Fab
 } from '@material-ui/core';
+import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import { gql } from 'apollo-boost';
 import { useMutation } from 'react-apollo';
-import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
-import AvailablePlans from '../../shop/dashboard/components/plans/buy/AvailablePlans';
+import AvailablePlans from '../../brand/Dashboard/plans/buy/AvailablePlans';
 import { format } from 'date-fns';
 
-const GET_SHOP_INFO = gql`
-  mutation($shopUsername: String, $ownerEmail: String) {
-    adminGetShopInfo(
-      input: { shopUsername: $shopUsername, ownerEmail: $ownerEmail }
+const GET_BRAND_INFO = gql`
+  mutation($brandUsername: String, $ownerEmail: String) {
+    adminGetBrandInfo(
+      input: { brandUsername: $brandUsername, ownerEmail: $ownerEmail }
     ) {
-      shop {
+      brand {
         id
-        properties {
-          title
-          publicUsername
-          contactNumber
-          owner {
-            id
-            email
-            firstName
-            lastName
-          }
-          isActive
-          address
+        title
+        publicUsername
+        owner {
+          id
+          email
+          firstName
+          lastName
         }
+        isActive
       }
     }
   }
 `;
 
-const ADD_SHOP_PLAN = gql`
-  mutation($planId: ID!, $shopId: ID!) {
-    adminAddShopPlan(input: { planId: $planId, shopId: $shopId }) {
-      shopPlan {
+const ADD_BRAND_PLAN = gql`
+  mutation($planId: ID!, $brandId: ID!) {
+    adminAddBrandPlan(input: { planId: $planId, brandId: $brandId }) {
+      brandPlan {
         id
         isActive
         orderId
@@ -63,26 +59,29 @@ const ADD_SHOP_PLAN = gql`
   }
 `;
 
-const AddPlanToShop = () => {
-  const [shopInput, setShopInput] = React.useState({});
+const AddPlanToBrand = () => {
+  const [brandInput, setBrandInput] = React.useState({});
 
   const handleChange = e => {
-    setShopInput({ [e.target.id]: e.target.value });
+    setBrandInput({ [e.target.id]: e.target.value });
   };
 
-  const [getShopInfo, { loading, error, data }] = useMutation(GET_SHOP_INFO, {
-    variables: { ...shopInput }
+  const [getBrandInfo, { loading, error, data }] = useMutation(GET_BRAND_INFO, {
+    variables: { ...brandInput }
   });
 
-  const ChoosePlan = ({ shopId }) => {
+  const ChoosePlan = ({ brandId }) => {
     // storing plan id
     const [selectedPlan, setSelectedPlan] = React.useState({
       id: false,
       amount: 0
     });
-    const [addShopPlan, { loading, error, data }] = useMutation(ADD_SHOP_PLAN, {
-      variables: { shopId, planId: selectedPlan.id }
-    });
+    const [addBrandPlan, { loading, error, data }] = useMutation(
+      ADD_BRAND_PLAN,
+      {
+        variables: { brandId, planId: selectedPlan.id }
+      }
+    );
     const handlePlanSelect = (planId, amount) => {
       if (selectedPlan.id === planId) {
         // clicking again on selected plan
@@ -96,8 +95,8 @@ const AddPlanToShop = () => {
     };
     const StickyButton = (
       <Fab
-        onClick={addShopPlan}
-        disabled={loading || data || !selectedPlan.id}
+        onClick={addBrandPlan}
+        disabled={loading || !selectedPlan.id}
         color='primary'
         variant='extended'
         // className={classes.fab}
@@ -108,7 +107,7 @@ const AddPlanToShop = () => {
 
     const PlanInfo = () => {
       const {
-        shopPlan: {
+        brandPlan: {
           isActive,
           orderId,
           addedAt,
@@ -116,7 +115,7 @@ const AddPlanToShop = () => {
           dateEnd: dateEndStr,
           plan: { name: planName, price, productSpace, validityDuration }
         }
-      } = data.adminAddShopPlan;
+      } = data.adminAddBrandPlan;
 
       const dateStart = format(new Date(dateStartStr), 'MMM d, y h:m a');
       const expiryDate = format(new Date(dateEndStr), 'MMM d, y h:m a');
@@ -169,35 +168,31 @@ const AddPlanToShop = () => {
     );
   };
 
-  const ShopInfo = () => {
+  const BrandInfo = () => {
     const {
-      id: shopId,
-      properties: {
-        title: shopName,
-        publicUsername: shopUsername,
-        owner: { email, firstName, lastName },
-        isActive,
-        address,
-        contactNumber
-      }
-    } = data.adminGetShopInfo.shop;
+      id: brandId,
+      title: brandName,
+      publicUsername: brandUsername,
+      isActive,
+      owner: { email, firstName, lastName }
+    } = data.adminGetBrandInfo.brand;
     return (
       <List>
         <ListItem>
           <ListItemText
-            primary='Shop Status'
+            primary='brand Status'
             secondary={
               <>Is active: {isActive ? 'Yes' : 'No'}</>
             }></ListItemText>
         </ListItem>
         <ListItem>
           <ListItemText
-            primary='Shop General Details'
+            primary='brand General Details'
             secondary={
               <>
-                Username: {shopUsername}
+                Username: {brandUsername}
                 <br></br>
-                Name: {shopName}
+                Name: {brandName}
               </>
             }></ListItemText>
         </ListItem>
@@ -212,16 +207,6 @@ const AddPlanToShop = () => {
               </>
             }></ListItemText>
         </ListItem>
-        <ListItem>
-          <ListItemText
-            primary='Contact Details'
-            secondary={
-              <>
-                Address: {address}
-                <br></br> Phone No: {contactNumber}
-              </>
-            }></ListItemText>
-        </ListItem>
       </List>
     );
   };
@@ -229,7 +214,7 @@ const AddPlanToShop = () => {
   return (
     <Container>
       <Typography variant='h5' align='center'>
-        Add shop plans
+        Add brand plans
       </Typography>
       <Grid style={{ marginTop: 20 }} container spacing={2}>
         <Grid item xs={12} md={5}>
@@ -237,8 +222,10 @@ const AddPlanToShop = () => {
             variant='outlined'
             fullWidth
             onChange={handleChange}
-            id='shopUsername'
-            label='Shop Username'
+            id='brandUsername'
+            name='Brand Username'
+            label='Brand Username'
+            autoComplete={true}
           />
         </Grid>
         <Grid item xs={12} md={2}>
@@ -264,23 +251,23 @@ const AddPlanToShop = () => {
         )}
         <ListItem>
           <Button
-            onClick={getShopInfo}
+            onClick={getBrandInfo}
             disabled={loading}
             variant='contained'
             color='primary'>
-            Get shop info
+            Get brand info
           </Button>
         </ListItem>
 
-        {/* Shop info */}
-        {data && <ShopInfo></ShopInfo>}
+        {/* brand info */}
+        {data && <BrandInfo></BrandInfo>}
         <br></br>
         {data && (
-          <ChoosePlan shopId={data.adminGetShopInfo.shop.id}></ChoosePlan>
+          <ChoosePlan brandId={data.adminGetBrandInfo.brand.id}></ChoosePlan>
         )}
       </List>
     </Container>
   );
 };
 
-export default AddPlanToShop;
+export default AddPlanToBrand;

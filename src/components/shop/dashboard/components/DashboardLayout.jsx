@@ -145,7 +145,7 @@ const DashboardLayout = ({ children, publicUsername }) => {
                     )}>
                     <MenuIcon />
                   </IconButton>
-                  <SearchBar publicUsername={publicUsername}></SearchBar>
+                  {/* <SearchBar publicUsername={publicUsername}></SearchBar> */}
                 </>
               )}
             </Toolbar>

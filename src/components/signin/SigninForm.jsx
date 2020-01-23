@@ -84,7 +84,6 @@ const SIGNIN = gql`
 
 export default function SigninForm({ message, redirectUrl }) {
   const classes = useStyles();
-
   const [signin, { loading, error }] = useMutation(SIGNIN, {
     // refetchQueries: [{ query: CART_ITEMS }],
     update(
@@ -100,7 +99,7 @@ export default function SigninForm({ message, redirectUrl }) {
         data: { viewer: user }
       });
 
-      redirectUrl ? navigate(redirectUrl) : window.history.back();
+      redirectUrl ? navigate(redirectUrl) : navigate('/');
     },
     onCompleted: data => {
       localStorage.setItem('token', data.loginUser.token);
