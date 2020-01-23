@@ -1,31 +1,25 @@
-import React from 'react';
-import Layout from '../../components/layout';
-import SEO from '../../components/seo';
-
-import { makeStyles } from '@material-ui/core/styles';
 import {
-  Typography,
-  Container,
   Avatar,
   Button,
+  Container,
   Grid,
-  TextField,
   ListItem,
-  ListItemText
+  ListItemText,
+  TextField,
+  Typography
 } from '@material-ui/core';
-
+import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-
 import { Formik } from 'formik';
-import * as yup from 'yup';
-
-import EmailInput from '../../components/core/input/EmailInput';
-import { Link } from 'gatsby';
-import GraphqlErrorMessage from '../../components/core/GraphqlErrorMessage';
+import { Link, navigate } from 'gatsby';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useMutation } from 'react-apollo';
-
-import { navigate } from 'gatsby';
+import * as yup from 'yup';
+import GraphqlErrorMessage from '../../components/core/GraphqlErrorMessage';
+import EmailInput from '../../components/core/input/EmailInput';
+import Layout from '../../components/layout';
+import SEO from '../../components/seo';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -83,18 +77,14 @@ const RESET_PASSWORD = gql`
 const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
   const { jwtEncodedStr } = jwtData.forgotPasswordEmailVerification;
 
-  const [setNewPassword, { loading, error, data, called }] = useMutation(
-    RESET_PASSWORD,
-    {
-      onCompleted: () =>
-        navigate('/signin', {
-          state: {
-            message: 'Password reset successful',
-            redirectUrl: '/'
-          }
-        })
-    }
-  );
+  const [setNewPassword, { loading, error }] = useMutation(RESET_PASSWORD, {
+    onCompleted: () =>
+      navigate('/signin/?next=/', {
+        state: {
+          message: 'Password reset successful'
+        }
+      })
+  });
 
   return (
     <Formik

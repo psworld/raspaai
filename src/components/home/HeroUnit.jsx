@@ -1,47 +1,40 @@
-import React from "react"
-
-import Button from "@material-ui/core/Button"
-import Grid from "@material-ui/core/Grid"
-import Typography from "@material-ui/core/Typography"
-import { makeStyles } from "@material-ui/core/styles"
-import Container from "@material-ui/core/Container"
-
-import Link from "../core/Link"
-import { Divider } from "@material-ui/core"
+import { Divider } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import React from 'react';
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
     backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
+    padding: theme.spacing(8, 0, 6)
   },
   heroButtons: {
-    marginTop: theme.spacing(4),
-  },
-}))
+    marginTop: theme.spacing(4)
+  }
+}));
 
 const HeroUnit = ({ location }) => {
-  const classes = useStyles()
+  const classes = useStyles();
   return (
     <>
       <div className={classes.heroContent}>
-        <Container maxWidth="sm">
+        <Container maxWidth='sm'>
           <Typography
-            component="h1"
-            variant="h2"
-            align="center"
-            color="textPrimary"
-            gutterBottom
-          >
+            component='h1'
+            variant='h2'
+            align='center'
+            color='textPrimary'
+            gutterBottom>
             Raspaai
           </Typography>
           <Typography
-            variant="h5"
-            align="center"
-            color="textSecondary"
-            paragraph
-          >
-            {/* Raspaai | Buy anything from local stores */}
-            Raspaai | Buy books at best price
+            variant='h5'
+            align='center'
+            color='textSecondary'
+            paragraph>
+            Raspaai | Buy from local stores.
+            {/* Raspaai | Buy books at best price */}
           </Typography>
           {/* <div className={classes.heroButtons}>
           <Grid container spacing={2} justify="center">
@@ -66,7 +59,7 @@ const HeroUnit = ({ location }) => {
       </div>
       <Divider></Divider>
     </>
-  )
-}
+  );
+};
 
-export default HeroUnit
+export default HeroUnit;

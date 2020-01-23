@@ -1,14 +1,13 @@
+import {
+  Container,
+  List,
+  ListItem,
+  Paper,
+  Typography
+} from '@material-ui/core';
+import { graphql, Link, useStaticQuery } from 'gatsby';
 import React from 'react';
 import Layout from '../components/layout';
-import {
-  Typography,
-  Container,
-  Paper,
-  ListItem,
-  List
-} from '@material-ui/core';
-import { useStaticQuery, graphql } from 'gatsby';
-import { Link } from 'gatsby';
 import SEO from '../components/seo';
 
 const TermsOfUse = () => {

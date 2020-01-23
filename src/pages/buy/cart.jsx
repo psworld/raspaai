@@ -1,36 +1,35 @@
 /* eslint-disable no-redeclare */
-import React from 'react';
-import Layout from '../../components/layout';
-import { makeStyles } from '@material-ui/core/styles';
 import {
-  Typography,
-  Paper,
-  Stepper,
-  Step,
-  StepLabel,
   Button,
   Container,
+  Divider,
   Grid,
-  TextField,
   List,
   ListItem,
-  Divider
+  Paper,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography
 } from '@material-ui/core';
-import { CART_ITEMS } from '../cart';
-import { useQuery, useMutation } from 'react-apollo';
-import ProductThumb from '../../components/templates/ProductThumb';
 import { green } from '@material-ui/core/colors';
-import { Formik } from 'formik';
-
-import * as yup from 'yup';
-import gql from 'graphql-tag';
-import { MY_ORDERS } from '../my-orders';
+import { makeStyles } from '@material-ui/core/styles';
 import { navigate } from '@reach/router';
-import { VIEWER } from '../../components/navbar/ToolBarMenu';
-import Loading from '../../components/core/Loading';
+import { Formik } from 'formik';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+import * as yup from 'yup';
 import Link from '../../components/core/Link';
-import ProductCollage from '../../components/templates/dashboard/ProductCollage';
+import Loading from '../../components/core/Loading';
 import singularOrPlural from '../../components/core/utils';
+import Layout from '../../components/layout';
+import { VIEWER } from '../../components/navbar/ToolBarMenu';
+import ProductCollage from '../../components/templates/dashboard/ProductCollage';
+import ProductThumb from '../../components/templates/ProductThumb';
+import { CART_ITEMS } from '../cart';
+import { MY_ORDERS } from '../my-orders';
 
 const useStyles = makeStyles(theme => ({
   paper: {

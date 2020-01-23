@@ -1,7 +1,6 @@
+import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
-
 import ErrorPage from '../core/ErrorPage';
 import HomePageSkeleton from '../skeletons/HomePageSkeleton';
 import HomePage from './HomePage';

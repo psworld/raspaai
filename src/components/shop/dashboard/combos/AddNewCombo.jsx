@@ -1,39 +1,35 @@
-import React from 'react';
 import {
-  Typography,
-  Grid,
+  Box,
   Button,
-  Container,
+  Grid,
+  InputAdornment,
   List,
   ListItem,
   TextField,
-  InputAdornment,
-  Box
+  Typography
 } from '@material-ui/core';
-import SEO from '../../../seo';
-import { useQuery, useMutation } from 'react-apollo';
-import { SHOP_PRODUCTS } from '../../ShopHomePage';
-import ProductGridSkeleton from '../../../skeletons/ProductGridSkeleton';
-import ErrorPage from '../../../core/ErrorPage';
-import PaginationWithState from '../../../templates/PaginationWithState';
-import Link from '../../../core/Link';
-import ProductThumb from '../../../templates/ProductThumb';
-import slugGenerator from '../../../core/slugGenerator';
-import ProductCollage from '../../../templates/dashboard/ProductCollage';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-
-import { SHOP_COMBOS } from './MyCombos';
-
+import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import { gql } from 'apollo-boost';
-import { newPageInfo } from '../../../core/utils';
+import { Formik } from 'formik';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+import * as yup from 'yup';
+import ErrorPage from '../../../core/ErrorPage';
+import Link from '../../../core/Link';
+import { newPageInfo, slugGenerator } from '../../../core/utils';
+import SEO from '../../../seo';
+import ProductGridSkeleton from '../../../skeletons/ProductGridSkeleton';
+import ProductCollage from '../../../templates/dashboard/ProductCollage';
+import PaginationWithState from '../../../templates/PaginationWithState';
+import ProductThumb from '../../../templates/ProductThumb';
+import { SHOP_PRODUCTS } from '../../ShopHomePage';
+import { SHOP_COMBOS } from './MyCombos';
 
 const useStyles = makeStyles(theme => ({
   root: {

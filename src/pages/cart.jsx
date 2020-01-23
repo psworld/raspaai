@@ -1,38 +1,35 @@
 /* eslint-disable no-redeclare */
+import {
+  Button,
+  Container,
+  Divider,
+  Drawer,
+  FormControl,
+  Grid,
+  IconButton,
+  InputAdornment,
+  NativeSelect,
+  Paper,
+  Typography
+} from '@material-ui/core';
+import { blue } from '@material-ui/core/colors';
+import green from '@material-ui/core/colors/green';
+import ListItem from '@material-ui/core/ListItem';
+import { makeStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { Link, navigate } from 'gatsby';
+import gql from 'graphql-tag';
 import React from 'react';
-import Layout from '../components/layout';
-import { VIEWER } from '../components/navbar/ToolBarMenu';
-import { useQuery, useMutation } from 'react-apollo';
+import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../components/core/ErrorPage';
 import Loading from '../components/core/Loading';
-import gql from 'graphql-tag';
-
-import {
-  Typography,
-  Grid,
-  Divider,
-  FormControl,
-  NativeSelect,
-  InputAdornment,
-  Drawer,
-  IconButton,
-  Paper,
-  Container,
-  Button
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import ListItem from '@material-ui/core/ListItem';
-import DeleteIcon from '@material-ui/icons/Delete';
-
-import ProductThumb from '../components/templates/ProductThumb';
-import { Link, navigate } from 'gatsby';
-
-import green from '@material-ui/core/colors/green';
-import SEO from '../components/seo';
-import { blue } from '@material-ui/core/colors';
 import UserCheck from '../components/core/UserCheck';
-import ProductCollage from '../components/templates/dashboard/ProductCollage';
 import singularOrPlural, { slugGenerator } from '../components/core/utils';
+import Layout from '../components/layout';
+import { VIEWER } from '../components/navbar/ToolBarMenu';
+import SEO from '../components/seo';
+import ProductCollage from '../components/templates/dashboard/ProductCollage';
+import ProductThumb from '../components/templates/ProductThumb';
 
 const useStyles = makeStyles(theme => ({
   root: {

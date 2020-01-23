@@ -1,16 +1,14 @@
-import React from 'react';
-
+import { Button } from '@material-ui/core';
+import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-
-import slugGenerator from '../core/slugGenerator';
-import Link from '../core/Link';
-import { Button } from '@material-ui/core';
-import ProductThumb from './ProductThumb';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useMutation } from 'react-apollo';
 import { BRAND_PRODUCTS } from '../brand/BrandHomePage';
+import Link from '../core/Link';
+import ProductThumb from './ProductThumb';
+import { slugGenerator } from '../core/utils';
 
 const MODIFY_BRAND_PRODUCT = gql`
   mutation($data: ModifyBrandProductInput!) {

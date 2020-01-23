@@ -1,33 +1,31 @@
-import React from 'react';
-import Layout from '../components/layout';
 import {
-  Typography,
+  Button,
+  Collapse,
   Container,
-  ListItem,
+  Divider,
   Grid,
   List,
+  ListItem,
   Paper,
-  Collapse,
-  Divider,
-  Button
+  Typography
 } from '@material-ui/core';
-import SEO from '../components/seo';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
-import ErrorPage from '../components/core/ErrorPage';
-import Loading from '../components/core/Loading';
-import { makeStyles } from '@material-ui/core/styles';
 import { green, yellow } from '@material-ui/core/colors';
-
+import { makeStyles } from '@material-ui/core/styles';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import ProductThumb from '../components/templates/ProductThumb';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useQuery } from 'react-apollo';
+import ErrorPage from '../components/core/ErrorPage';
 import Link from '../components/core/Link';
-import slugGenerator from '../components/core/slugGenerator';
+import Loading from '../components/core/Loading';
 import UserCheck from '../components/core/UserCheck';
-import PaginationWithState from '../components/templates/PaginationWithState';
+import singularOrPlural, { slugGenerator } from '../components/core/utils';
+import Layout from '../components/layout';
+import SEO from '../components/seo';
 import ProductCollage from '../components/templates/dashboard/ProductCollage';
-import singularOrPlural from '../components/core/utils';
+import PaginationWithState from '../components/templates/PaginationWithState';
+import ProductThumb from '../components/templates/ProductThumb';
 
 export const MY_ORDERS = gql`
   query($userId: ID!, $endCursor: String) {

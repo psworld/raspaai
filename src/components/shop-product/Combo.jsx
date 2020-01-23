@@ -8,22 +8,25 @@ import {
 } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { gql } from 'apollo-boost';
+import { format } from 'date-fns';
 import { navigate } from 'gatsby';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import { CART_ITEMS } from '../../pages/cart';
 import ErrorPage from '../core/ErrorPage';
 import Link, { MenuItemLink } from '../core/Link';
-import slugGenerator from '../core/slugGenerator';
+import {
+  getDateFromHours,
+  getIsStoreOpenNow,
+  slugGenerator
+} from '../core/utils';
 import { VIEWER } from '../navbar/ToolBarMenu';
 import SEO from '../seo';
 import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
 import ProductCollage from '../templates/dashboard/ProductCollage';
+import MainFeaturedPost from '../templates/MainFeaturedPost';
 import { ReturnRefundPolicy } from '../templates/product-detail/ProductDetails';
 import ProductThumb from '../templates/ProductThumb';
-import { getIsStoreOpenNow, getDateFromHours } from '../core/utils';
-import { format } from 'date-fns';
-import MainFeaturedPost from '../templates/MainFeaturedPost';
 
 const COMBO = gql`
   query($comboId: ID!) {
