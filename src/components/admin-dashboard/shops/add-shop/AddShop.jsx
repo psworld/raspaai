@@ -5,7 +5,14 @@ import { Formik } from 'formik';
 import { gql } from 'apollo-boost';
 import { useQuery, useMutation } from 'react-apollo';
 import AddShopForm from './AddShopForm';
-import { TextField, Container, Button, Typography } from '@material-ui/core';
+import {
+  TextField,
+  Container,
+  Button,
+  Typography,
+  FormControlLabel,
+  Checkbox
+} from '@material-ui/core';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 import { navigate } from 'gatsby';
 
@@ -26,6 +33,8 @@ const REGISTER_SHOP = gql`
   }
 `;
 
+// indra market 31.708506, 76.931866
+
 const SHOP_OWNER_EMAIL_VERIFICATION = gql`
   mutation($email: String!) {
     adminAddShopVerifyEmail(input: { email: $email }) {
@@ -40,7 +49,7 @@ const ShopOwnerEmailVerification = ({
   handleNext
 }) => {
   const {
-    values: { ownerEmail },
+    values: { ownerEmail, verifyEmail },
     touched,
     errors,
     handleChange,
@@ -80,14 +89,27 @@ const ShopOwnerEmailVerification = ({
         placeholder='Owner Email'
         fullWidth></TextField>
       <br></br>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={verifyEmail}
+            name='verifyEmail'
+            id='verifyEmail'
+            onChange={handleChange}
+            color='primary'
+          />
+        }
+        label='Verify email'
+      />
+      <br></br>
       <Typography>Owner should be registered raspaai user</Typography>
       <br></br>
       <Button
         variant='contained'
         color='primary'
         disabled={loading}
-        onClick={sendEmail}>
-        Verify Email
+        onClick={() => (verifyEmail ? sendEmail() : handleNext())}>
+        Continue
       </Button>
       {error && <GraphqlErrorMessage error={error}></GraphqlErrorMessage>}
     </Container>
@@ -169,7 +191,8 @@ const AddShop = () => {
         address: '',
         contactNumber: '',
         latLng: '',
-        keyCode: ''
+        keyCode: '',
+        verifyEmail: false
       }}
       validationSchema={yup.object().shape({
         ownerEmail: yup
@@ -205,8 +228,9 @@ const AddShop = () => {
         latLng: yup.string().required('Lat Lng string required'),
         keyCode: yup
           .string('Invalid key')
-          .length(4, 'key must be 4 digit long')
-          .required('Key required')
+          .length(4, 'key must be 4 digit long'),
+        planId: yup.string().required('No plan selected'),
+        verifyEmail: yup.boolean('Not a boolean').required('Required')
       })}
       onSubmit={(values, { setSubmitting }) => {
         const AdminAddShopInput = {
@@ -215,6 +239,7 @@ const AddShop = () => {
           heroImg64: img && img.base64,
           jwtEncodedStr
         };
+
         addShop({
           variables: { data: AdminAddShopInput }
         });

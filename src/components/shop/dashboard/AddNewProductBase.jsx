@@ -312,7 +312,9 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
       return (
         <>
           <br></br>
-          <SearchBar searchUrlBase={window.location.pathname}></SearchBar>
+          <SearchBar
+            placeholder={`Search new ${typeName} to add them to your shop`}
+            searchUrlBase={window.location.pathname}></SearchBar>
           <AddNewShopProductGrid
             productType={productType}
             productNodeEdges={edges}

@@ -30,6 +30,7 @@ import PaginationWithState from '../../../templates/PaginationWithState';
 import ProductThumb from '../../../templates/ProductThumb';
 import { SHOP_PRODUCTS } from '../../ShopHomePage';
 import { SHOP_COMBOS } from './MyCombos';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -583,6 +584,11 @@ const ReviewComboSelection = ({
                   disabled={isSubmitting || loading || data}>
                   Create combo
                 </Button>
+                {error && (
+                  <GraphqlErrorMessage
+                    critical
+                    error={error}></GraphqlErrorMessage>
+                )}
                 {data && (
                   <>
                     <Typography style={{ color: 'green' }}>

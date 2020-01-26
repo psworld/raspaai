@@ -289,7 +289,7 @@ const ShopHomePage = props => {
               {sections.map(section => (
                 <Link
                   key={section.id}
-                  to={`${window.location.pathname}/about/${section.url}`}
+                  to={`/shop/${shopUsername}/about/${section.url}`}
                   color='inherit'
                   noWrap
                   variant='body2'
@@ -300,8 +300,7 @@ const ShopHomePage = props => {
             </Toolbar>
             <Divider></Divider>
             <Typography align='center' variant='h6'>
-              <MenuItemLink
-                to={`${window.location.pathname}/about/#active-time`}>
+              <MenuItemLink to={`/shop/${shopUsername}/about/#active-time`}>
                 {isStoreOpenNow ? (
                   <span style={{ color: 'green' }}>Store is open now</span>
                 ) : (

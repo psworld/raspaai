@@ -90,19 +90,18 @@ export default function SigninForm({ message, redirectUrl }) {
       store,
       {
         data: {
-          loginUser: { user }
+          loginUser: { user, token }
         }
       }
     ) {
+      localStorage.setItem('token', token);
       store.writeQuery({
         query: VIEWER,
         data: { viewer: user }
       });
-
-      redirectUrl ? navigate(redirectUrl) : navigate('/');
     },
     onCompleted: data => {
-      localStorage.setItem('token', data.loginUser.token);
+      redirectUrl ? navigate(redirectUrl) : navigate('/');
     }
     // data.loginUser.rememberMe
     //   ? localStorage.setItem('token', data.loginUser.token)

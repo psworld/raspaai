@@ -18,6 +18,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Link from '../../../core/Link';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import AvailablePlans from '../../../shop/dashboard/components/plans/buy/AvailablePlans';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -72,11 +73,13 @@ const AddShopForm = ({
       publicUsername,
       address,
       contactNumber,
-      latLng
+      latLng,
+      planId
     },
     touched,
     errors,
     handleChange,
+    setFieldValue,
     isSubmitting,
     handleSubmit,
     handleBlur
@@ -85,6 +88,10 @@ const AddShopForm = ({
   const classes = useStyles();
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
+
+  const handlePlanSelect = (planId, amount) => {
+    setFieldValue('planId', planId);
+  };
 
   return (
     <>
@@ -139,6 +146,12 @@ const AddShopForm = ({
           </Typography>
           <form className={classes.form} noValidate>
             <Grid container spacing={2} justify='center'>
+              <Grid item xs={12} md={12}>
+                <AvailablePlans
+                  handlePlanSelect={handlePlanSelect}
+                  selectedPlan={planId}
+                  filterFreePlans={false}></AvailablePlans>
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   id='keyCode'
@@ -280,7 +293,7 @@ const AddShopForm = ({
                 variant='contained'
                 color='secondary'
                 className={classes.submit}>
-                Submit Application
+                Add Shop
               </Button>
               {error && (
                 <GraphqlErrorMessage error={error}></GraphqlErrorMessage>

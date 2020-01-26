@@ -236,7 +236,7 @@ const AddComboToCart = ({ comboId, viewer }) => {
   );
 };
 
-const Combo = ({ comboId }) => {
+const Combo = ({ comboId, shopUsername }) => {
   const { loading, error, data } = useQuery(COMBO, {
     variables: { comboId }
   });
@@ -251,7 +251,7 @@ const Combo = ({ comboId }) => {
   if (error) {
     return <ErrorPage></ErrorPage>;
   }
-  if (data) {
+  if (data && data.combo) {
     const {
       name,
       description,
@@ -467,6 +467,20 @@ const Combo = ({ comboId }) => {
       </Grid>
     );
   }
+  return (
+    <>
+      <Typography variant='h5' align='center' style={{ marginTop: '10vh' }}>
+        Sorry, product not found. This product might have been deleted by shop
+        owner.
+      </Typography>
+      <br></br>
+      <center>
+        <Typography component={Link} to={`/shop/${shopUsername}`} variant='h6'>
+          Check other products from {shopUsername}
+        </Typography>
+      </center>
+    </>
+  );
 };
 
 export default Combo;

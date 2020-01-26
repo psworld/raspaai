@@ -5,7 +5,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import HomeIcon from '@material-ui/icons/Home';
+import RaspaaiIcon from '../../../images/raspaai.svg';
 import LayersIcon from '@material-ui/icons/Layers';
 import PeopleIcon from '@material-ui/icons/People';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
@@ -26,7 +26,7 @@ export const mainListItems = (publicUsername, isBrand) => {
       </ListItem>
       <ListItem onClick={() => navigate('/')} button>
         <ListItemIcon>
-          <HomeIcon></HomeIcon>
+          <img alt='Raspaai' height='24' width='24' src={RaspaaiIcon}></img>
         </ListItemIcon>
         <ListItemText primary='Raspaai' />
       </ListItem>

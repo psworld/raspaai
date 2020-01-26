@@ -18,12 +18,14 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
+  MenuItem
 } from '@material-ui/core';
 import { Carousel } from 'react-responsive-carousel';
 import { makeStyles } from '@material-ui/core/styles';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from 'react-apollo';
+import { BRAND_PRODUCTS } from '../BrandHomePage';
+import Link from '../../core/Link';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -315,7 +317,16 @@ const AddNewBrandProduct = ({ brandUsername }) => {
   // modify product
   const [addProduct, { loading, error, data }] = useMutation(
     ADD_BRAND_PRODUCT,
-    { variables: { data: addBrandProductInput } }
+    {
+      refetchQueries: [
+        {
+          query: BRAND_PRODUCTS,
+          variables: { publicBrandUsername: brandUsername, withBrand: false }
+        }
+      ],
+      variables: { data: addBrandProductInput },
+      awaitRefetchQueries: true
+    }
   );
 
   //Character length limit
@@ -611,10 +622,21 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       </Grid>
 
       <Grid item xs={12} sm={12} md={2}>
-        <Button color='primary' variant='contained' onClick={addProduct}>
+        <Button
+          disabled={loading || data}
+          color='primary'
+          variant='contained'
+          onClick={addProduct}>
           {loading ? 'Saving' : 'Save Product'}
         </Button>
-        {data && <span style={{ color: 'green' }}>Saved successfully</span>}
+        {data && (
+          <>
+            <p style={{ color: 'green' }}>Saved successfully</p>
+            <Link to={`/dashboard/brand/${brandUsername}/products`}>
+              <p>Click here to see</p>
+            </Link>
+          </>
+        )}
         {error && (
           <span style={{ color: 'red' }}>{error.message.split(':')[1]}</span>
         )}

@@ -16,7 +16,8 @@ import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation } from 'react-apollo';
-import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import AvailablePlans from '../../../brand/Dashboard/plans/buy/AvailablePlans';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -86,7 +87,7 @@ const AddNewBrand = () => {
     brandUsername: '',
     userEmail: ''
   });
-  const { brandName, brandUsername, userEmail } = values;
+  const { brandName, brandUsername, userEmail, planId } = values;
 
   // Mutation for creating brand
   const [createBrand, { loading, error, data, called }] = useMutation(
@@ -97,6 +98,7 @@ const AddNewBrand = () => {
           publicUsername: brandUsername,
           brandName,
           userEmail,
+          planId,
           imgName: img ? img.file.name : null,
           heroImg64: img ? img.base64 : null
         }
@@ -111,6 +113,10 @@ const AddNewBrand = () => {
   // Form inputs handleChange
   const handleChange = event => {
     setValues({ ...values, [event.target.id]: event.target.value });
+  };
+
+  const handlePlanSelect = (planId, amount) => {
+    setValues({ ...values, planId: planId });
   };
 
   // Image handle change
@@ -180,8 +186,14 @@ const AddNewBrand = () => {
           <Typography component='h1' variant='h5'>
             Brand Registration
           </Typography>
-          <form className={classes.form} noValidate>
-            <Grid container spacing={2} justify='center'>
+          <form className={classes.form}>
+            <Grid container justify='center'>
+              <Grid item xs={12} md={12}>
+                <AvailablePlans
+                  filterFreePlans={false}
+                  handlePlanSelect={handlePlanSelect}
+                  selectedPlan={planId}></AvailablePlans>
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   id='userEmail'
@@ -239,7 +251,7 @@ const AddNewBrand = () => {
                 variant='contained'
                 color='secondary'
                 className={classes.submit}>
-                {data ? 'Done' : 'Submit Application'}
+                {data ? 'Done' : 'Add brand'}
               </Button>
               <br></br>
 

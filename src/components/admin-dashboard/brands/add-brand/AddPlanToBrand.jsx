@@ -1,20 +1,20 @@
-import React from 'react';
 import {
+  Button,
   Container,
-  Typography,
+  Fab,
   Grid,
-  TextField,
   List,
   ListItem,
-  Button,
   ListItemText,
-  Fab
+  TextField,
+  Typography
 } from '@material-ui/core';
-import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import { gql } from 'apollo-boost';
-import { useMutation } from 'react-apollo';
-import AvailablePlans from '../../brand/Dashboard/plans/buy/AvailablePlans';
 import { format } from 'date-fns';
+import React from 'react';
+import { useMutation } from 'react-apollo';
+import AvailablePlans from '../../../brand/Dashboard/plans/buy/AvailablePlans';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 
 const GET_BRAND_INFO = gql`
   mutation($brandUsername: String, $ownerEmail: String) {

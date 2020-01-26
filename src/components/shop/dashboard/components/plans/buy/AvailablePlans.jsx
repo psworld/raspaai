@@ -61,6 +61,7 @@ const AvailablePlans = ({
         key={id}
         selected={isSelected}
         aria-checked={isSelected}
+        name='planId'
         onClick={() => handlePlanSelect(id, price)}>
         <TableCell padding='checkbox'>
           <Checkbox

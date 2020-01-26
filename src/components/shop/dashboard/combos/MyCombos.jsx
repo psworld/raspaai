@@ -99,9 +99,9 @@ const ConfirmationDialog = ({
 };
 
 const DELETE_COMBO = gql`
-  mutation($comboId: String!) {
-    deleteCombo(input: { clientMutationId: $comboId }) {
-      clientMutationId
+  mutation($comboId: ID!) {
+    deleteCombo(input: { comboId: $comboId }) {
+      deletedComboId
     }
   }
 `;
@@ -206,7 +206,7 @@ const ComboGrid = ({ data, phrase, fetchMore, shopUsername }) => {
       cache,
       {
         data: {
-          deleteCombo: { clientMutationId: deletedComboId }
+          deleteCombo: { deletedComboId }
         }
       }
     ) {

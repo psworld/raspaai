@@ -1,19 +1,18 @@
-import React from 'react';
 import { Router } from '@reach/router';
-import AdminDashboardHomePage from './AdminDashboardHomePage';
-import AdminDashboardLayout from './components/AdminDashboardLayout';
-import ShopsPage from './shops/ShopsPage';
-import AddNewBrand from './brands/AddNewBrand';
-import BrandsPage from './brands/BrandsPage';
-import BrandPage from './brands/BrandPage';
-import ShopPage from './shops/ShopPage';
-import { VIEWER } from '../navbar/ToolBarMenu';
+import React from 'react';
 import { useQuery } from 'react-apollo';
+import NotFoundPage from '../../pages/404';
 import ErrorPage from '../core/ErrorPage';
+import { VIEWER } from '../navbar/ToolBarMenu';
+import AdminDashboardHomePage from './AdminDashboardHomePage';
+import AddNewBrand from './brands/add-brand/AddNewBrand';
+import AddPlanToBrand from './brands/add-brand/AddPlanToBrand';
+import BrandsPage from './brands/BrandsPage';
+import AdminDashboardLayout from './components/AdminDashboardLayout';
 import AddShop from './shops/add-shop/AddShop';
 import AddPlanToShop from './shops/AddPlanToShop';
-import AddPlanToBrand from './brands/AddPlanToBrand';
-import NotFoundPage from '../../pages/404';
+import ShopPage from './shops/ShopPage';
+import ShopsPage from './shops/ShopsPage';
 
 const AdminDashboardRouter = () => {
   const { loading, error, data } = useQuery(VIEWER);
