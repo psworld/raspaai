@@ -1,15 +1,14 @@
-import React from 'react';
-import Layout from '../components/layout';
 import {
   Container,
-  Typography,
-  Paper,
   List,
   ListItem,
-  ListItemText
+  Paper,
+  Typography
 } from '@material-ui/core';
+import { graphql, useStaticQuery } from 'gatsby';
+import React from 'react';
+import Layout from '../components/layout';
 import SEO from '../components/seo';
-import { useStaticQuery, graphql } from 'gatsby';
 
 const ContactUs = () => {
   const data = useStaticQuery(graphql`

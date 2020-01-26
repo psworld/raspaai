@@ -480,7 +480,7 @@ const Cart = () => {
         )}
         {data && data.cartLines && data.cartLines.length === 0 && (
           <>
-            <Typography style={{ marginTop: 10 }} variant='h4' align='center'>
+            <Typography style={{ marginTop: 10 }} variant='h5' align='center'>
               You do not have any item in your cart.
             </Typography>
             <br></br>

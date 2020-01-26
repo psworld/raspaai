@@ -92,16 +92,16 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
         keyCode: yup
           .string('Invalid key')
           .length(4, 'key must be 4 digit long')
-          .required('Required'),
+          .required('Key required'),
         password1: yup
           .string()
           .min(8, 'Password is too short')
           .max(16, 'Password is too long')
-          .required('Required'),
+          .required('Password required'),
         password2: yup
           .string()
           .oneOf([yup.ref('password1'), ''], 'Password do not match')
-          .required('Required')
+          .required('Confirm password required')
       })}
       onSubmit={(values, { setSubmitting }) => {
         setNewPassword({

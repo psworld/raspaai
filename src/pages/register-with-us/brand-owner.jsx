@@ -12,7 +12,7 @@ const BrandOwner = () => {
       <Container maxWidth='md'>
         <Typography
           component='h1'
-          variant='h2'
+          variant='h4'
           align='center'
           color='textPrimary'
           gutterBottom>
@@ -30,7 +30,7 @@ const BrandOwner = () => {
         </Typography>
 
         <br></br>
-        <Typography variant='h4'>Contact us</Typography>
+        <Typography variant='h6'>Contact us</Typography>
         <List>
           <ListItem>
             <Typography>

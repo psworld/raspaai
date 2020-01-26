@@ -47,34 +47,29 @@ const ADD_TO_CART = gql`
           edges {
             node {
               id
+              totalCost
+              offeredPriceTotal
               combo {
                 id
+                offeredPrice
                 name
                 thumbs
-                offeredPrice
-                totalCost
                 isAvailable
+                totalCost
               }
               shopProduct {
                 id
                 inStock
-                shop {
-                  id
-                  properties {
-                    publicUsername
-                    title
-                  }
-                }
+                offeredPrice
                 product {
                   id
                   title
                   thumb
-                  isService
-                  isFood
+                  mrp
                 }
-                offeredPrice
               }
               quantity
+              isCombo
             }
           }
         }

@@ -56,26 +56,26 @@ const Signup = () => {
           email: yup
             .string()
             .email('Invalid Email')
-            .required('Required'),
+            .required('Email required'),
           firstName: yup
             .string()
             .min(2, 'Too Short!')
-            .max(30, 'Too Long')
-            .required('Required'),
+            .max(30, 'Too Long!')
+            .required('First name required'),
           lastName: yup
             .string()
             .min(2, 'Too Short!')
-            .max(30, 'Too Long')
-            .required('Required'),
+            .max(30, 'Too Long!')
+            .required('Last name required'),
           password1: yup
             .string()
             .min(8, 'Password is too short')
             .max(16, 'Password is too long')
-            .required('Required'),
+            .required('Password required'),
           password2: yup
             .string()
             .oneOf([yup.ref('password1'), ''], 'Password do not match')
-            .required('Required')
+            .required('Confirm password required')
         })}
         onSubmit={(values, { setSubmitting }) => {
           // const { email, lastName, firstName, password1, password2 } = values

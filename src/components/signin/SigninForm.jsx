@@ -119,12 +119,12 @@ export default function SigninForm({ message, redirectUrl }) {
         email: yup
           .string()
           .email('Invalid Email')
-          .required('Required'),
+          .required('Email required'),
         password: yup
           .string()
           .min(8, 'Too short!')
           .max(16, 'Too long!')
-          .required('Required'),
+          .required('Password required'),
         rememberMe: yup.bool()
       })}
       onSubmit={(values, { setSubmitting }) => {

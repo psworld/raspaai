@@ -312,6 +312,10 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
       return (
         <>
           <br></br>
+          <Typography variant='h6' align='center'>
+            Add new {typeName} to your shop
+          </Typography>
+          <br></br>
           <SearchBar
             placeholder={`Search new ${typeName} to add them to your shop`}
             searchUrlBase={window.location.pathname}></SearchBar>
