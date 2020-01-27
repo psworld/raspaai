@@ -28,6 +28,7 @@ import { useMutation, useQuery } from 'react-apollo';
 import Loading from '../../../core/Loading';
 import ErrorPage from '../../../core/ErrorPage';
 import { navigate } from 'gatsby';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -530,7 +531,7 @@ export const ModifyBrandProduct = ({
           <TableBody>
             <TableRow>
               <TableCell component='th' scope='row'>
-                title
+                Title
               </TableCell>
               <TableCell>
                 {values.productTitle ? values.productTitle : productTitle}
@@ -699,9 +700,22 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
                     onClick={handleImageDelete}
                     color='secondary'
                     variant='contained'
+                    disabled={
+                      loading ||
+                      data ||
+                      defaultImageNodeEdges.length - toDelete.length <= 1
+                    }
                     component='span'>
                     Delete
                   </Button>
+                </ListItem>
+                <ListItem>
+                  {defaultImageNodeEdges.length - toDelete.length <= 1 && (
+                    <Typography>
+                      At least 1 image is required. You can not delete all
+                      images
+                    </Typography>
+                  )}
                 </ListItem>
               </>
             )}
@@ -709,11 +723,27 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
           <Grid item xs={12} md={4}>
             <Button
               onClick={deleteImages}
-              disabled={loading}
+              disabled={
+                loading ||
+                data ||
+                defaultImageNodeEdges.length - toDelete.length <= 1
+              }
               variant='contained'
               color='primary'>
               Save changes
             </Button>
+            {data && (
+              <ListItem>
+                <Typography style={{ color: 'green' }}>
+                  Changes saved successfully
+                </Typography>
+              </ListItem>
+            )}
+            <ListItem>
+              {error && (
+                <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
+              )}
+            </ListItem>
           </Grid>
         </Grid>
       );
@@ -951,11 +981,18 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
             <Button
               style={{ padding: 10 }}
               onClick={addNewImages}
-              disabled={loading}
+              disabled={loading || data}
               variant='contained'
               color='primary'>
               Save new images
             </Button>
+            {data && (
+              <ListItem>
+                <Typography style={{ color: 'green' }}>
+                  Saved successfully
+                </Typography>
+              </ListItem>
+            )}
           </Grid>
         </Grid>
       );
