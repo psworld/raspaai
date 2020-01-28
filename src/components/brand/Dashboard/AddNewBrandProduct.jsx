@@ -97,7 +97,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
     showThumbs: true
   });
   const { imagesList, invalidImages, showThumbs } = images;
-
+  const [formError, setFormError] = React.useState();
   const [currentImageNewPosition, setCurrentImageNewPosition] = React.useState(
     1
   );
@@ -157,6 +157,22 @@ const AddNewBrandProduct = ({ brandUsername }) => {
           ...JSON.parse(currentProductType.technicalDetailsTemplate)
         }
       : {};
+
+  const isValidPromise = new Promise((resolve, reject) => {
+    const keyList = Object.keys(technicalDetailsValues);
+    let i = 0;
+    keyList.forEach(key => {
+      const value = technicalDetailsValues[key];
+      if (!value || value === '') {
+        reject('Technical detail values are not filled');
+      }
+      i++;
+    });
+
+    if (i === keyList.length) {
+      resolve('All values are filled');
+    }
+  });
 
   const handleImageDelete = () => {
     const imgId = imagesList[currentImageIndex].node.id;
@@ -289,10 +305,34 @@ const AddNewBrandProduct = ({ brandUsername }) => {
         ...values,
         [name]: parseInt(event.target.value)
       });
-    } else if (name === 'isService') {
+    } else if (name === 'categoryId') {
+      const newCategoryId = event.target.value;
+      const newCategory =
+        categoriesData && newCategoryId
+          ? categoriesData.categories.edges.filter(
+              e => e.node.id === newCategoryId
+            )[0].node
+          : null;
+      setTechnicalDetailsValues({
+        ...JSON.parse(newCategory.technicalDetailsTemplate)
+      });
+
+      setValues({ ...values, categoryId: newCategoryId, typeId: null });
+    } else if (name === 'typeId') {
+      const newTypeId = event.target.value;
+      const newTypeTechnicalDetails =
+        currentCategoryProductTypes.filter(e => e.node.id === newTypeId)
+          .length !== 0
+          ? currentCategoryProductTypes.filter(e => e.node.id === newTypeId)[0]
+              .node.technicalDetailsTemplate
+          : null;
+      setTechnicalDetailsValues({
+        ...JSON.parse(currentCategory.technicalDetailsTemplate),
+        ...JSON.parse(newTypeTechnicalDetails)
+      });
       setValues({
         ...values,
-        [name]: !values.isService
+        typeId: newTypeId
       });
     } else {
       setValues({
@@ -328,6 +368,17 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       awaitRefetchQueries: true
     }
   );
+
+  const handleSubmit = () => {
+    isValidPromise
+      .then(isValid => {
+        setFormError(false);
+        addProduct();
+      })
+      .catch(reason => {
+        setFormError(reason);
+      });
+  };
 
   //Character length limit
   const shortDescriptionLengthLimit = 200;
@@ -507,7 +558,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
               categoriesData.categories &&
               categoriesData.categories.edges.map(categoryObj => {
                 const { id, name } = categoryObj.node;
-                return <MenuItem value={id}>{name}</MenuItem>;
+                return (
+                  <MenuItem key={id} value={id}>
+                    {name}
+                  </MenuItem>
+                );
               })}
           </Select>
         </FormControl>
@@ -524,7 +579,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             {values.categoryId &&
               currentCategoryProductTypes.map(productTypeObj => {
                 const { id, name } = productTypeObj.node;
-                return <MenuItem value={id}>{name}</MenuItem>;
+                return (
+                  <MenuItem key={id} value={id}>
+                    {name}
+                  </MenuItem>
+                );
               })}
           </Select>
         </FormControl>
@@ -540,8 +599,8 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             type='number'
             margin='dense'
             disabled={
-              currentCategoryUsername === 'food' ||
-              currentCategoryUsername === 'services'
+              currentCategoryUsername === 'raspaaifood' ||
+              currentCategoryUsername === 'raspaaiservices'
             }
             variant='outlined'
             InputProps={{
@@ -623,10 +682,10 @@ const AddNewBrandProduct = ({ brandUsername }) => {
 
       <Grid item xs={12} sm={12} md={2}>
         <Button
-          disabled={loading || data}
+          disabled={loading || data || images64.length === 0}
           color='primary'
           variant='contained'
-          onClick={addProduct}>
+          onClick={handleSubmit}>
           {loading ? 'Saving' : 'Save Product'}
         </Button>
         {data && (
@@ -637,9 +696,8 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             </Link>
           </>
         )}
-        {error && (
-          <span style={{ color: 'red' }}>{error.message.split(':')[1]}</span>
-        )}
+        {formError && <p style={{ color: 'red' }}>{formError}</p>}
+        {error && <p style={{ color: 'red' }}>{error.message.split(':')[1]}</p>}
       </Grid>
     </Grid>
   );

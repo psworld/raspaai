@@ -18,8 +18,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  Container
+  MenuItem
 } from '@material-ui/core';
 import { Carousel } from 'react-responsive-carousel';
 import { makeStyles } from '@material-ui/core/styles';
@@ -29,6 +28,7 @@ import Loading from '../../../core/Loading';
 import ErrorPage from '../../../core/ErrorPage';
 import { navigate } from 'gatsby';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import { BRAND_PRODUCTS } from '../../BrandHomePage';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -51,6 +51,7 @@ const CATEGORIES = gql`
         node {
           id
           name
+          username
           technicalDetailsTemplate
           types {
             edges {
@@ -107,8 +108,6 @@ export const ModifyBrandProduct = ({
   action,
   defaultImageNodeEdges
 }) => {
-  const classes = useStyles();
-  const imagesListDefault = JSON.parse(JSON.stringify(defaultImageNodeEdges));
   const {
     id,
     title: productTitle,
@@ -120,12 +119,14 @@ export const ModifyBrandProduct = ({
     // isAvailable,
     technicalDetails: technicalDetailsJsonString
   } = product;
-
+  const classes = useStyles();
+  const imagesListDefault = JSON.parse(JSON.stringify(defaultImageNodeEdges));
   const [images, setImages] = React.useState({
     imagesList: imagesListDefault,
     positionToChange: [],
     showThumbs: true
   });
+  const [formError, setFormError] = React.useState();
   const { imagesList, positionToChange, showThumbs } = images;
   const [values, setValues] = React.useState({
     productTitle: '',
@@ -165,10 +166,27 @@ export const ModifyBrandProduct = ({
           .node
       : null;
   // category types filtering end
+  const currentCategoryUsername = currentCategory && currentCategory.username;
 
   const [technicalDetailsValues, setTechnicalDetailsValues] = React.useState(
     {}
   );
+
+  const isValidPromise = new Promise((resolve, reject) => {
+    const keyList = Object.keys(technicalDetailsValues);
+    let i = 0;
+    keyList.forEach(key => {
+      const value = technicalDetailsValues[key];
+      if (!value || value === '') {
+        reject('Technical detail values are not filled');
+      }
+      i++;
+    });
+
+    if (i === keyList.length) {
+      resolve('All values are filled');
+    }
+  });
 
   const handleTechnicalDetailChanges = key => event => {
     setTechnicalDetailsValues({
@@ -177,16 +195,28 @@ export const ModifyBrandProduct = ({
     });
   };
 
-  const technicalDetails =
-    categoryId === values.categoryId && typeId === values.typeId
-      ? JSON.parse(technicalDetailsJsonString)
-      : currentCategory && currentProductType
-      ? {
-          ...JSON.parse(currentCategory.technicalDetailsTemplate),
-          ...JSON.parse(currentProductType.technicalDetailsTemplate)
-        }
-      : {};
+  const technicalDetailsTemplate = {
+    ...JSON.parse(
+      currentCategory ? currentCategory.technicalDetailsTemplate : '{}'
+    ),
+    ...JSON.parse(
+      currentProductType ? currentProductType.technicalDetailsTemplate : '{}'
+    )
+  };
 
+  // Saved category is that is saved in database
+  // Current category is that is selected on front end. It can be same
+  // as the saved category
+  const isCurrentCategorySavedCategory =
+    categoryId === values.categoryId && typeId === values.typeId;
+
+  const savedTechnicalDetails = JSON.parse(technicalDetailsJsonString);
+
+  // Changing the order of spreading will change results.
+  // Giving priority to savedTechnicalDetails
+  const technicalDetails = isCurrentCategorySavedCategory
+    ? { ...technicalDetailsTemplate, ...savedTechnicalDetails }
+    : technicalDetailsTemplate;
   const handlePositionChange = () => {
     const newPosition = currentImageNewPosition - 1;
 
@@ -222,6 +252,45 @@ export const ModifyBrandProduct = ({
       imagesList: newImagesList
       // positionToChange
     });
+  };
+
+  const handleCategoryTypeChange = e => {
+    if (e.target.name === 'categoryId') {
+      const newCategoryId = e.target.value;
+      if (newCategoryId === categoryId) {
+        setTechnicalDetailsValues({});
+      } else {
+        const newCategory =
+          categoriesData && newCategoryId
+            ? categoriesData.categories.edges.filter(
+                e => e.node.id === newCategoryId
+              )[0].node
+            : null;
+        setTechnicalDetailsValues({
+          ...JSON.parse(newCategory.technicalDetailsTemplate)
+        });
+      }
+      delete values['typeId'];
+      setValues({ ...values, categoryId: newCategoryId });
+    } else {
+      const newTypeId = e.target.value;
+      if (newTypeId === typeId) {
+        setTechnicalDetailsValues({});
+      } else {
+        const newTypeTechnicalDetails =
+          currentCategoryProductTypes.filter(e => e.node.id === newTypeId)
+            .length !== 0
+            ? currentCategoryProductTypes.filter(
+                e => e.node.id === newTypeId
+              )[0].node.technicalDetailsTemplate
+            : null;
+        setTechnicalDetailsValues({
+          ...JSON.parse(currentCategory.technicalDetailsTemplate),
+          ...JSON.parse(newTypeTechnicalDetails)
+        });
+      }
+      setValues({ ...values, typeId: newTypeId });
+    }
   };
 
   // handleValuesChange
@@ -282,6 +351,23 @@ export const ModifyBrandProduct = ({
       variables: { data: modifyBrandProductInput }
     }
   );
+
+  const handleSubmit = () => {
+    isValidPromise
+      .then(isValid => {
+        if (formError) {
+          setFormError(false);
+        }
+        modifyProduct({
+          variables: {
+            data: { ...modifyBrandProductInput, action: 'edit' }
+          }
+        });
+      })
+      .catch(reason => {
+        setFormError(reason);
+      });
+  };
 
   //Character length limit
   const shortDescriptionLengthLimit = 200;
@@ -426,9 +512,9 @@ export const ModifyBrandProduct = ({
 
           <Select
             value={values.categoryId}
-            onChange={handleChange('categoryId')}
+            onChange={handleCategoryTypeChange}
             inputProps={{
-              name: 'Category',
+              name: 'categoryId',
               id: 'categoryId'
             }}>
             {categoriesData &&
@@ -448,9 +534,9 @@ export const ModifyBrandProduct = ({
 
           <Select
             value={values.typeId}
-            onChange={handleChange('typeId')}
+            onChange={handleCategoryTypeChange}
             inputProps={{
-              name: 'Type',
+              name: 'typeId',
               id: 'typeId'
             }}>
             {currentCategoryProductTypes &&
@@ -477,6 +563,10 @@ export const ModifyBrandProduct = ({
             name='mrp'
             type='number'
             margin='dense'
+            disabled={
+              currentCategoryUsername === 'raspaaifood' ||
+              currentCategoryUsername === 'raspaaiservices'
+            }
             variant='outlined'
             InputProps={{
               startAdornment: (
@@ -537,10 +627,10 @@ export const ModifyBrandProduct = ({
                 {values.productTitle ? values.productTitle : productTitle}
               </TableCell>
             </TableRow>
-            {Object.keys(technicalDetails).map((key, index) => {
+            {Object.keys(technicalDetails).map(key => {
               const value = technicalDetails[key];
               return (
-                <TableRow key={index}>
+                <TableRow key={key}>
                   <TableCell component='th' scope='row'>
                     {key}
                   </TableCell>
@@ -565,34 +655,58 @@ export const ModifyBrandProduct = ({
             <Button
               color='primary'
               variant='contained'
-              onClick={() =>
-                modifyProduct({
-                  variables: {
-                    data: { ...modifyBrandProductInput, action: 'edit' }
-                  }
-                })
-              }>
+              disabled={
+                loading || data || (values.categoryId && !values.typeId)
+              }
+              onClick={() => handleSubmit()}>
               {loading ? 'Saving' : 'Save'}
             </Button>
-            {data && <span style={{ color: 'green' }}>Saved successfully</span>}
+            {formError && <p style={{ color: 'red' }}>{formError}</p>}
+            {data && <p style={{ color: 'green' }}>Saved successfully</p>}
             {error && (
-              <span style={{ color: 'red' }}>
-                {error.message.split(':')[1]}
-              </span>
+              <GraphqlErrorMessage
+                error={error}
+                critical={true}></GraphqlErrorMessage>
             )}
           </Grid>
           <Grid item xs={6}>
             <Button
               color='secondary'
               variant='contained'
+              disabled={loading || data || imagesList.length === 0}
               onClick={() =>
                 modifyProduct({
                   variables: {
                     data: { ...modifyBrandProductInput, action: 'delete' }
+                  },
+                  update(store) {
+                    const { brandProducts } = store.readQuery({
+                      query: BRAND_PRODUCTS,
+                      variables: {
+                        publicBrandUsername: brandUsername,
+                        withBrand: false
+                      }
+                    });
+                    const newEdges = brandProducts.edges.filter(
+                      e => e.node.id !== id
+                    );
+
+                    store.writeQuery({
+                      query: BRAND_PRODUCTS,
+                      variables: {
+                        publicBrandUsername: brandUsername,
+                        withBrand: false
+                      },
+                      data: {
+                        brandProducts: { ...brandProducts, edges: newEdges }
+                      }
+                    });
+
+                    navigate(`/dashboard/brand/${brandUsername}/products`);
                   }
                 })
               }>
-              {loading ? 'Saving' : 'Delete'}
+              Delete
             </Button>
           </Grid>
         </Grid>
@@ -739,6 +853,7 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
                 </Typography>
               </ListItem>
             )}
+
             <ListItem>
               {error && (
                 <GraphqlErrorMessage error={error}></GraphqlErrorMessage>

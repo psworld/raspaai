@@ -137,7 +137,7 @@ export default function NavBar({ searchPhrase }) {
 
   if (error && error.message === 'GraphQL error: Error decoding signature') {
     localStorage.removeItem('token');
-    window.reload();
+    window.location.reload();
   }
 
   const [
