@@ -8,6 +8,7 @@ import { VIEWER } from '../components/navbar/ToolBarMenu';
 import SEO from '../components/seo';
 import HomePageSkeleton from '../components/skeletons/HomePageSkeleton';
 
+// New location feature
 // const lat, lng = 31.708141, 76.931657
 // eyJuYW1lIjoiTWFuZGkiLCJsYXQiOiIzMS43MDgwNjciLCJsbmciOiI3Ni45MzEzNTcifQ==
 
