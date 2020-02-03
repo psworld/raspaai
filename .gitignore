@@ -2,6 +2,7 @@
 .vscode
 .prettierrc
 .env.production
+.env.development
 .prettierignore
 apollo-material-install.txt
 
