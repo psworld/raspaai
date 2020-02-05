@@ -76,7 +76,7 @@ const ProductElement = ({
             {title.length > lengthLimit && '...'}
           </Typography>
         </Link>
-        <Typography display='block' variant='caption' color='primary'>
+        <Typography display='block' variant='body1' color='primary'>
           <Link
             to={
               isBrand ? `/brand/${publicUsername}` : `/shop/${publicUsername}`
@@ -85,7 +85,11 @@ const ProductElement = ({
           </Link>
         </Typography>
         <Typography variant='h6' style={{ color: 'green' }}>
-          {isBrand ? <>M.R.P &#8377; {mrp}</> : <>&#8377; {offeredPrice}</>}
+          {isBrand ? (
+            mrp && <>M.R.P &#8377; {mrp}</>
+          ) : (
+            <b>&#8377; {offeredPrice}</b>
+          )}
         </Typography>
         {isBrandDashboardProduct && (
           <Grid container>

@@ -316,6 +316,8 @@ const Cart = () => {
   let mrpTotal = 0;
   let totalNoOfItems = 0;
 
+  let allItemsInStock = true;
+
   data &&
     data.cartLines.forEach(cartLine => {
       cartLine.items.edges.forEach(cartItem => {
@@ -397,12 +399,22 @@ const Cart = () => {
                             </Typography>
                           </ListItem>
                           <Grid container>
-                            {cartItems.map(cartItem => {
+                            {cartItems.map((cartItem, index) => {
                               const cartItemNode = cartItem.node;
 
                               subTotal += cartItemNode.offeredPriceTotal;
                               mrpSubTotal += cartItemNode.totalCost;
                               noOfItems += cartItemNode.quantity;
+
+                              if (
+                                !cartItemNode.isCombo &&
+                                !cartItemNode.shopProduct.inStock
+                              ) {
+                                allItemsInStock = false;
+                              } else if (cartItems.length === index + 1) {
+                                allItemsInStock = true;
+                              }
+
                               return (
                                 <CartItem
                                   key={cartItemNode.id}
@@ -465,6 +477,7 @@ const Cart = () => {
                     <Button
                       variant='contained'
                       onClick={() => navigate('/buy/cart')}
+                      disabled={loading || !allItemsInStock}
                       style={{
                         backgroundColor: green[700],
                         color: 'white',
@@ -472,6 +485,12 @@ const Cart = () => {
                       }}>
                       <Typography>Proceed to buy</Typography>
                     </Button>
+                    <br></br>
+                    {!allItemsInStock && (
+                      <Typography style={{ color: 'red' }}>
+                        Remove all items that are out of stock from your cart
+                      </Typography>
+                    )}
                   </Container>
                 </Paper>
               </Grid>

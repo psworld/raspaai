@@ -30,7 +30,7 @@ const ComboElement = ({ comboNode, shop }) => {
           </Typography>
         </Link>
 
-        <Typography display='block' variant='caption' color='primary'>
+        <Typography display='block' variant='body1' color='primary'>
           <Link to={`/shop/${shopUsername}`}>{shopName}</Link>
         </Typography>
         <Typography
@@ -38,7 +38,7 @@ const ComboElement = ({ comboNode, shop }) => {
           style={{
             color: 'green'
           }}>
-          &#8377; {offeredPrice}
+          <b>&#8377; {offeredPrice}</b>
         </Typography>
       </Box>
     </Grid>

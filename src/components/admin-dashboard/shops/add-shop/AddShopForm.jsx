@@ -1,43 +1,33 @@
-import React from 'react';
 import {
+  Avatar,
   Button,
   Card,
   CardMedia,
-  InputLabel,
-  Typography,
   Container,
   Grid,
-  TextField,
-  Avatar,
   InputAdornment,
-  useMediaQuery
+  InputLabel,
+  TextField,
+  Typography
 } from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { useTheme } from '@material-ui/core/styles';
 import { makeStyles } from '@material-ui/core/styles';
-
-import Link from '../../../core/Link';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import React from 'react';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import Link from '../../../core/Link';
 import AvailablePlans from '../../../shop/dashboard/components/plans/buy/AvailablePlans';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     marginBottom: theme.spacing(2)
   },
-  cardMediaMobile: {
+  cardMedia: {
     // paddingTop: "56.25%", // 16:9
-    paddingTop: '75%' // 4:3
-  },
-  cardMediaTv: {
-    // paddingTop: "56.25%", // 16:9
-    paddingTop: '37.5%' // 4:3
-  },
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white
+    paddingTop: '75%', // 4:3
+    [theme.breakpoints.up('sm')]: {
+      paddingTop: '37.5%'
     }
   },
   paper: {
@@ -86,8 +76,6 @@ const AddShopForm = ({
   } = formik;
 
   const classes = useStyles();
-  const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
   const handlePlanSelect = (planId, amount) => {
     setFieldValue('planId', planId);
@@ -108,9 +96,7 @@ const AddShopForm = ({
         <Card component='span' className={classes.card}>
           {img ? (
             <CardMedia
-              className={
-                matches ? classes.cardMediaTv : classes.cardMediaMobile
-              }
+              className={classes.cardMedia}
               image={img.base64}
               title={img.file.name}
             />
@@ -311,7 +297,7 @@ const AddShopForm = ({
             </Grid>
           </form>
           <Button
-            style={{ marginTop: theme.spacing(1) }}
+            style={{ marginTop: 10 }}
             onClick={handleBack}
             variant='contained'
             color='primary'>

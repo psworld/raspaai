@@ -54,7 +54,7 @@ module.exports = {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: `Raspaai`,
-        short_name: `raspaai`,
+        short_name: `Raspaai`,
         start_url: `/`,
         background_color: `#34495e`,
         theme_color: `#34495e`,

@@ -360,6 +360,7 @@ const ProductDetails = props => {
                       ? addItemToCart()
                       : null
                   }
+                  disabled={loading || !inStock}
                   variant='contained'
                   color='primary'
                   style={{ width: '100%' }}>

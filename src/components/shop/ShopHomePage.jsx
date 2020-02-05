@@ -239,8 +239,11 @@ const ShopHomePage = props => {
   if (error) return <ErrorPage></ErrorPage>;
 
   const handleClearSearch = () => {
-    setSearchPhrase('');
-    navigate(`/shop/${shopUsername}`);
+    if (!searchPhrase || searchPhrase === '') {
+    } else {
+      setSearchPhrase('');
+      navigate(`/shop/${shopUsername}`);
+    }
   };
 
   if (data && data.shop) {
