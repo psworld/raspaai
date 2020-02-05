@@ -71,8 +71,8 @@ const Index = props => {
   return <h1>No saved location were found at any place</h1>;
 };
 
-// for now we will offer only a single location. This will be written on local storage
-// and available through LOCAL_SAVED_LOCATION query.
+// We will provide major popular places to choose from.
+// No need for ONLINE_SAVED_LOCATION
 
 const IndexPage = () => {
   const { loading, data } = useQuery(LOCAL_SAVED_LOCATION);

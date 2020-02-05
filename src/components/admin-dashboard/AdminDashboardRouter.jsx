@@ -13,6 +13,7 @@ import AddShop from './shops/add-shop/AddShop';
 import AddPlanToShop from './shops/AddPlanToShop';
 import ShopPage from './shops/ShopPage';
 import ShopsPage from './shops/ShopsPage';
+import AddPopularPlace from './AddPopularPlace';
 
 const AdminDashboardRouter = () => {
   const { loading, error, data } = useQuery(VIEWER);
@@ -24,6 +25,7 @@ const AdminDashboardRouter = () => {
       <AdminDashboardLayout>
         <Router>
           <AdminDashboardHomePage path='/'></AdminDashboardHomePage>
+          <AddPopularPlace path='add-popular-place'></AddPopularPlace>
           <AddPlanToShop path='shops/add-plan'></AddPlanToShop>
           <AddShop path='shops/add'></AddShop>
           <ShopPage path='shops/:shopUsername'></ShopPage>

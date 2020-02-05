@@ -1,7 +1,18 @@
-import React from "react"
+import React from 'react';
+import { Button } from '@material-ui/core';
+import Link from '../core/Link';
 
 const AdminDashboardHomePage = () => {
-  return <h1>This is the home page</h1>
-}
+  return (
+    <div>
+      <Button
+        component={Link}
+        to={`${window.location.pathname}/add-popular-place`}
+        variant='outlined'>
+        Add popular places
+      </Button>
+    </div>
+  );
+};
 
-export default AdminDashboardHomePage
+export default AdminDashboardHomePage;
