@@ -1,7 +1,7 @@
 import { Router } from '@reach/router';
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import NotFoundPage from '../../pages/404';
+import { NotFoundPageWithoutLayout } from '../../pages/404';
 import ErrorPage from '../core/ErrorPage';
 import { VIEWER } from '../navbar/ToolBarMenu';
 import AdminDashboardHomePage from './AdminDashboardHomePage';
@@ -34,7 +34,7 @@ const AdminDashboardRouter = () => {
           <AddNewBrand path='brands/add'></AddNewBrand>
           <BrandsPage path='brands'></BrandsPage>
           {/* <BrandPage path='brands/:brandUsername/:applicationId'></BrandPage> */}
-          <NotFoundPage default></NotFoundPage>
+          <NotFoundPageWithoutLayout default></NotFoundPageWithoutLayout>
         </Router>
       </AdminDashboardLayout>
     );

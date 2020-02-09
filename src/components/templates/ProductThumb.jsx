@@ -18,19 +18,20 @@ const useStyles = makeStyles(theme => ({
 
 const ProductThumb = ({ src, title }) => {
   const classes = useStyles();
+  let image = src;
+  const preUrl = process.env.GATSBY_IMG_URL_PRE;
+  if (src.includes('/media/__sized__/')) {
+    // The image is created thumbnail or sized image. It contains the full url including
+    // media path. The '/media' will not be includes because it coming already
+    // in image src
+    const preUrlForSized = preUrl.split('/media')[0]; // http://localhost:8000
+    image = `${preUrlForSized}${src}`;
+  } else {
+    image = `${process.env.GATSBY_IMG_URL_PRE}/${src}`;
+  }
   return (
-    // <img
-    //   style={{ width: "100%" }}
-    //   title={title}
-    //   alt={title}
-    //   src={`${process.env.GATSBY_IMG_URL_PRE}/${src}`}
-    // />
     <Card className={classes.card}>
-      <CardMedia
-        className={classes.cardMedia}
-        image={`${process.env.GATSBY_IMG_URL_PRE}/${src}`}
-        title={title}
-      />
+      <CardMedia className={classes.cardMedia} image={image} title={title} />
     </Card>
   );
 };

@@ -19,6 +19,19 @@ module.exports = {
   plugins: [
     `gatsby-plugin-react-helmet`,
     {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: {
+        prefixes: [
+          `/raspaai/*`,
+          `/dashboard/*`,
+          `/brand/*`,
+          `/search/*`,
+          `/shop/*`,
+          `/images/*`
+        ]
+      }
+    },
+    {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
         trackingIds: [`UA-146572078-2`],
@@ -31,7 +44,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-sitemap`,
       options: {
-        exclude: ['/set-location/*', '/dashboard/*', '/raspaai/*']
+        exclude: ['/set-location/*', '/dashboard/*', '/raspaai/*', '/images/*']
       }
     },
     {
@@ -54,7 +67,7 @@ module.exports = {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: `Raspaai`,
-        short_name: `raspaai`,
+        short_name: `Raspaai`,
         start_url: `/`,
         background_color: `#34495e`,
         theme_color: `#34495e`,
