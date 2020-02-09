@@ -25,6 +25,7 @@ export const SHOP = gql`
       properties {
         publicUsername
         title
+        about
         address
         contactNumber
         returnRefundPolicy
@@ -52,6 +53,7 @@ const ShopAboutPage = ({ shopUsername }) => {
         geometry: { coordinates },
         properties: {
           title: shopName,
+          about,
           address,
           contactNumber,
           returnRefundPolicy,
@@ -88,6 +90,15 @@ const ShopAboutPage = ({ shopUsername }) => {
           <br></br>
           <MainFeaturedPost img={heroImage} title={shopName}></MainFeaturedPost>
           <List>
+            <ListItem>
+              <Typography variant='h4' id='shop-about'>
+                About
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Typography variant='h6'>{about}</Typography>
+            </ListItem>
+
             <ListItem>
               <Typography id='address' variant='h4'>
                 Address

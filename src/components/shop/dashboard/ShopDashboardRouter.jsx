@@ -1,6 +1,5 @@
 import { Router } from '@reach/router';
 import React from 'react';
-import { ShopDashboardProfile } from './components/Dashboard';
 import DashboardLayout from './components/DashboardLayout';
 import OrderRouter from './components/orders/OrderRouter';
 import MyShopPlans from './components/plans/MyShopPlans';
@@ -14,6 +13,7 @@ import AddNewProduct from './products/AddNewProduct';
 import MyProductsPage from './products/MyProductsPage';
 import FoodItems from './food/FoodItems';
 import AddFoodItems from './food/AddFoodItems';
+import ShopDashboardProfile from './components/ShopDashboardProfile';
 
 const ShopDashboardRouter = props => {
   const { shopUsername } = props;

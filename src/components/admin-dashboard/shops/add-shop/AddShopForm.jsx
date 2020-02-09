@@ -26,8 +26,9 @@ const useStyles = makeStyles(theme => ({
   cardMedia: {
     // paddingTop: "56.25%", // 16:9
     paddingTop: '75%', // 4:3
-    [theme.breakpoints.up('sm')]: {
-      paddingTop: '37.5%'
+    backgroundSize: 'contain',
+    [theme.breakpoints.up('md')]: {
+      paddingTop: '45%'
     }
   },
   paper: {

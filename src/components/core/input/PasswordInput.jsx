@@ -1,26 +1,34 @@
-import React from "react"
-import TextField from "@material-ui/core/TextField"
+import React from 'react';
+import TextField from '@material-ui/core/TextField';
 
 const PasswordInput = props => {
-  const { handleBlur, handleChange, value, errors, touched } = props
-  const error = touched && errors
+  const {
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    value,
+    errors,
+    touched
+  } = props;
+  const error = touched && errors;
+
   return (
     <TextField
-      variant="outlined"
-      margin="normal"
+      variant='outlined'
+      margin='normal'
       required
       fullWidth
-      name="password"
+      name='password'
       value={value}
-      label={error ? errors : "Password"}
+      label={error ? errors : 'Password'}
       error={error}
-      type="password"
-      id="password"
-      autoComplete="current-password"
+      type='password'
+      id='password'
+      autoComplete='current-password'
       onBlur={handleBlur}
       onChange={handleChange}
     />
-  )
-}
+  );
+};
 
-export default PasswordInput
+export default PasswordInput;

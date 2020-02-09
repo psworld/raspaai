@@ -112,6 +112,7 @@ const ProductDetails = props => {
         geometry: { coordinates },
         properties: {
           title: shopName,
+          heroImageThumb,
           heroImage,
           address,
           contactNumber,
@@ -193,6 +194,8 @@ const ProductDetails = props => {
     }
   );
 
+  const offeredPriceUnit = technicalDetails['Offered Price'];
+
   return (
     <>
       <Drawer open={loading}></Drawer>
@@ -258,8 +261,9 @@ const ProductDetails = props => {
                   Offered Price:{' '}
                   <span style={{ color: 'green', fontSize: 'x-large' }}>
                     {' '}
-                    &#x20b9; {offeredPrice}
-                  </span>
+                    &#x20b9;{offeredPrice}
+                  </span>{' '}
+                  <b> {offeredPriceUnit}</b>
                 </Typography>
               </ListItem>
               {mrp && (
@@ -379,8 +383,12 @@ const ProductDetails = props => {
               </>
             )}
 
+            <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
+              Shop
+            </Typography>
             <MainFeaturedPost
-              img={heroImage}
+              img={heroImageThumb}
+              toImgSrc={heroImage}
               title={shopName}></MainFeaturedPost>
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Contact Details

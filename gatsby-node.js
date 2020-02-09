@@ -3,36 +3,3 @@
  *
  * See: https://www.gatsbyjs.org/docs/node-apis/
  */
-
-exports.onCreatePage = async ({ page, actions }) => {
-  const { createPage } = actions
-
-  // page.matchPath is a special key that's used for matching pages
-  // only on the client.
-  if (page.path.match(/^\/shop/)) {
-    page.matchPath = "/shop/*"
-
-    // Update the page.
-    createPage(page)
-  }
-  if (page.path.match(/^\/search/)) {
-    page.matchPath = "/search/*"
-    // Update the page.
-    createPage(page)
-  }
-  if (page.path.match(/^\/brand/)) {
-    page.matchPath = "/brand/*"
-    // Update the page.
-    createPage(page)
-  }
-  if (page.path.match(/^\/dashboard/)) {
-    page.matchPath = "/dashboard/*"
-    // Update the page.
-    createPage(page)
-  }
-  if (page.path.match(/^\/raspaai/)) {
-    page.matchPath = "/raspaai/*"
-    // Update the page.
-    createPage(page)
-  }
-}
