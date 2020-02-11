@@ -84,7 +84,9 @@ export const ReturnRefundPolicy = ({ returnRefundPolicy }) => (
       Return Refund Policy
     </Typography>
     <ListItem style={{ paddingTop: 0, marginTop: 5 }}>
-      <Typography variant='body2'>* Not applicable on food items</Typography>
+      <Typography variant='body2'>
+        * Not applicable on food items or services
+      </Typography>
     </ListItem>
     {JSON.parse(returnRefundPolicy).map((policy, index) => (
       <ListItem key={index}>
@@ -119,6 +121,7 @@ const ProductDetails = props => {
           returnRefundPolicy,
           openAt,
           closeAt,
+          about,
           offDays,
           isOpenToday,
           isActive
@@ -193,7 +196,6 @@ const ProductDetails = props => {
       }
     }
   );
-
   const offeredPriceUnit = technicalDetails['Offered Price'];
 
   return (
@@ -388,8 +390,9 @@ const ProductDetails = props => {
             </Typography>
             <MainFeaturedPost
               img={heroImageThumb}
-              toImgSrc={heroImage}
-              title={shopName}></MainFeaturedPost>
+              title={shopName}
+              toImageSrc={heroImage}></MainFeaturedPost>
+            <Typography>{about}</Typography>
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Contact Details
             </Typography>

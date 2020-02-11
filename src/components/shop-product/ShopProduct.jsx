@@ -56,6 +56,8 @@ const SHOP_PRODUCT = gql`
           address
           contactNumber
           heroImageThumb
+          heroImage
+          about
           returnRefundPolicy
           openAt
           closeAt

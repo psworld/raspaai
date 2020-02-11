@@ -41,6 +41,8 @@ const ProductCollage = ({
     }
   };
 
+  const preUrl = process.env.GATSBY_IMG_URL_PRE;
+
   if (inDashboardAddCombo) {
     const imagesCount = Object.keys(selectedShopProducts).length;
     const colSize = getColSize(imagesCount);
@@ -49,12 +51,13 @@ const ProductCollage = ({
       <Grid container>
         {Object.keys(selectedShopProducts).map(key => {
           const src = selectedShopProducts[key].thumb;
+          const image = `${preUrl}/${src}`;
           return (
             <Grid key={key} item xs={colSize} md={colSize}>
               <Card className={classes.card}>
                 <CardMedia
                   className={classes.cardMedia}
-                  image={`${process.env.GATSBY_IMG_URL_PRE}/${src}`}
+                  image={image}
                   title={'Combo'}
                 />
               </Card>
@@ -72,12 +75,13 @@ const ProductCollage = ({
     return (
       <Grid container>
         {thumbs.map(src => {
+          const image = `${preUrl}/${src}`;
           return (
             <Grid key={src} item xs={colSize} md={colSize}>
               <Card className={classes.card}>
                 <CardMedia
                   className={classes.cardMedia}
-                  image={`${process.env.GATSBY_IMG_URL_PRE}/${src}`}
+                  image={image}
                   title={title ? title : 'combo'}
                 />
               </Card>

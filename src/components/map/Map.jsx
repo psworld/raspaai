@@ -1,79 +1,79 @@
-import React from "react"
+import React from 'react';
 
-import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api"
+import { GoogleMap, Marker, LoadScript } from '@react-google-maps/api';
 
-import { makeStyles } from "@material-ui/core/styles"
-import TextField from "@material-ui/core/TextField"
-import Button from "@material-ui/core/Button"
-import { useApolloClient } from "react-apollo"
-import { navigate } from "gatsby"
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import { useApolloClient } from 'react-apollo';
+import { navigate } from 'gatsby';
+import { encryptText } from '../core/utils';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    display: "flex",
-    flexWrap: "wrap",
-    margin: theme.spacing(4),
+    display: 'flex',
+    flexWrap: 'wrap',
+    margin: theme.spacing(4)
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: 200,
+    width: 200
   },
   dense: {
-    marginTop: 19,
+    marginTop: 19
   },
   menu: {
-    width: 200,
-  },
-}))
-const apikey = "AIzaSyD-ULA-6I-1_JnNRppIx2vzi5F6c_-4sdA"
+    width: 200
+  }
+}));
+const apikey = 'AIzaSyD-ULA-6I-1_JnNRppIx2vzi5F6c_-4sdA';
 
 const Map = props => {
-  const { noSave = false } = props
+  const { noSave = false } = props;
 
-  const classes = useStyles()
-  const client = useApolloClient()
-  const [name, setName] = React.useState()
-  const [isLoaded, setIsLoaded] = React.useState(false)
-  const [mapRef, setMapRef] = React.useState(null)
-  const [center, setCenter] = React.useState(props.center)
+  const classes = useStyles();
+  const client = useApolloClient();
+  const [name, setName] = React.useState();
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [mapRef, setMapRef] = React.useState(null);
+  const [center, setCenter] = React.useState(props.center);
   const [markerPosition, setMarkerPosition] = React.useState(
     props.automaticMarkerPosition
-  )
+  );
 
-  const { setLocation } = props
+  const { setLocation } = props;
 
   if (markerPosition) {
     var savedLocation = {
       name: name,
       lat: markerPosition.lat,
-      lng: markerPosition.lng,
-    }
+      lng: markerPosition.lng
+    };
   }
-  const encSavedLocation = JSON.stringify(savedLocation)
+  const encSavedLocation = JSON.stringify(savedLocation);
 
   function handleClick(lat, lng) {
     const latLng = {
       lat: lat,
-      lng: lng,
-    }
-    setLocation(latLng)
-    setMarkerPosition(latLng)
+      lng: lng
+    };
+    setLocation(latLng);
+    setMarkerPosition(latLng);
   }
 
   return (
-    <LoadScript id="script-loader" googleMapsApiKey={apikey}>
+    <LoadScript id='script-loader' googleMapsApiKey={apikey}>
       <GoogleMap
-        id="circle-example"
+        id='circle-example'
         mapContainerStyle={{
-          height: "80vh",
-          width: "100%",
+          height: '80vh',
+          width: '100%'
         }}
         onLoad={() => setIsLoaded(true)}
         zoom={16}
         center={center}
-        onClick={e => handleClick(e.latLng.lat(), e.latLng.lng())}
-      >
+        onClick={e => handleClick(e.latLng.lat(), e.latLng.lng())}>
         <Marker
           visible={markerPosition ? true : false}
           position={markerPosition}
@@ -84,36 +84,35 @@ const Map = props => {
           <TextField
             onChange={e => setName(e.target.value)}
             required
-            id="standard-full-width"
-            label="Name"
+            id='standard-full-width'
+            label='Name'
             style={{ margin: 8 }}
             // onFocus={true}
-            placeholder="Name this location"
+            placeholder='Name this location'
             // fullWidth
-            margin="normal"
-            variant="outlined"
+            margin='normal'
+            variant='outlined'
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
           />
           <Button
             onClick={() =>
-              localStorage.setItem("lla", btoa(encSavedLocation)) &
+              localStorage.setItem('lla', encryptText(encSavedLocation)) &
               client.writeData({
-                data: { localSavedLocation: btoa(encSavedLocation) },
+                data: { localSavedLocation: encryptText(encSavedLocation) }
               }) &
-              navigate("/")
+              navigate('/')
             }
             style={{ margin: 8 }}
-            color="secondary"
-            variant="contained"
-          >
+            color='secondary'
+            variant='contained'>
             Save Location
           </Button>
         </form>
       )}
     </LoadScript>
-  )
-}
+  );
+};
 
-export default Map
+export default Map;

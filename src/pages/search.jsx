@@ -7,6 +7,7 @@ import { useQuery } from 'react-apollo';
 import Loading from '../components/core/Loading';
 import ErrorPage from '../components/core/ErrorPage';
 import { Typography } from '@material-ui/core';
+import { decryptText } from '../components/core/utils';
 
 const Search = () => {
   const { data, loading, error } = useQuery(LOCAL_SAVED_LOCATION);
@@ -24,12 +25,12 @@ const Search = () => {
           <SearchResultPage
             path='/search/:phrase/pg/:pageNo'
             savedLocation={JSON.parse(
-              atob(data.localSavedLocation)
+              decryptText(data.localSavedLocation)
             )}></SearchResultPage>
           <SearchResultPage
             path='/search/:phrase/pg/:pageNo/:endCursor'
             savedLocation={JSON.parse(
-              atob(data.localSavedLocation)
+              decryptText(data.localSavedLocation)
             )}></SearchResultPage>
         </Router>
       )}

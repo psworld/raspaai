@@ -1,3 +1,18 @@
+import SimpleCrypto from 'simple-crypto-js';
+
+const _SECRET_KEY = `${process.env.GATSBY_SECRET_KEY}`;
+var simpleCrypto = new SimpleCrypto(_SECRET_KEY);
+
+export function encryptText(text) {
+  let encText = simpleCrypto.encrypt(text);
+  return encText;
+}
+
+export function decryptText(encText) {
+  let text = simpleCrypto.decrypt(encText);
+  return text;
+}
+
 export const slugGenerator = title => {
   return (
     title

@@ -9,6 +9,7 @@ import Container from '@material-ui/core/Container';
 import PopularPlaces from '../../components/map/PopularPlaces';
 import { useQuery } from 'react-apollo';
 import { LOCAL_SAVED_LOCATION } from '..';
+import { decryptText } from '../../components/core/utils';
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -77,13 +78,14 @@ const HeroUnit = () => {
 const SetLocation = () => {
   const { data } = useQuery(LOCAL_SAVED_LOCATION);
 
-  const currentLocation = data && JSON.parse(atob(data.localSavedLocation));
+  const currentLocation =
+    data && JSON.parse(decryptText(data.localSavedLocation));
 
   return (
     <Layout>
-      <HeroUnit></HeroUnit>
+      {/* <HeroUnit></HeroUnit> */}
       <Typography variant='h5' align='center'>
-        You can also choose from one of the popular places below.
+        Click on one of the places below to see what's available there !
       </Typography>
       {data && data.localSavedLocation && (
         <PopularPlaces currentLocation={currentLocation}></PopularPlaces>

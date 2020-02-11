@@ -22,24 +22,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const MainFeaturedPost = ({ img, toImageSrc = false, title }) => {
+const MainFeaturedPost = ({ img, title, toImageSrc = false }) => {
   const classes = useStyles();
 
   let image = img;
   const preUrl = process.env.GATSBY_IMG_URL_PRE;
-  if (img.includes('/media/__sized__/')) {
-    // The image is created thumbnail or sized image. It contains the full url including
-    // media path. The '/media' will not be includes because it coming already
-    // in image src
-    const preUrlForSized = preUrl.split('/media')[0]; // http://localhost:8000
-    image = `${preUrlForSized}${img}`;
-  } else {
-    image = `${process.env.GATSBY_IMG_URL_PRE}/${img}`;
-  }
 
-  toImageSrc = toImageSrc
-    ? `${process.env.GATSBY_IMG_URL_PRE}/${toImageSrc}`
-    : image;
+  image = `${preUrl}/${img}`;
+  toImageSrc = toImageSrc ? `${preUrl}/${toImageSrc}` : image;
   return (
     <Card
       component={Link}

@@ -34,7 +34,7 @@ const HeroUnit = ({ location }) => {
             align='center'
             color='textSecondary'
             paragraph>
-            Raspaai | Buy from local stores.
+            Raspaai | Find everything around you.
           </Typography>
           <div className={classes.heroButtons}>
             <Grid container spacing={2} justify='center'>

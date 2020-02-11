@@ -1,20 +1,19 @@
-import React from 'react';
-
-import * as yup from 'yup';
-import { Formik } from 'formik';
-import { gql } from 'apollo-boost';
-import { useQuery, useMutation } from 'react-apollo';
-import AddShopForm from './AddShopForm';
 import {
-  TextField,
-  Container,
   Button,
-  Typography,
+  Checkbox,
+  Container,
   FormControlLabel,
-  Checkbox
+  TextField,
+  Typography
 } from '@material-ui/core';
-import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import { gql } from 'apollo-boost';
+import { Formik } from 'formik';
 import { navigate } from 'gatsby';
+import React from 'react';
+import { useMutation } from 'react-apollo';
+import * as yup from 'yup';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import AddShopForm from './AddShopForm';
 
 const REGISTER_SHOP = gql`
   mutation($data: AdminAddShopInput!) {
@@ -129,13 +128,6 @@ const AddShop = () => {
 
   const [jwtEncodedStr, setJwtEncodedStr] = React.useState();
 
-  const LOCAL_SAVED_LOCATION = gql`
-    {
-      localSavedLocation @client
-    }
-  `;
-
-  const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
   // files
   const [img, setImg] = React.useState(false);
 
@@ -266,9 +258,6 @@ const AddShop = () => {
                 img={img}
                 formik={props}
                 handleBack={prevStep}
-                localLocation={JSON.parse(
-                  atob(localSavedLocationData.localSavedLocation)
-                )}
                 handleNext={nextStep}></AddShopForm>
             );
 
