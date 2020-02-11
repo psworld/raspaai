@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { Formik } from 'formik';
 import { gql } from 'apollo-boost';
 import { useQuery } from 'react-apollo';
+import { decryptText } from '../../core/utils';
 
 const CreateShop = () => {
   const [step, setStep] = React.useState(1);
@@ -23,8 +24,7 @@ const CreateShop = () => {
       localSavedLocation @client
     }
   `;
-  const [showThumbs, setShowThumbs] = React.useState(true);
-  const [invalidImages, setInvalidImages] = React.useState(false);
+
   const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
   // files
   const [img, setImg] = React.useState(false);
@@ -94,7 +94,7 @@ const CreateShop = () => {
                 formikProps={props}
                 handleBack={prevStep}
                 localLocation={JSON.parse(
-                  atob(localSavedLocationData.localSavedLocation)
+                  decryptText(localSavedLocationData.localSavedLocation)
                 )}></CreateShopForm>
             );
         }

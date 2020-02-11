@@ -1,16 +1,39 @@
-import client from "./src/components/apollo/client"
-export { wrapRootElement } from "./src/components/apollo/wrap-root-element"
+import client from './src/components/apollo/client';
+import { decryptText, encryptText } from './src/components/core/utils';
 
-// mandi indra market malhotra books location
+export { wrapRootElement } from './src/components/apollo/wrap-root-element';
+
+// Pali location
 const location = {
-  name: "Indra market",
-  lat: 31.708141,
-  lng: 76.931657,
-}
+  name: 'Pali',
+  lat: 31.819878,
+  lng: 76.93857
+};
+
+// const location = {
+//   name: 'Mandi',
+//   lat: 31.707914,
+//   lng: 76.932244
+// };
+
+const defaultEncLocation = encryptText(JSON.stringify(location));
 
 export const onClientEntry = () => {
-  localStorage.setItem("lla", btoa(JSON.stringify(location)))
+  let savedEncLocation = localStorage.getItem('lla');
+
+  if (savedEncLocation) {
+    const decryptedLocation = decryptText(savedEncLocation);
+    if (!decryptedLocation || decryptedLocation === '') {
+      // error in decrypting
+      savedEncLocation = defaultEncLocation;
+      localStorage.setItem('lla', defaultEncLocation);
+    }
+  } else {
+    savedEncLocation = defaultEncLocation;
+    localStorage.setItem('lla', defaultEncLocation);
+  }
+
   client.writeData({
-    data: { localSavedLocation: localStorage.getItem("lla") },
-  })
-}
+    data: { localSavedLocation: savedEncLocation }
+  });
+};

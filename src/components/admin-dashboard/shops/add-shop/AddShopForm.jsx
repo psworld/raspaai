@@ -52,7 +52,7 @@ const AddShopForm = ({
   formik,
   handleFileChange,
   img,
-  localLocation,
+
   loading,
   error,
   data

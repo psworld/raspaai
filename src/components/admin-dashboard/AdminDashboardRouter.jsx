@@ -13,6 +13,8 @@ import AddShop from './shops/add-shop/AddShop';
 import AddPlanToShop from './shops/AddPlanToShop';
 import ShopPage from './shops/ShopPage';
 import ShopsPage from './shops/ShopsPage';
+import AddPopularPlace, { EditPopularPlace } from './PopularPlace';
+import PopularPlaces from '../map/PopularPlaces';
 
 const AdminDashboardRouter = () => {
   const { loading, error, data } = useQuery(VIEWER);
@@ -24,6 +26,11 @@ const AdminDashboardRouter = () => {
       <AdminDashboardLayout>
         <Router>
           <AdminDashboardHomePage path='/'></AdminDashboardHomePage>
+          <AddPopularPlace path='add-popular-place'></AddPopularPlace>
+          <PopularPlaces
+            path='popular-places'
+            adminDashboard={true}></PopularPlaces>
+          <EditPopularPlace path='popular-place/edit/:popularPlaceId'></EditPopularPlace>
           <AddPlanToShop path='shops/add-plan'></AddPlanToShop>
           <AddShop path='shops/add'></AddShop>
           <ShopPage path='shops/:shopUsername'></ShopPage>

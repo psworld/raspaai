@@ -1,8 +1,9 @@
-import { Divider } from '@material-ui/core';
+import { Button, Divider, Grid } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
+import Link from '../core/Link';
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -33,28 +34,26 @@ const HeroUnit = ({ location }) => {
             align='center'
             color='textSecondary'
             paragraph>
-            Raspaai | Buy from local stores.
-            {/* Raspaai | Buy books at best price */}
+            Raspaai | Find everything around you.
           </Typography>
-          {/* <div className={classes.heroButtons}>
-          <Grid container spacing={2} justify="center">
-            <Grid item>
-              <Button variant="contained" color="primary">
-                {location.name}
-              </Button>
+          <div className={classes.heroButtons}>
+            <Grid container spacing={2} justify='center'>
+              <Grid item>
+                <Button variant='contained' color='primary'>
+                  {location.name}
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  component={Link}
+                  to='/set-location'
+                  variant='outlined'
+                  color='primary'>
+                  set new location
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button
-                component={Link}
-                to="/set-location"
-                variant="outlined"
-                color="primary"
-              >
-                set new location
-              </Button>
-            </Grid>
-          </Grid>
-        </div> */}
+          </div>
         </Container>
       </div>
       <Divider></Divider>

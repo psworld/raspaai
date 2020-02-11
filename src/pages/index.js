@@ -1,10 +1,9 @@
 import { gql } from 'apollo-boost';
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import ErrorPage from '../components/core/ErrorPage';
+import { decryptText } from '../components/core/utils';
 import Home from '../components/home/Home';
 import Layout from '../components/layout';
-import { VIEWER } from '../components/navbar/ToolBarMenu';
 import SEO from '../components/seo';
 import HomePageSkeleton from '../components/skeletons/HomePageSkeleton';
 
@@ -31,60 +30,60 @@ const ONLINE_SAVED_LOCATION = gql`
   }
 `;
 
-const OnlineSavedLocation = () => {
-  const { loading, error, data: onlineSavedLocationData } = useQuery(
-    ONLINE_SAVED_LOCATION
-  );
-  if (loading) return <HomePageSkeleton></HomePageSkeleton>;
-  if (error) return <ErrorPage></ErrorPage>;
-  if (onlineSavedLocationData && onlineSavedLocationData.activeSavedLocation) {
-    const activeSavedLocation = onlineSavedLocationData.activeSavedLocation[0];
-    const location = {
-      name: activeSavedLocation.properties.name,
-      lat: activeSavedLocation.geometry.coordinates[1],
-      lng: activeSavedLocation.geometry.coordinates[0]
-    };
-    localStorage.setItem('lla', btoa(JSON.stringify(location)));
-    return <Home location={location} from='online location'></Home>;
-  }
-  return <h1>No location were found ONLINE</h1>;
-};
+// const OnlineSavedLocation = () => {
+//   const { loading, error, data: onlineSavedLocationData } = useQuery(
+//     ONLINE_SAVED_LOCATION
+//   );
+//   if (loading) return <HomePageSkeleton></HomePageSkeleton>;
+//   if (error) return <ErrorPage></ErrorPage>;
+//   if (onlineSavedLocationData && onlineSavedLocationData.activeSavedLocation) {
+//     const activeSavedLocation = onlineSavedLocationData.activeSavedLocation[0];
+//     const location = {
+//       name: activeSavedLocation.properties.name,
+//       lat: activeSavedLocation.geometry.coordinates[1],
+//       lng: activeSavedLocation.geometry.coordinates[0]
+//     };
+//     localStorage.setItem('lla', btoa(JSON.stringify(location)));
+//     return <Home location={location} from='online location'></Home>;
+//   }
+//   return <h1>No location were found ONLINE</h1>;
+// };
 
-const Index = props => {
-  const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
-  const { loading, error, data } = useQuery(VIEWER);
+// const Index = props => {
+//   const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
+//   const { loading, error, data } = useQuery(VIEWER);
 
-  if (localSavedLocationData && localSavedLocationData.localSavedLocation) {
-    const location = JSON.parse(
-      atob(localSavedLocationData.localSavedLocation)
-    );
-    return <Home location={location}></Home>;
-  }
-  if (loading) return <HomePageSkeleton></HomePageSkeleton>;
-  if (error) return <ErrorPage></ErrorPage>;
+//   if (localSavedLocationData && localSavedLocationData.localSavedLocation) {
+//     const location = JSON.parse(
+//       atob(localSavedLocationData.localSavedLocation)
+//     );
+//     return <Home location={location}></Home>;
+//   }
+//   if (loading) return <HomePageSkeleton></HomePageSkeleton>;
+//   if (error) return <ErrorPage></ErrorPage>;
 
-  // if a user is logged in then check for online saved locations
-  if (data && data.viewer !== null) {
-    return <OnlineSavedLocation></OnlineSavedLocation>;
-  }
+//   // if a user is logged in then check for online saved locations
+//   if (data && data.viewer !== null) {
+//     return <OnlineSavedLocation></OnlineSavedLocation>;
+//   }
 
-  return <h1>No saved location were found at any place</h1>;
-};
+//   return <h1>No saved location were found at any place</h1>;
+// };
 
-// for now we will offer only a single location. This will be written on local storage
-// and available through LOCAL_SAVED_LOCATION query.
+// We will provide major popular places to choose from.
+// No need for ONLINE_SAVED_LOCATION
 
 const IndexPage = () => {
   const { loading, data } = useQuery(LOCAL_SAVED_LOCATION);
-
   return (
     <Layout>
       <SEO
         title='Online shopping: Shop and search online for nearby services and products'
-        description='Raspaai.in | Buy anything from your local stores'></SEO>
+        description='Raspaai.in | Find everything around you'></SEO>
       {loading && <HomePageSkeleton></HomePageSkeleton>}
       {data && data.localSavedLocation && (
-        <Home location={JSON.parse(atob(data.localSavedLocation))}></Home>
+        <Home
+          location={JSON.parse(decryptText(data.localSavedLocation))}></Home>
       )}
     </Layout>
   );
