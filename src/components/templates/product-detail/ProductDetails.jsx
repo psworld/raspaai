@@ -259,13 +259,13 @@ const ProductDetails = props => {
           {isShopProduct && (
             <>
               <ListItem style={{ marginTop: 0, marginBottom: 0 }}>
-                <Typography variant='body2'>
+                <Typography variant='h6'>
                   Offered Price:{' '}
                   <span style={{ color: 'green', fontSize: 'x-large' }}>
                     {' '}
                     &#x20b9;{offeredPrice}
                   </span>{' '}
-                  <b> {offeredPriceUnit}</b>
+                  <b style={{ fontSize: 'large' }}> {offeredPriceUnit}</b>
                 </Typography>
               </ListItem>
               {mrp && (

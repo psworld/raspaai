@@ -25,7 +25,7 @@ const ComboElement = ({ comboNode, shop }) => {
             comboName
           )}/${comboId}`}>
           <ProductCollage thumbs={thumbs} title={comboName}></ProductCollage>
-          <Typography title={comboName} variant='body2' color='textPrimary'>
+          <Typography title={comboName} variant='subtitle1' color='textPrimary'>
             {comboName}
           </Typography>
         </Link>

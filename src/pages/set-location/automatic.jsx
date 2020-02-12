@@ -1,4 +1,4 @@
-// import React from "react"
+import React from 'react';
 // import Layout from "../../components/layout"
 
 // import { usePosition } from "use-position"
@@ -44,75 +44,76 @@
 //   },
 // ]
 
-// const AutomaticLocation = () => {
-//   const classes = useStyles()
-//   const { latitude, longitude, timestamp, accuracy, error } = usePosition()
-//   const automaticMarkerPosition = {
-//     lat: latitude,
-//     lng: longitude,
-//   }
-//   return (
-//     <Layout>
-//       {error ? (
-//         <div className={classes.container}>
-//           <Typography variant="h6" color="secondary">
-//             Getting location automatically failed due to one of the following
-//             reasons.
-//           </Typography>
-//           <List>
-//             {errorMessageList.map((message, index) => (
-//               <ListItem key={index}>
-//                 <ListItemText
-//                   primary={message.primary}
-//                   secondary={<span>&ensp;&ensp; {message.secondary}</span>}
-//                 ></ListItemText>
-//               </ListItem>
-//             ))}
-//           </List>
-//           <Button
-//             component={Link}
-//             to="/set-location/manual"
-//             color="primary"
-//             variant="contained"
-//           >
-//             Set Location Manually
-//           </Button>
-//         </div>
-//       ) : longitude && latitude ? (
-//         <div>
-//           <Typography
-//             color="secondary"
-//             style={{ margin: 8 }}
-//             align="center"
-//             variant="h6"
-//           >
-//             If this is not you correct location you can change it by clicking
-//             anywhere on the map.
-//           </Typography>
-//           <Map
-//             center={automaticMarkerPosition}
-//             automaticMarkerPosition={automaticMarkerPosition}
-//           ></Map>
-//         </div>
-//       ) : (
-//         <div>
-//           <Typography style={{ margin: 5 }} align="center" variant="h4">
-//             We are fetching you current location.
-//           </Typography>
-//           <br></br>
-//           <Typography
-//             style={{ marginBottom: 3 }}
-//             variant="body2"
-//             align="center"
-//             color="primary"
-//             paragraph
-//           >
-//             * Allow us to access your location. Requires GPS for accuracy.
-//           </Typography>
-//         </div>
-//       )}
-//     </Layout>
-//   )
-// }
+const AutomaticLocation = () => {
+  // const classes = useStyles()
+  // const { latitude, longitude, timestamp, accuracy, error } = usePosition()
+  // const automaticMarkerPosition = {
+  //   lat: latitude,
+  //   lng: longitude,
+  // }
+  return (
+    <></>
+    // <Layout>
+    //   {error ? (
+    //     <div className={classes.container}>
+    //       <Typography variant="h6" color="secondary">
+    //         Getting location automatically failed due to one of the following
+    //         reasons.
+    //       </Typography>
+    //       <List>
+    //         {errorMessageList.map((message, index) => (
+    //           <ListItem key={index}>
+    //             <ListItemText
+    //               primary={message.primary}
+    //               secondary={<span>&ensp;&ensp; {message.secondary}</span>}
+    //             ></ListItemText>
+    //           </ListItem>
+    //         ))}
+    //       </List>
+    //       <Button
+    //         component={Link}
+    //         to="/set-location/manual"
+    //         color="primary"
+    //         variant="contained"
+    //       >
+    //         Set Location Manually
+    //       </Button>
+    //     </div>
+    //   ) : longitude && latitude ? (
+    //     <div>
+    //       <Typography
+    //         color="secondary"
+    //         style={{ margin: 8 }}
+    //         align="center"
+    //         variant="h6"
+    //       >
+    //         If this is not you correct location you can change it by clicking
+    //         anywhere on the map.
+    //       </Typography>
+    //       <Map
+    //         center={automaticMarkerPosition}
+    //         automaticMarkerPosition={automaticMarkerPosition}
+    //       ></Map>
+    //     </div>
+    //   ) : (
+    //     <div>
+    //       <Typography style={{ margin: 5 }} align="center" variant="h4">
+    //         We are fetching you current location.
+    //       </Typography>
+    //       <br></br>
+    //       <Typography
+    //         style={{ marginBottom: 3 }}
+    //         variant="body2"
+    //         align="center"
+    //         color="primary"
+    //         paragraph
+    //       >
+    //         * Allow us to access your location. Requires GPS for accuracy.
+    //       </Typography>
+    //     </div>
+    //   )}
+    // </Layout>
+  );
+};
 
-// export default AutomaticLocation
+export default AutomaticLocation;

@@ -587,6 +587,15 @@ const AddNewBrandProduct = ({ brandUsername }) => {
               })}
           </Select>
         </FormControl>
+
+        <ListItem>
+          <TextField
+            name='thumbOverlayText'
+            onChange={handleChange('thumbOverlayText')}
+            placeholder='1 kg or 1 dozen'
+            label='Text to be overladed on thumb'
+            fullWidth></TextField>
+        </ListItem>
         <Divider />
         <ListItem style={{ paddingBottom: 0 }}>
           &ensp;&ensp;&ensp;&ensp;&ensp;M.R.P:&ensp;

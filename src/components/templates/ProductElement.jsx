@@ -28,6 +28,7 @@ const ProductElement = ({
   id,
   title,
   thumb,
+  thumbOverlayText,
   publicUsername,
   offeredPrice,
   shopName,
@@ -70,8 +71,11 @@ const ProductElement = ({
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box px={1} my={1}>
         <Link to={isBrand ? brandProduct : shopProduct}>
-          <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
-          <Typography title={title} variant='body2' color='textPrimary'>
+          <ProductThumb
+            src={thumb}
+            title={title}
+            thumbOverlayText={thumbOverlayText}></ProductThumb>
+          <Typography title={title} variant='subtitle1' color='textPrimary'>
             {title.substring(0, lengthLimit)}
             {title.length > lengthLimit && '...'}
           </Typography>

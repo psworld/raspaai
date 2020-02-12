@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Typography } from '@material-ui/core';
+import { Box, Button, Grid, Typography, ListItem } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -168,12 +168,25 @@ const ComboGridItem = ({ shopComboNode, shopUsername, handleClickOpen }) => {
         {/* <Button variant='contained' color='primary'>
           Edit
         </Button> */}
-        <Button
-          onClick={() => handleClickOpen(comboId)}
-          variant='contained'
-          color='secondary'>
-          Delete
-        </Button>
+        <Grid container spacing={1}>
+          <Grid item xs={6} md={6}>
+            <Button
+              onClick={() => handleClickOpen(comboId)}
+              variant='contained'
+              color='secondary'>
+              Delete
+            </Button>
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <Button
+              variant='contained'
+              color='primary'
+              component={Link}
+              to={`${window.location.pathname}/edit/${comboId}`}>
+              Edit
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
     </Grid>
   );

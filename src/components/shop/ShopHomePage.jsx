@@ -71,6 +71,7 @@ export const SHOP_PRODUCTS = gql`
             mrp
             description
             thumb
+            thumbOverlayText
             brand @include(if: $withBrand) {
               id
               publicUsername

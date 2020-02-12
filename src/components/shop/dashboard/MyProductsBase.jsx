@@ -1,26 +1,27 @@
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   Grid,
   InputAdornment,
-  TextField,
   Typography
 } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
-import { withStyles } from '@material-ui/core/styles';
 import { gql } from 'apollo-boost';
+import { Form, useFormik } from 'formik';
+import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
+import * as Yup from 'yup';
+import CustomFormik from '../../core/CustomFormik';
 import ErrorPage from '../../core/ErrorPage';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import Link, { MenuItemLink } from '../../core/Link';
-import { emptyPageInfo, slugGenerator } from '../../core/utils';
+import { emptyPageInfo, slugGenerator, updatedDiff } from '../../core/utils';
 import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
+import SearchBar from '../../templates/dashboard/SearchBar';
 import PaginationWithState from '../../templates/PaginationWithState';
 import ProductThumb from '../../templates/ProductThumb';
-import SearchBar from '../../templates/dashboard/SearchBar';
+import ResponseSnackbar from '../../templates/ResponseSnackbar';
 
 export const DASHBOARD_SHOP_PRODUCTS = gql`
   query(
@@ -72,8 +73,7 @@ export const DASHBOARD_SHOP_PRODUCTS = gql`
             title
             mrp
             thumb
-            isService
-            isFood
+            thumbOverlayText
             brand @include(if: $withBrand) {
               id
               publicUsername
@@ -118,15 +118,11 @@ const MODIFY_SHOP_PRODUCT = gql`
   }
 `;
 
-const GreenCheckbox = withStyles({
-  root: {
-    color: green[400],
-    '&$checked': {
-      color: green[600]
-    }
-  },
-  checked: {}
-})(props => <Checkbox color='default' {...props} />);
+export const offeredPriceBaseValidationSchema = Yup.number('Invalid price')
+  .integer('No decimal places')
+  .positive('Invalid price')
+  .min(1, 'Offered price can not be zero or less than zero')
+  .required('Required!');
 
 const DashboardShopProductGridItem = ({
   shopProductNode,
@@ -141,77 +137,146 @@ const DashboardShopProductGridItem = ({
       title,
       mrp,
       thumb,
-      isService,
-      isFood,
+      thumbOverlayText,
       brand: { publicUsername: brandUsername, title: brandName }
     }
   } = shopProductNode;
+
+  const isService = productType === 'is_service' ? true : false;
+  const isFood = productType === 'is_food' ? true : false;
+
   const {
     properties: { publicUsername: shopUsername }
   } = shop;
 
-  const [values, setValues] = React.useState({
-    newInStock: inStock,
-    newOfferedPrice: offeredPrice
-  });
-  const { newInStock, newOfferedPrice } = values;
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = React.useState(false);
 
-  const [showMutationResp, setShowMutationResp] = React.useState(true);
-
-  const [modify, { loading, error, data }] = useMutation(MODIFY_SHOP_PRODUCT, {
-    variables: {
-      shopProductId,
-      offeredPrice: newOfferedPrice,
-      inStock: newInStock
-    },
-    onCompleted() {
-      setTimeout(() => {
-        setShowMutationResp(false);
-      }, 5000);
-      setShowMutationResp(true);
-    }
-  });
-
-  const handleChange = e => {
-    if (e.target.name === 'newInStock') {
-      setValues({ ...values, newInStock: !newInStock });
-    } else if (e.target.name === 'newOfferedPrice') {
-      let value = e.target.value;
-      try {
-        value = parseInt(value);
-        setValues({ ...values, [e.target.name]: value });
-      } catch {}
-    } else {
-      setValues({ ...values, [e.target.name]: e.target.value });
-    }
+  const handleSnackbarOpen = () => {
+    setOpenSuccessSnackbar(true);
   };
 
-  const validChanges = () => {
-    if (Number.isInteger(newOfferedPrice)) {
-      if (isService || isFood) {
-        // Do not check for max mrp
-        if (newOfferedPrice === offeredPrice && newInStock === inStock) {
-          return false;
-        }
-      } else {
-        if (
-          (newOfferedPrice === offeredPrice && newInStock === inStock) ||
-          newOfferedPrice > mrp
-        ) {
-          return false;
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSuccessSnackbar(false);
+  };
+
+  const [modify, { loading, error }] = useMutation(MODIFY_SHOP_PRODUCT, {
+    onCompleted() {
+      handleSnackbarOpen();
+    }
+  });
+
+  const formik = useFormik({
+    initialValues: { offeredPrice, inStock, action: 'modify' },
+    validationSchema: Yup.object({
+      offeredPrice: mrp
+        ? offeredPriceBaseValidationSchema.max(
+            mrp,
+            'Can not be greater than mrp'
+          )
+        : offeredPriceBaseValidationSchema,
+      inStock: Yup.boolean().required('A value is required'),
+      action: Yup.string().oneOf(['modify', 'delete'])
+    }),
+    onSubmit: (values, { setSubmitting }) => {
+      const initialValues = formik.initialValues;
+      const action = values.action;
+      const changedValues = updatedDiff(initialValues, values);
+      setSubmitting(false);
+      const dirty = formik.dirty;
+      if (dirty) {
+        if (action === 'delete') {
+          modify({
+            variables: {
+              shopProductId,
+              action: values.action,
+              ...changedValues
+            },
+            update(cache) {
+              updateCacheAfterShopProductDelete(cache);
+            }
+          });
+        } else {
+          modify({
+            variables: {
+              shopProductId,
+              action: values.action,
+              ...changedValues
+            }
+          });
         }
       }
-      return true;
-    } else return false;
-  };
+    }
+  });
+
+  const values = formik.values;
 
   const productSlug = slugGenerator(title);
   const shopProduct = `/shop/${shopUsername}/product/${productSlug}/${shopProductId}`;
+
+  function updateCacheAfterShopProductDelete(cache) {
+    const { dashboardShopProducts } = cache.readQuery({
+      query: DASHBOARD_SHOP_PRODUCTS,
+      variables: {
+        publicShopUsername: shopUsername,
+        withBrand: true,
+        productType
+      }
+    });
+    const newShopProductEdges = dashboardShopProducts.edges.filter(
+      e => e.node.id !== shopProductId
+    );
+    if (newShopProductEdges.length > 0) {
+      cache.writeQuery({
+        query: DASHBOARD_SHOP_PRODUCTS,
+        variables: {
+          publicShopUsername: shopUsername,
+          withBrand: true,
+          productType
+        },
+        data: {
+          dashboardShopProducts: {
+            ...dashboardShopProducts,
+            count: newShopProductEdges.length,
+            edges: newShopProductEdges
+          }
+        }
+      });
+    } else if (newShopProductEdges.length === 0) {
+      cache.writeQuery({
+        query: DASHBOARD_SHOP_PRODUCTS,
+        variables: {
+          publicShopUsername: shopUsername,
+          withBrand: true,
+          productType
+        },
+        data: {
+          dashboardShopProducts: {
+            ...dashboardShopProducts,
+            pageInfo: emptyPageInfo,
+            count: 0,
+            edges: []
+          }
+        }
+      });
+    }
+  }
+
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
+      <ResponseSnackbar
+        open={openSuccessSnackbar}
+        handleClose={handleSnackbarClose}
+        variant='success'
+        message='Changes saved successfully'></ResponseSnackbar>
       <Box width='100%' px={1} my={2}>
         <Link to={shopProduct}>
-          <ProductThumb src={thumb} title={title}></ProductThumb>
+          <ProductThumb
+            src={thumb}
+            title={title}
+            thumbOverlayText={thumbOverlayText}></ProductThumb>
           <Typography variant='body2'>{title}</Typography>
         </Link>
         <Typography style={{ paddingTop: 3 }} display='block' variant='caption'>
@@ -219,142 +284,88 @@ const DashboardShopProductGridItem = ({
             By {brandName}
           </MenuItemLink>
         </Typography>
-        {!isService ||
-          (!isFood && (
-            <Typography variant='body2'>
-              M.R.P{' '}
-              <span
-                style={{
-                  textDecorationLine: 'line-through',
-                  color: '#FA8072'
-                }}>
-                {' '}
-                &#8377; {mrp}
-              </span>
-            </Typography>
-          ))}
-        <TextField
-          onChange={handleChange}
-          placeholder={'Offered Price'}
-          id='newOfferedPrice'
-          value={newOfferedPrice}
-          name='newOfferedPrice'
-          type='number'
-          margin='dense'
-          variant='outlined'
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position='start' style={{ color: 'green' }}>
-                &#8377;
-              </InputAdornment>
-            )
-          }}
-          InputLabelProps={{
-            shrink: true
-          }}
-        />
-        <FormControlLabel
-          control={
-            <GreenCheckbox
-              name='newInStock'
-              checked={newInStock}
-              value={!newInStock}
-              onChange={handleChange}></GreenCheckbox>
-          }
-          label={
+        {isService || isFood ? (
+          <></>
+        ) : (
+          <Typography variant='body2'>
+            M.R.P{' '}
             <span
               style={{
-                color: newInStock ? green[500] : red[500]
+                textDecorationLine: 'line-through',
+                color: '#FA8072'
               }}>
-              {newInStock ? 'In stock' : 'Out of stock'}
+              {' '}
+              &#8377; {mrp}
             </span>
-          }
-        />
-        <br></br>
-        {mrp && newOfferedPrice > mrp && (
-          <span style={{ color: 'red' }}>
-            Offered price can not be greater than M.R.P
-          </span>
+          </Typography>
         )}
-        {error && <GraphqlErrorMessage error={error}></GraphqlErrorMessage>}
 
-        <Grid container>
-          <Grid item xs={6} sm={6} md={6}>
-            <Button
-              onClick={() =>
-                modify({
-                  variables: {
-                    action: 'modify'
-                  }
-                })
-              }
-              disabled={loading || !validChanges()}
-              color='primary'>
-              {loading ? <>Saving</> : <>Save</>}
-            </Button>
-          </Grid>
-          <Grid item xs={6} sm={6} md={6}>
-            <Button
-              onClick={() =>
-                modify({
-                  variables: {
-                    action: 'delete'
-                  },
-                  update(cache) {
-                    const { dashboardShopProducts } = cache.readQuery({
-                      query: DASHBOARD_SHOP_PRODUCTS,
-                      variables: {
-                        publicShopUsername: shopUsername,
-                        withBrand: true,
-                        productType
-                      }
-                    });
-                    const newShopProductEdges = dashboardShopProducts.edges.filter(
-                      e => e.node.id !== shopProductId
-                    );
-                    if (newShopProductEdges.length > 0) {
-                      cache.writeQuery({
-                        query: DASHBOARD_SHOP_PRODUCTS,
-                        variables: {
-                          publicShopUsername: shopUsername,
-                          withBrand: true,
-                          productType
-                        },
-                        data: {
-                          dashboardShopProducts: {
-                            ...dashboardShopProducts,
-                            count: newShopProductEdges.length,
-                            edges: newShopProductEdges
-                          }
-                        }
-                      });
-                    } else if (newShopProductEdges.length === 0) {
-                      cache.writeQuery({
-                        query: DASHBOARD_SHOP_PRODUCTS,
-                        variables: {
-                          publicShopUsername: shopUsername,
-                          withBrand: true,
-                          productType
-                        },
-                        data: {
-                          dashboardShopProducts: {
-                            ...dashboardShopProducts,
-                            pageInfo: emptyPageInfo,
-                            count: 0,
-                            edges: []
-                          }
-                        }
-                      });
+        <CustomFormik formikBag={formik}>
+          {props => (
+            <Form>
+              <TextField
+                placeholder='Offered price'
+                name='offeredPrice'
+                type='number'
+                margin='dense'
+                variant='outlined'
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start' style={{ color: 'green' }}>
+                      &#8377;
+                    </InputAdornment>
+                  )
+                }}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+
+              <CheckboxWithLabel
+                name='inStock'
+                Label={{
+                  label: (
+                    <span
+                      style={{
+                        color: values.inStock ? green[500] : red[500]
+                      }}>
+                      {values.inStock ? 'In stock' : 'Out of stock'}
+                    </span>
+                  )
+                }}></CheckboxWithLabel>
+              <br></br>
+
+              {error && (
+                <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
+              )}
+
+              <Grid container>
+                <Grid item xs={6} sm={6} md={6}>
+                  <Button
+                    onClick={() =>
+                      formik.setFieldValue('action', 'modify') &
+                      formik.handleSubmit()
                     }
-                  }
-                })
-              }
-              disabled={loading}
-              color='secondary'>
-              Delete
-            </Button>
-          </Grid>
-        </Grid>
+                    disabled={loading || !formik.dirty}
+                    color='primary'>
+                    {loading ? <>Saving</> : <>Save</>}
+                  </Button>
+                </Grid>
+                <Grid item xs={6} sm={6} md={6}>
+                  <Button
+                    onClick={() =>
+                      formik.setFieldValue('action', 'delete') &
+                      formik.handleSubmit()
+                    }
+                    disabled={loading}
+                    color='secondary'>
+                    Delete
+                  </Button>
+                </Grid>
+              </Grid>
+            </Form>
+          )}
+        </CustomFormik>
       </Box>
     </Grid>
   );

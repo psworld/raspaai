@@ -10,7 +10,7 @@ const ShopProductGrid = props => {
         const {
           id,
           offeredPrice,
-          product: { title, mrp, thumb }
+          product: { title, mrp, thumb, thumbOverlayText }
         } = shopProduct.node;
         if (shop) {
           var {
@@ -28,6 +28,7 @@ const ShopProductGrid = props => {
             id={id}
             title={title}
             thumb={thumb}
+            thumbOverlayText={thumbOverlayText}
             shopName={shopName}
             publicUsername={publicUsername}
             offeredPrice={offeredPrice}

@@ -14,6 +14,7 @@ import MyProductsPage from './products/MyProductsPage';
 import FoodItems from './food/FoodItems';
 import AddFoodItems from './food/AddFoodItems';
 import ShopDashboardProfile from './components/ShopDashboardProfile';
+import EditCombo from './combos/EditCombo';
 
 const ShopDashboardRouter = props => {
   const { shopUsername } = props;
@@ -39,6 +40,7 @@ const ShopDashboardRouter = props => {
         <MyCombos
           shopUsername={shopUsername}
           path='combos/search/:phrase'></MyCombos>
+        <EditCombo path='combos/edit/:comboId'></EditCombo>
         <AddNewComboHOC
           shopUsername={shopUsername}
           path='combos/create'></AddNewComboHOC>

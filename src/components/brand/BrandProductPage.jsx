@@ -37,6 +37,7 @@ export const PRODUCT = gql`
       longDescription
       isAvailable
       technicalDetails
+      thumbOverlayText
     }
   }
 `;

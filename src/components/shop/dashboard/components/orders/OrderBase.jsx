@@ -32,7 +32,7 @@ import Link from '../../../../core/Link';
 import ProductThumb from '../../../../templates/ProductThumb';
 import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../../../../core/Loading';
-import ResponseSnackbar from './ResponseSnackbar';
+import ResponseSnackbar from '../../../../templates/ResponseSnackbar';
 import PaginationWithState from '../../../../templates/PaginationWithState';
 import ProductCollage from '../../../../templates/dashboard/ProductCollage';
 import { slugGenerator } from '../../../../core/utils';

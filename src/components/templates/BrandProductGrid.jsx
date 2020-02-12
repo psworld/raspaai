@@ -6,7 +6,14 @@ const BrandProductGrid = props => {
   return (
     <>
       {brandProducts.map(brandProductObj => {
-        const { id, title, mrp, thumb, brand } = brandProductObj.node;
+        const {
+          id,
+          title,
+          mrp,
+          thumb,
+          thumbOverlayText,
+          brand
+        } = brandProductObj.node;
         if (brand) {
           var { title: brandName } = brand;
         }
@@ -17,6 +24,7 @@ const BrandProductGrid = props => {
             title={title}
             thumb={thumb}
             brandName={brandName}
+            thumbOverlayText={thumbOverlayText}
             publicUsername={publicBrandUsername}
             mrp={mrp}
             isBrand={true}

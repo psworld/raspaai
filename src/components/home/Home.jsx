@@ -28,6 +28,7 @@ const NEARBY_COMBOS_AND_SHOP_PRODUCTS = gql`
             id
             title
             thumb
+            thumbOverlayText
             mrp
             description
           }

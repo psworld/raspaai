@@ -71,6 +71,7 @@ const ComboProduct = ({
     offeredPrice,
     product: {
       thumb,
+      thumbOverlayText,
       mrp,
       title,
       brand: { publicUsername: brandUsername, title: brandName }
@@ -88,98 +89,105 @@ const ComboProduct = ({
 
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
-      <Box width='100%' px={1} my={2}>
-        <Link to={shopProduct}>
-          <ProductThumb src={thumb} title={title} alt={title}></ProductThumb>
-          <Typography variant='body2'>{title}</Typography>
-        </Link>
+      <Formik
+        initialValues={{ quantity: 1 }}
+        validationSchema={yup.object().shape({
+          quantity: yup
+            .number('Invalid quantity')
+            .min(1, 'Quantity must not be less than 1')
+            .max(10, 'Quantity should not be larger than 10')
+            .required('Quantity is required')
+        })}
+        onSubmit={(values, { setSubmitting }) => {
+          setSubmitting(false);
+          const combObj = {
+            name: title,
+            thumb,
+            thumbOverlayText,
+            mrp,
+            offeredPrice,
+            quantity: values.quantity
+          };
+          handleComboProductSelect(id, combObj);
+        }}>
+        {formik => {
+          const {
+            values,
+            touched,
+            errors,
+            isSubmitting,
+            handleChange,
+            handleBlur,
+            handleSubmit
+          } = formik;
+          const { quantity } = values;
 
-        <Typography display='block' variant='caption' color='textSecondary'>
-          <Link to={`/brand/${brandUsername}`}>
-            By <span style={{ color: '#5050FF' }}>{brandName}</span>
-          </Link>
-        </Typography>
+          const quantityOverlayText = quantity;
 
-        <Typography variant='body1' style={{ color: 'green' }}>
-          &#8377; {offeredPrice}
-        </Typography>
-
-        <Formik
-          initialValues={{ quantity: 1 }}
-          validationSchema={yup.object().shape({
-            quantity: yup
-              .number('Invalid quantity')
-              .min(1, 'Quantity must not be less than 1')
-              .max(10, 'Quantity should not be larger than 10')
-              .required('Quantity is required')
-          })}
-          onSubmit={(values, { setSubmitting }) => {
-            setSubmitting(false);
-            const combObj = {
-              name: title,
-              thumb,
-              mrp,
-              offeredPrice,
-              quantity: values.quantity
-            };
-            handleComboProductSelect(id, combObj);
-          }}>
-          {formik => {
-            const {
-              values,
-              touched,
-              errors,
-              isSubmitting,
-              handleChange,
-              handleBlur,
-              handleSubmit
-            } = formik;
-            const { quantity } = values;
-
-            function hasError(id, bool) {
-              if (touched[id] && errors[id]) {
-                return bool ? true : errors[id];
-              } else {
-                return false;
-              }
+          function hasError(id, bool) {
+            if (touched[id] && errors[id]) {
+              return bool ? true : errors[id];
+            } else {
+              return false;
             }
+          }
 
-            return (
-              <>
-                <TextField
-                  value={quantity}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder='Quantity'
-                  id='quantity'
-                  label={hasError('quantity', true) ? hasError('quantity') : ''}
-                  error={hasError('quantity', true)}
-                  name='quantity'
-                  type='number'
-                  margin='dense'
-                  variant='outlined'
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position='start'>Qty: </InputAdornment>
-                    )
-                  }}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                />
+          return (
+            <Box width='100%' px={1} my={2}>
+              <Link to={shopProduct}>
+                <ProductThumb
+                  src={thumb}
+                  title={title}
+                  thumbOverlayText={thumbOverlayText}
+                  quantityOverlayText={quantityOverlayText}></ProductThumb>
+                <Typography variant='body2'>{title}</Typography>
+              </Link>
 
-                <Button
-                  color={isSelected ? 'primary' : 'default'}
-                  disabled={isSubmitting}
-                  onClick={handleSubmit}
-                  variant='contained'>
-                  {isSelected ? 'Selected' : 'Select'}
-                </Button>
-              </>
-            );
-          }}
-        </Formik>
-      </Box>
+              <Typography
+                display='block'
+                variant='caption'
+                color='textSecondary'>
+                <Link to={`/brand/${brandUsername}`}>
+                  By <span style={{ color: '#5050FF' }}>{brandName}</span>
+                </Link>
+              </Typography>
+
+              <Typography variant='body1' style={{ color: 'green' }}>
+                &#8377; {offeredPrice}
+              </Typography>
+              <TextField
+                value={quantity}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder='Quantity'
+                id='quantity'
+                label={hasError('quantity', true) ? hasError('quantity') : ''}
+                error={hasError('quantity', true)}
+                name='quantity'
+                type='number'
+                margin='dense'
+                variant='outlined'
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>Qty: </InputAdornment>
+                  )
+                }}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+
+              <Button
+                color={isSelected ? 'primary' : 'default'}
+                disabled={isSubmitting}
+                onClick={handleSubmit}
+                variant='contained'>
+                {isSelected ? 'Selected' : 'Select'}
+              </Button>
+            </Box>
+          );
+        }}
+      </Formik>
     </Grid>
   );
 };
@@ -451,6 +459,7 @@ const ReviewComboSelection = ({
                               <TableCell align='right'>MRP</TableCell>
                               <TableCell align='right'>Offered price</TableCell>
                               <TableCell align='right'>Qty</TableCell>
+                              <TableCell align='right'>Sub total</TableCell>
                               {/* <TableCell align='right'>
                                 Protein&nbsp;(g)
                               </TableCell> */}
@@ -471,7 +480,7 @@ const ReviewComboSelection = ({
                                 : offeredPrice * quantity;
                               totalOfferedPrice += offeredPrice * quantity;
                               totalQuantity += quantity;
-
+                              const subTotal = offeredPrice * quantity;
                               return (
                                 <TableRow key={key}>
                                   <TableCell component='th' scope='row'>
@@ -485,6 +494,9 @@ const ReviewComboSelection = ({
                                   </TableCell>
                                   <TableCell align='right'>
                                     {quantity}
+                                  </TableCell>
+                                  <TableCell align='right'>
+                                    {subTotal}
                                   </TableCell>
                                 </TableRow>
                               );

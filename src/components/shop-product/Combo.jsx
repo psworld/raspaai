@@ -43,6 +43,7 @@ const COMBO = gql`
           publicUsername
           contactNumber
           address
+          about
           returnRefundPolicy
           openAt
           closeAt
@@ -69,6 +70,7 @@ const COMBO = gql`
                 title
                 mrp
                 thumb
+                thumbOverlayText
               }
             }
           }
@@ -121,14 +123,14 @@ const ADD_COMBO_TO_CART = gql`
   }
 `;
 
-const ComboItem = ({ shopUsername, comboProductNode }) => {
+export const ComboItem = ({ shopUsername, comboProductNode }) => {
   const {
     quantity,
     shopProduct: {
       id: shopProductId,
       offeredPrice,
       inStock,
-      product: { title: productTitle, mrp, thumb }
+      product: { title: productTitle, mrp, thumb, thumbOverlayText }
     }
   } = comboProductNode;
 
@@ -139,7 +141,10 @@ const ComboItem = ({ shopUsername, comboProductNode }) => {
       <Grid item xs={3} sm={3} md={2}>
         <Link
           to={`/shop/${shopUsername}/product/${productSlug}/${shopProductId}`}>
-          <ProductThumb src={thumb} title={productTitle}></ProductThumb>
+          <ProductThumb
+            src={thumb}
+            title={productTitle}
+            thumbOverlayText={thumbOverlayText}></ProductThumb>
         </Link>
       </Grid>
       <Grid item xs={9} sm={9} md={10}>
@@ -256,6 +261,7 @@ const Combo = ({ comboId, shopUsername }) => {
       name,
       description,
       offeredPrice,
+      thumbs,
       isAvailable,
       shop: {
         geometry: { coordinates },
@@ -264,6 +270,7 @@ const Combo = ({ comboId, shopUsername }) => {
           heroImage,
           publicUsername: shopUsername,
           address,
+          about,
           contactNumber,
           returnRefundPolicy,
           openAt,
@@ -301,9 +308,7 @@ const Combo = ({ comboId, shopUsername }) => {
       <Grid container>
         <SEO title={`${name} | ${shopName}`} description={description}></SEO>
         <Grid item xs={12} sm={6} md={4}>
-          <ProductCollage
-            thumbs={data.combo.thumbs}
-            title={name}></ProductCollage>
+          <ProductCollage thumbs={thumbs} title={name}></ProductCollage>
         </Grid>
 
         <Grid
@@ -409,13 +414,17 @@ const Combo = ({ comboId, shopUsername }) => {
           xs={12}
           sm={12}
           md={2}>
-          <AddComboToCart viewer={viewer} comboId={comboId}></AddComboToCart>
-          <br></br>
-          <Divider></Divider>
-          <br></br>
+          {/* <AddComboToCart viewer={viewer} comboId={comboId}></AddComboToCart> */}
+          {/* <br></br>
+          <Divider></Divider> */}
+          {/* <br></br> */}
+          <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
+            Shop
+          </Typography>
           <MainFeaturedPost
             img={heroImage}
             title={shopUsername}></MainFeaturedPost>
+          <Typography>{about}</Typography>
           <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
             Contact Details
           </Typography>

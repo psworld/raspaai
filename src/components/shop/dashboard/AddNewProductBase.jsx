@@ -2,10 +2,10 @@ import {
   Button,
   Grid,
   InputAdornment,
-  TextField,
   Typography,
   Box
 } from '@material-ui/core';
+import * as Yup from 'yup';
 import { gql } from 'apollo-boost';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
@@ -19,6 +19,9 @@ import { DASHBOARD_SHOP_PRODUCTS, getTypeName } from './MyProductsBase';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import { SHOP_PRODUCTS } from '../ShopHomePage';
 import SearchBar from '../../templates/dashboard/SearchBar';
+import { Formik, Form } from 'formik';
+import { offeredPriceBaseValidationSchema } from './MyProductsBase';
+import { TextField } from 'formik-material-ui';
 
 export const PRODUCTS = gql`
   query(
@@ -45,8 +48,7 @@ export const PRODUCTS = gql`
           title
           mrp
           thumb
-          isFood
-          isService
+          thumbOverlayText
           brand @include(if: $withBrand) {
             id
             publicUsername
@@ -71,6 +73,7 @@ const ADD_SHOP_PRODUCT = gql`
           mrp
           description
           thumb
+          thumbOverlayText
           isFood
           isService
           brand {
@@ -99,17 +102,17 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
     id: productId,
     title: productName,
     thumb,
-    isService,
-    isFood,
+    thumbOverlayText,
     mrp,
     brand: { title: brandName, publicUsername: brandUsername }
   } = productNode;
-  const [offeredPrice, setOfferedPrice] = React.useState();
+  // const isService = productType === 'is_service' ? true : false;
+  // const isFood = productType === 'is_food' ? true : false;
 
   const [addShopProduct, { loading, error, data }] = useMutation(
     ADD_SHOP_PRODUCT,
     {
-      variables: { productId, offeredPrice },
+      variables: { productId },
       refetchQueries: [
         {
           query: SHOP_PRODUCTS,
@@ -184,33 +187,14 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
     }
   );
 
-  const handleChange = e => {
-    let value = e.target.value;
-    try {
-      value = parseInt(value);
-      setOfferedPrice(value);
-    } catch {}
-  };
-  const isValidOfferedPrice = () => {
-    if (
-      isNaN(offeredPrice) ||
-      offeredPrice === null ||
-      typeof offeredPrice === 'undefined'
-    ) {
-      return false;
-    } else {
-      if (isService || isFood) {
-        return true;
-      } else if (offeredPrice <= mrp) {
-        return true;
-      }
-    }
-  };
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box width='100%' px={1} my={2}>
         <Link to={`/`}>
-          <ProductThumb src={thumb} title={productName}></ProductThumb>
+          <ProductThumb
+            src={thumb}
+            title={productName}
+            thumbOverlayText={thumbOverlayText}></ProductThumb>
           <Typography variant='body2'>{productName}</Typography>
         </Link>
         <Typography display='block' variant='caption' color='textSecondary'>
@@ -231,43 +215,63 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
             </span>
           </Typography>
         )}
-        <TextField
-          value={offeredPrice}
-          onChange={handleChange}
-          // placeholder={addShopProduct ? 'Offered Price' : offeredPrice}
-          id='offeredPrice'
-          name='offeredPrice'
-          type='number'
-          margin='dense'
-          variant='outlined'
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position='start' style={{ color: 'green' }}>
-                &#8377;
-              </InputAdornment>
-            )
-          }}
-          InputLabelProps={{
-            shrink: true
-          }}
-        />
-        <br></br>
-        {mrp && offeredPrice > mrp && (
-          <span style={{ color: 'red' }}>
-            Offered price can not be greater than M.R.P
-          </span>
-        )}
+        <Formik
+          initialValues={{ offeredPrice: null }}
+          validationSchema={Yup.object({
+            offeredPrice: mrp
+              ? offeredPriceBaseValidationSchema.max(
+                  mrp,
+                  'Can not be greater than mrp'
+                )
+              : offeredPriceBaseValidationSchema
+          })}
+          onSubmit={(values, { setSubmitting }) => {
+            addShopProduct({ variables: { ...values } });
+            setSubmitting(false);
+          }}>
+          {formik => {
+            const dirty = formik.dirty;
+            return (
+              <Form>
+                <TextField
+                  id='offeredPrice'
+                  name='offeredPrice'
+                  type='number'
+                  margin='dense'
+                  variant='outlined'
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment
+                        position='start'
+                        style={{ color: 'green' }}>
+                        &#8377;
+                      </InputAdornment>
+                    )
+                  }}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                />
+                <br></br>
 
-        {error && <GraphqlErrorMessage error={error}></GraphqlErrorMessage>}
-        <Button
-          onClick={() => isValidOfferedPrice() && addShopProduct()}
-          disabled={loading || data || !isValidOfferedPrice()}
-          fullWidth
-          variant='contained'
-          color='primary'>
-          Add to shop
-        </Button>
-        {data && <span style={{ color: 'green' }}>Saved successfully</span>}
+                {error && (
+                  <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
+                )}
+                <Button
+                  onClick={formik.handleSubmit}
+                  disabled={loading || data || formik.isSubmitting || !dirty}
+                  fullWidth
+                  variant='contained'
+                  color='primary'>
+                  Add to shop
+                </Button>
+                {data && (
+                  <span style={{ color: 'green' }}>Saved successfully</span>
+                )}
+              </Form>
+            );
+          }}
+        </Formik>
       </Box>
     </Grid>
   );

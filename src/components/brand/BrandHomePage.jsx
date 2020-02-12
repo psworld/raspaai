@@ -49,6 +49,7 @@ export const BRAND_PRODUCTS = gql`
           title
           mrp
           thumb
+          thumbOverlayText
           description
           brand @include(if: $withBrand) {
             id

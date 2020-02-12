@@ -97,6 +97,8 @@ const MODIFY_BRAND_PRODUCT = gql`
         mrp
         description
         longDescription
+        thumbOverlayText
+        technicalDetails
       }
     }
   }
@@ -114,6 +116,7 @@ export const ModifyBrandProduct = ({
     mrp,
     description,
     longDescription,
+    thumbOverlayText,
     category: { id: categoryId },
     type: { id: typeId },
     // isAvailable,
@@ -552,6 +555,16 @@ export const ModifyBrandProduct = ({
           </Select>
         </FormControl>
         <Divider />
+        <ListItem>
+          <TextField
+            name='thumbOverlayText'
+            onChange={handleChange('thumbOverlayText')}
+            defaultValue={thumbOverlayText}
+            placeholder='1 kg or 1 dozen'
+            label='Text to be overladed on thumb'
+            fullWidth></TextField>
+        </ListItem>
+
         <ListItem style={{ paddingBottom: 0 }}>
           &ensp;&ensp;&ensp;&ensp;&ensp;M.R.P:&ensp;
           <TextField
@@ -840,7 +853,7 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
               disabled={
                 loading ||
                 data ||
-                defaultImageNodeEdges.length - toDelete.length <= 1
+                defaultImageNodeEdges.length - toDelete.length < 1
               }
               variant='contained'
               color='primary'>
@@ -1108,6 +1121,11 @@ export const AddDeleteImages = ({ action, id: productId, brandUsername }) => {
                 </Typography>
               </ListItem>
             )}
+            {error && (
+              <ListItem>
+                <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
+              </ListItem>
+            )}
           </Grid>
         </Grid>
       );
@@ -1130,22 +1148,6 @@ const EditBrandProduct = ({ id: productId, brandUsername }) => {
     const {
       images: { edges: defaultImageNodeEdges }
     } = product;
-
-    // const modifiedImgNodeList = [];
-
-    // defaultImageNodeEdges.forEach(imgObj => {
-    //   const { id, image: url, position } = imgObj.node;
-    //   const image = {
-    //     node: {
-    //       id,
-    //       base64: `${process.env.GATSBY_IMG_URL_PRE}/${url}`,
-    //       position
-    //     }
-    //   };
-    //   modifiedImgNodeList.push(image);
-    // });
-
-    // modifiedImgNodeList.sort((a, b) => a.node.position - b.node.position);
 
     return (
       <ModifyBrandProduct
