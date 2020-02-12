@@ -4,10 +4,13 @@ import { Container, TextField, ListItem, Button } from '@material-ui/core';
 import { useMutation, useQuery } from 'react-apollo';
 import GraphqlErrorMessage from '../core/GraphqlErrorMessage';
 import Loading from '../core/Loading';
+import { POPULAR_PLACES } from '../map/PopularPlaces';
 
 const ADD_POPULAR_PLACE = gql`
-  mutation($latLng: String!, $name: String!) {
-    adminAddPopularPlace(input: { latLng: $latLng, name: $name }) {
+  mutation($latLng: String!, $name: String!, $img64: String) {
+    adminAddPopularPlace(
+      input: { latLng: $latLng, name: $name, img64: $img64 }
+    ) {
       popularPlace {
         id
         geometry {
@@ -15,6 +18,7 @@ const ADD_POPULAR_PLACE = gql`
         }
         properties {
           name
+          image
         }
       }
     }
@@ -152,7 +156,8 @@ export const EditPopularPlace = ({ popularPlaceId }) => {
           <Button
             onClick={() =>
               saveChanges({
-                variables: { data: { popularPlaceId, delete: true } }
+                variables: { data: { popularPlaceId, delete: true } },
+                refetchQueries: [{ query: POPULAR_PLACES }]
               })
             }
             disabled={mutationLoading}
@@ -195,7 +200,8 @@ const AddPopularPlace = () => {
   const [addPlace, { loading, error, data }] = useMutation(ADD_POPULAR_PLACE, {
     variables: {
       ...values
-    }
+    },
+    refetchQueries: [{ query: POPULAR_PLACES }]
   });
 
   const { img64 } = values;

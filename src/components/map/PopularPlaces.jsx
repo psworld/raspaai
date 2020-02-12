@@ -11,7 +11,7 @@ import SquareElementGridSkeleton from '../skeletons/SquareElementSkeleton';
 import Link from '../core/Link';
 import { encryptText } from '../core/utils';
 
-const POPULAR_PLACES = gql`
+export const POPULAR_PLACES = gql`
   query($lat: Float, $lng: Float) {
     popularPlaces(lat: $lat, lng: $lng, first: 20) {
       edges {
