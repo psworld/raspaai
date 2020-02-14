@@ -4,9 +4,7 @@ import { NotFoundPageWithoutLayout } from '../../../pages/404';
 import AddNewBrandProduct from './AddNewBrandProduct';
 import BrandDashboardHomePage from './BrandDashboardHomePage';
 import BrandDashboardLayout from './BrandDashboardLayout';
-import EditBrandProduct, {
-  AddDeleteImages
-} from './edit-product/EditBrandProduct';
+import EditBrandProduct from './edit-product/EditBrandProduct';
 import MyProductsPage from './MyProductsPage';
 import MyBrandPlans from './plans/MyBrandPlans';
 import AvailablePlans from './plans/buy/AvailablePlans';
@@ -22,7 +20,6 @@ const BrandDashboardRouter = props => {
         <MyBrandPlans path='plans' brandUsername={brandUsername}></MyBrandPlans>
         <AvailablePlans path='plans/buy'></AvailablePlans>
         <EditBrandProduct path='product/edit/:productSlug/:id'></EditBrandProduct>
-        <AddDeleteImages path='product/edit/:productSlug/:id/images/:action'></AddDeleteImages>
         <AddNewBrandProduct
           path='products/add'
           brandUsername={brandUsername}></AddNewBrandProduct>

@@ -1,31 +1,35 @@
-import React from 'react';
-
 import {
-  Grid,
   Button,
+  Divider,
+  FormControl,
+  Grid,
+  InputAdornment,
+  InputLabel,
   List,
   ListItem,
-  Typography,
   ListItemText,
-  Divider,
-  TextField,
-  InputAdornment,
+  MenuItem,
+  Select,
   Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableRow,
-  TableCell,
-  TableBody,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  TextField as MuiTextField,
+  Typography
 } from '@material-ui/core';
-import { Carousel } from 'react-responsive-carousel';
 import { makeStyles } from '@material-ui/core/styles';
+import { Formik, useFormik } from 'formik';
+import { TextField } from 'formik-material-ui';
 import gql from 'graphql-tag';
+import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
-import { BRAND_PRODUCTS } from '../BrandHomePage';
+import { Carousel } from 'react-responsive-carousel';
+import * as yup from 'yup';
+import CustomFormik from '../../core/CustomFormik';
+import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import Link from '../../core/Link';
+import { BRAND_PRODUCTS } from '../BrandHomePage';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -71,47 +75,122 @@ const ADD_BRAND_PRODUCT = gql`
     addBrandProduct(input: $data) {
       product {
         id
-        title
-        mrp
-        description
-        longDescription
-        technicalDetails
-        isService
-        category {
-          id
-          name
-          username
-        }
       }
     }
   }
 `;
 
+export const mrpBaseValidationSchema = yup
+  .number('Invalid number')
+  .integer('No decimal places')
+  .positive('Price can not be negative')
+  .max(99999, 'Price too high!');
+
 const AddNewBrandProduct = ({ brandUsername }) => {
   const classes = useStyles();
 
   const [images, setImages] = React.useState({
-    imagesList: [],
     invalidImages: false,
-    imageFiles: false,
+
     showThumbs: true
   });
-  const { imagesList, invalidImages, showThumbs } = images;
-  const [formError, setFormError] = React.useState();
-  const [currentImageNewPosition, setCurrentImageNewPosition] = React.useState(
-    1
-  );
+  const { invalidImages, showThumbs } = images;
 
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
-  const [values, setValues] = React.useState({
-    productTitle: '',
-    description: '',
-    longDescription: '',
-    categoryId: null,
-    mrp: null,
-    typeId: null
+  let mrpRequired = true;
+
+  // modify product
+  const [addProduct, { loading, error, data }] = useMutation(
+    ADD_BRAND_PRODUCT,
+    {
+      refetchQueries: [
+        {
+          query: BRAND_PRODUCTS,
+          variables: { publicBrandUsername: brandUsername, withBrand: false }
+        }
+      ],
+      awaitRefetchQueries: true
+    }
+  );
+
+  const formik = useFormik({
+    initialValues: {
+      productTitle: '',
+      thumbOverlayText: '',
+      description: '',
+      longDescription: '',
+      mrp: '',
+      categoryId: '',
+      typeId: '',
+      technicalDetails: {},
+      base64images: []
+    },
+    validationSchema: yup.object().shape({
+      productTitle: yup
+        .string()
+        .min(3, 'Too small!')
+        .max(100, 'Too large!')
+        .required('Required!'),
+      mrp: yup.lazy(() => {
+        return mrpRequired
+          ? mrpBaseValidationSchema.required('Required!')
+          : mrpBaseValidationSchema;
+      }),
+      thumbOverlayText: yup
+        .string()
+        .min(1, 'Too small')
+        .max(64, 'Too big'),
+      description: yup
+        .string()
+        .min(10, 'Too small')
+        .max(200, 'Too large!')
+        .required('Required!'),
+      longDescription: yup
+        .string()
+        .min(20, 'Too short!')
+        .max(1000, 'Too large')
+        .required('Required!'),
+      categoryId: yup.string().required('Required!'),
+      typeId: yup.string().required('Required!'),
+      base64images: yup
+        .array()
+        .min(1, 'At least 1 image is required')
+        .max(6, 'You can not upload more than 6 images')
+        .of(yup.object())
+        .required('Required!'),
+      technicalDetails: yup.lazy(obj => {
+        const technicalDetailsShape = {};
+        Object.keys(obj).forEach(key => {
+          technicalDetailsShape[key] = yup
+            .string()
+            .max(30, 'Too long!')
+            .required('Required');
+        });
+        return yup.object().shape({ ...technicalDetailsShape });
+      })
+    }),
+    onSubmit: (values, { setSubmitting }) => {
+      const base64images = [];
+
+      values.base64images.forEach(imgObj => {
+        base64images.push(JSON.stringify(imgObj));
+      });
+
+      const addBrandProductInput = {
+        ...values,
+        base64images,
+        technicalDetails: JSON.stringify(values.technicalDetails)
+      };
+      addProduct({
+        variables: { data: addBrandProductInput }
+      });
+      setSubmitting(false);
+    }
   });
+
+  const values = formik.values;
+  console.info(values);
 
   const { data: categoriesData } = useQuery(CATEGORIES);
 
@@ -128,65 +207,44 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       ? currentCategory.types.edges
       : null;
 
-  const currentProductType =
-    currentCategoryProductTypes &&
-    values.typeId &&
-    currentCategoryProductTypes.filter(e => e.node.id === values.typeId)
-      .length !== 0
-      ? currentCategoryProductTypes.filter(e => e.node.id === values.typeId)[0]
-          .node
-      : null;
+  // const currentProductType =
+  //   currentCategoryProductTypes &&
+  //   values.typeId &&
+  //   currentCategoryProductTypes.filter(e => e.node.id === values.typeId)
+  //     .length !== 0
+  //     ? currentCategoryProductTypes.filter(e => e.node.id === values.typeId)[0]
+  //         .node
+  //     : null;
   // category types filtering end
   const currentCategoryUsername = currentCategory && currentCategory.username;
 
-  const [technicalDetailsValues, setTechnicalDetailsValues] = React.useState(
-    {}
+  mrpRequired = !(
+    currentCategoryUsername === 'raspaaifood' ||
+    currentCategoryUsername === 'raspaaiservices'
   );
 
-  const handleTechnicalDetailChanges = key => event => {
-    setTechnicalDetailsValues({
-      ...technicalDetailsValues,
-      [event.target.id]: event.target.value
-    });
+  const handleTechnicalDetailChanges = e => {
+    const name = e.target.name;
+    formik.setFieldValue(`technicalDetails.${name}`, e.target.value);
   };
-
-  const technicalDetails =
-    currentCategory && currentProductType
-      ? {
-          ...JSON.parse(currentCategory.technicalDetailsTemplate),
-          ...JSON.parse(currentProductType.technicalDetailsTemplate)
-        }
-      : {};
-
-  const isValidPromise = new Promise((resolve, reject) => {
-    const keyList = Object.keys(technicalDetailsValues);
-    let i = 0;
-    keyList.forEach(key => {
-      const value = technicalDetailsValues[key];
-      if (!value || value === '') {
-        reject('Technical detail values are not filled');
-      }
-      i++;
-    });
-
-    if (i === keyList.length) {
-      resolve('All values are filled');
-    }
-  });
 
   const handleImageDelete = () => {
-    const imgId = imagesList[currentImageIndex].node.id;
-    setImages({
-      ...images,
-      imagesList: imagesList.filter(e => e.node.id !== imgId)
-    });
+    const imgNode = values.base64images[currentImageIndex].node;
+    if (imgNode.position !== 0) {
+      const imgId = imgNode.id;
+      formik.setFieldValue(
+        'base64images',
+        values.base64images.filter(e => e.node.id !== imgId)
+      );
+    }
   };
 
-  const handlePositionChange = () => {
+  const handlePositionChange = currentImageNewPosition => {
     const newPosition = currentImageNewPosition - 1;
-    let newImagesList = imagesList;
+    let newImagesList = values.base64images;
 
-    const currentImagePosition = imagesList[currentImageIndex].node.position;
+    const currentImagePosition =
+      values.base64images[currentImageIndex].node.position;
 
     // img that is already at new position, swap the positions
     // sometimes there is no image at new position
@@ -194,18 +252,15 @@ const AddNewBrandProduct = ({ brandUsername }) => {
     if (
       newImagesList.filter(e => e.node.position === newPosition).length !== 0
     ) {
-      newImagesList.filter(
+      newImagesList.find(
         e => e.node.position === newPosition
-      )[0].node.position = currentImagePosition;
+      ).node.position = currentImagePosition;
     }
 
     newImagesList[currentImageIndex].node.position = newPosition;
     newImagesList.sort((a, b) => a.node.position - b.node.position);
 
-    setImages({
-      ...images,
-      imagesList: newImagesList
-    });
+    formik.setFieldValue('base64images', newImagesList);
   };
 
   // Images files handling
@@ -216,7 +271,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
     validateImages();
     function validateImages() {
       let allInvalidImages = new Promise(resolveAllInvalidImages => {
-        const imagesListLength = imagesList.length;
+        const imagesListLength = values.base64images.length;
         const invalidImages = [];
         let i = 0;
         filesArray.forEach((file, index) => {
@@ -270,7 +325,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
             invalidImages: invalidImages
           });
         } else {
-          let modifiedImageFiles = [];
+          let formattedNewImageFiles = [];
           newImageFiles.forEach(img => {
             const image = {
               node: {
@@ -280,15 +335,18 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                 position: img.position
               }
             };
-            modifiedImageFiles.push(image);
+            formattedNewImageFiles.push(image);
           });
 
-          modifiedImageFiles.sort((a, b) => a.node.position - b.node.position);
-          let newImagesList = imagesList.concat(modifiedImageFiles);
-
+          formattedNewImageFiles.sort(
+            (a, b) => a.node.position - b.node.position
+          );
+          formik.setFieldValue(
+            'base64images',
+            values.base64images.concat(formattedNewImageFiles)
+          );
           setImages({
             ...images,
-            imagesList: newImagesList,
             invalidImages: false,
             showThumbs: true
           });
@@ -300,12 +358,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
 
   // handleValuesChange
   const handleChange = name => event => {
-    if (name === 'mrp') {
-      setValues({
-        ...values,
-        [name]: parseInt(event.target.value)
-      });
-    } else if (name === 'categoryId') {
+    if (name === 'categoryId') {
       const newCategoryId = event.target.value;
       const newCategory =
         categoriesData && newCategoryId
@@ -313,401 +366,379 @@ const AddNewBrandProduct = ({ brandUsername }) => {
               e => e.node.id === newCategoryId
             )[0].node
           : null;
-      setTechnicalDetailsValues({
-        ...JSON.parse(newCategory.technicalDetailsTemplate)
-      });
 
-      setValues({ ...values, categoryId: newCategoryId, typeId: null });
+      formik.setValues({
+        ...formik.values,
+        technicalDetails: JSON.parse(newCategory.technicalDetailsTemplate),
+        categoryId: newCategoryId,
+        typeId: ''
+      });
     } else if (name === 'typeId') {
       const newTypeId = event.target.value;
-      const newTypeTechnicalDetails =
-        currentCategoryProductTypes.filter(e => e.node.id === newTypeId)
-          .length !== 0
-          ? currentCategoryProductTypes.filter(e => e.node.id === newTypeId)[0]
-              .node.technicalDetailsTemplate
-          : null;
-      setTechnicalDetailsValues({
+      const newTypeTechnicalDetailsTemplate = currentCategoryProductTypes.find(
+        e => e.node.id === newTypeId
+      ).node.technicalDetailsTemplate;
+
+      const technicalDetails = {
         ...JSON.parse(currentCategory.technicalDetailsTemplate),
-        ...JSON.parse(newTypeTechnicalDetails)
-      });
-      setValues({
-        ...values,
+        ...JSON.parse(newTypeTechnicalDetailsTemplate)
+      };
+      formik.setValues({
+        ...formik.values,
+        technicalDetails,
         typeId: newTypeId
       });
-    } else {
-      setValues({
-        ...values,
-        [name]: event.target.value
-      });
     }
   };
 
-  const images64 = [];
-
-  imagesList.forEach(imgObj => {
-    images64.push(JSON.stringify(imgObj));
-  });
-
-  const addBrandProductInput = {
-    ...values,
-    images64,
-    technicalDetails: JSON.stringify(technicalDetailsValues)
-  };
-
-  // modify product
-  const [addProduct, { loading, error, data }] = useMutation(
-    ADD_BRAND_PRODUCT,
-    {
-      refetchQueries: [
-        {
-          query: BRAND_PRODUCTS,
-          variables: { publicBrandUsername: brandUsername, withBrand: false }
-        }
-      ],
-      variables: { data: addBrandProductInput },
-      awaitRefetchQueries: true
-    }
-  );
-
-  const handleSubmit = () => {
-    isValidPromise
-      .then(isValid => {
-        setFormError(false);
-        addProduct();
-      })
-      .catch(reason => {
-        setFormError(reason);
-      });
-  };
-
-  //Character length limit
-  const shortDescriptionLengthLimit = 200;
-  const longDescriptionLengthLimit = 1000;
+  // const shortDescriptionLengthLimit = 200;
+  // const longDescriptionLengthLimit = 1000;
 
   return (
     <Grid container>
-      <Grid item xs={12} sm={6} md={4}>
-        {invalidImages ? (
-          <List>
-            <ListItem>
-              <Typography variant='h5' color='secondary'>
-                Following images are invalid
-              </Typography>
-            </ListItem>
-            {invalidImages.map((img, index) => {
-              const { url, width, height, ratio, name, size } = img;
-              return (
-                <ListItem key={index}>
-                  <a href={url} target='_blank' rel='noopener noreferrer'>
-                    <ListItemText
-                      primary={name}
-                      secondary={`size:${size /
-                        1000}Kb width:${width} height:${height} ratio=(width/height)x100=${ratio}`}></ListItemText>
-                  </a>
+      <CustomFormik formikBag={formik}>
+        {() => {
+          return (
+            <>
+              <Grid item xs={12} sm={6} md={4}>
+                {invalidImages ? (
+                  <List>
+                    <ListItem>
+                      <Typography variant='h5' color='secondary'>
+                        Following images are invalid
+                      </Typography>
+                    </ListItem>
+                    {invalidImages.map((img, index) => {
+                      const { url, width, height, ratio, name, size } = img;
+                      return (
+                        <ListItem key={index}>
+                          <a
+                            href={url}
+                            target='_blank'
+                            rel='noopener noreferrer'>
+                            <ListItemText
+                              primary={name}
+                              secondary={`size:${size /
+                                1000}Kb width:${width} height:${height} ratio=(width/height)x100=${ratio}`}></ListItemText>
+                          </a>
+                        </ListItem>
+                      );
+                    })}
+                    <ListItem>
+                      <InputLabel htmlFor='add-product-images'>
+                        <Button variant='contained' component='span'>
+                          Upload
+                        </Button>
+                      </InputLabel>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary='Each image should be less than 100Kb.'></ListItemText>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary='Images should be of 4:5 ratio. That is width divided by height and then multiplying by 100 should approximately equal to 80'
+                        secondary={'(width/height)x100 ~ 80'}></ListItemText>
+                    </ListItem>
+                  </List>
+                ) : values.base64images.length !== 0 ? (
+                  <>
+                    <Carousel
+                      selectedItem={currentImageIndex}
+                      onChange={currentPosition =>
+                        setCurrentImageIndex(currentPosition)
+                      }
+                      showThumbs={showThumbs}
+                      infiniteLoop
+                      showArrows={true}>
+                      {values.base64images.map((imgObj, index) => {
+                        const { base64: src, name } = imgObj.node;
+                        return (
+                          <div key={index}>
+                            <img
+                              src={src}
+                              style={{
+                                maxHeight: '56.25%',
+                                maxWidth: '100%'
+                              }}
+                              alt={name}></img>
+                          </div>
+                        );
+                      })}
+                    </Carousel>
+
+                    <Formik
+                      initialValues={{ currentImageNewPosition: '' }}
+                      validationSchema={yup.object().shape({
+                        currentImageNewPosition: yup
+                          .number('Invalid position')
+                          .integer('Only whole numbers')
+                          .positive('Position can not be negative')
+                          .min(1, 'Minimum position value is 1')
+                          .max(
+                            values.base64images.length,
+                            `Last valid position is ${values.base64images.length}`
+                          )
+                          .required('Required!')
+                      })}
+                      onSubmit={(values, { setSubmitting }) => {
+                        handlePositionChange(values.currentImageNewPosition);
+                        setSubmitting(false);
+                      }}>
+                      {props => (
+                        <Grid container>
+                          <Grid item xs={6}>
+                            <InputLabel htmlFor='add-product-images'>
+                              <Button
+                                color='primary'
+                                variant='contained'
+                                component='span'>
+                                Add
+                              </Button>
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Button
+                              onClick={handleImageDelete}
+                              // disabled={props.isSubmitting}/
+                              color='secondary'
+                              variant='contained'
+                              component='span'>
+                              Delete
+                            </Button>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              name='currentImageNewPosition'
+                              type='number'
+                              variant='outlined'
+                              placeholder='Enter the position'></TextField>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Button
+                              onClick={props.handleSubmit}
+                              color='primary'
+                              variant='outlined'>
+                              Set Position
+                            </Button>
+                          </Grid>
+                        </Grid>
+                      )}
+                    </Formik>
+                  </>
+                ) : (
+                  <List>
+                    <ListItem>
+                      <ListItemText primary='Each image should be less than 100Kb.'></ListItemText>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary='Images should be of 4:5 ratio. That is width divided by height and then multiplying by 100 should approximately equal to 80'
+                        secondary={'(width/height)x100 ~ 80'}></ListItemText>
+                    </ListItem>
+                    <ListItem>
+                      <InputLabel htmlFor='add-product-images'>
+                        <Button variant='contained' component='span'>
+                          Upload
+                        </Button>
+                      </InputLabel>
+                    </ListItem>
+                  </List>
+                )}
+              </Grid>
+
+              <Grid
+                style={{ paddingLeft: 8, paddingRight: 8 }}
+                item
+                xs={12}
+                sm={6}
+                md={6}>
+                {/* <Form> */}
+                <input
+                  accept='image/jpeg, image/png'
+                  onChange={e => handleFileChange(e.target.files)}
+                  style={{ display: 'none' }}
+                  id='add-product-images'
+                  multiple
+                  type='file'
+                />
+
+                <ListItem style={{ paddingBottom: 1 }}>
+                  <TextField
+                    name='productTitle'
+                    label='Product Title'
+                    fullWidth
+                    margin='normal'
+                    variant='outlined'
+                  />
                 </ListItem>
-              );
-            })}
-            <ListItem>
-              <InputLabel htmlFor='add-product-images'>
-                <Button variant='contained' component='span'>
-                  Upload
-                </Button>
-              </InputLabel>
-            </ListItem>
-            <ListItem>
-              <ListItemText primary='Each image should be less than 100Kb.'></ListItemText>
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary='Images should be of 4:5 ratio. That is width divided by height and then multiplying by 100 should approximately equal to 80'
-                secondary={'(width/height)x100 ~ 80'}></ListItemText>
-            </ListItem>
-          </List>
-        ) : imagesList.length !== 0 ? (
-          <>
-            <Carousel
-              selectedItem={currentImageIndex}
-              onChange={currentPosition =>
-                setCurrentImageIndex(currentPosition)
-              }
-              showThumbs={showThumbs}
-              infiniteLoop
-              showArrows={true}>
-              {imagesList.map((imgObj, index) => {
-                const { base64: src, name } = imgObj.node;
-                return (
-                  <div key={index}>
-                    <img
-                      src={src}
-                      style={{ maxHeight: '56.25%', maxWidth: '100%' }}
-                      alt={name}></img>
-                  </div>
-                );
-              })}
-            </Carousel>
-            <Grid container>
-              <Grid item xs={6}>
-                <InputLabel htmlFor='add-product-images'>
-                  <Button color='primary' variant='contained' component='span'>
-                    Add
-                  </Button>
-                </InputLabel>
+                <ListItem style={{ marginTop: 0 }}>
+                  By&ensp;
+                  <Typography color='primary' variant='body2'>
+                    {brandUsername}
+                  </Typography>
+                </ListItem>
+                <FormControl className={classes.formControl}>
+                  <InputLabel htmlFor='category'>Category</InputLabel>
+
+                  <Select
+                    value={values.categoryId}
+                    required
+                    error={
+                      formik.touched.categoryId && formik.errors.categoryId
+                    }
+                    onChange={handleChange('categoryId')}
+                    inputProps={{
+                      name: 'Category',
+                      id: 'categoryId'
+                    }}>
+                    {categoriesData &&
+                      categoriesData.categories &&
+                      categoriesData.categories.edges.map(categoryObj => {
+                        const { id, name } = categoryObj.node;
+                        return (
+                          <MenuItem key={id} value={id}>
+                            {name}
+                          </MenuItem>
+                        );
+                      })}
+                  </Select>
+                </FormControl>
+
+                <FormControl className={classes.formControl}>
+                  <InputLabel htmlFor='type'>Type</InputLabel>
+
+                  <Select
+                    value={values.typeId}
+                    required
+                    error={formik.touched.typeId && formik.errors.typeId}
+                    onChange={handleChange('typeId')}
+                    inputProps={{
+                      name: 'Type',
+                      id: 'typeId'
+                    }}>
+                    {values.categoryId &&
+                      currentCategoryProductTypes &&
+                      currentCategoryProductTypes.map(productType => {
+                        const { id, name } = productType.node;
+                        return (
+                          <MenuItem key={id} value={id}>
+                            {name}
+                          </MenuItem>
+                        );
+                      })}
+                  </Select>
+                </FormControl>
+
+                <ListItem>
+                  <TextField
+                    name='thumbOverlayText'
+                    placeholder='1 kg or 1 dozen'
+                    label='Text to be overladed on thumb'
+                    fullWidth></TextField>
+                </ListItem>
+                <Divider />
+                <ListItem style={{ paddingBottom: 0 }}>
+                  &ensp;&ensp;&ensp;&ensp;&ensp;M.R.P:&ensp;
+                  <TextField
+                    placeholder='M.R.P'
+                    name='mrp'
+                    type='number'
+                    margin='dense'
+                    disabled={!mrpRequired}
+                    variant='outlined'
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment
+                          position='start'
+                          style={{ color: 'green' }}>
+                          &#8377;
+                        </InputAdornment>
+                      )
+                    }}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                </ListItem>
+                <Divider />
+                <ListItem>
+                  <TextField
+                    name='description'
+                    label='Short description'
+                    placeholder='Short Description'
+                    multiline
+                    fullWidth></TextField>
+                </ListItem>
+                <ListItem>
+                  <TextField
+                    name='longDescription'
+                    label='Long description'
+                    placeholder='Long Descriptions'
+                    multiline
+                    fullWidth></TextField>
+                </ListItem>
+
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Property</TableCell>
+                      <TableCell>Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell component='th' scope='row'>
+                        Title
+                      </TableCell>
+                      <TableCell>{formik.values.productTitle}</TableCell>
+                    </TableRow>
+                    {Object.keys(values.technicalDetails).map((key, index) => {
+                      return (
+                        <TableRow key={index}>
+                          <TableCell component='th' scope='row'>
+                            {key}
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              name={`technicalDetails.${key}`}
+                              required
+                              margin='dense'></TextField>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                <Typography>* Technical details are required</Typography>
+                {/* </Form> */}
               </Grid>
-              <Grid item xs={6}>
+
+              <Grid item xs={12} sm={12} md={2}>
+                {/* <Form> */}
                 <Button
-                  onClick={() => handleImageDelete()}
-                  color='secondary'
-                  variant='contained'
-                  component='span'>
-                  Delete
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  type='number'
-                  error={
-                    currentImageNewPosition < 1 ||
-                    currentImageNewPosition > imagesList.length
-                  }
-                  variant='outlined'
-                  onChange={e => setCurrentImageNewPosition(e.target.value)}
-                  placeholder='Enter the position'></TextField>
-              </Grid>
-              <Grid item xs={6}>
-                <Button
-                  onClick={() => handlePositionChange()}
+                  disabled={loading || data || formik.isSubmitting}
                   color='primary'
-                  variant='outlined'>
-                  Set Position
+                  variant='contained'
+                  onClick={formik.handleSubmit}>
+                  {loading ? 'Saving' : 'Save Product'}
                 </Button>
+                {data && (
+                  <>
+                    <p style={{ color: 'green' }}>Saved successfully</p>
+                    <Link to={`/dashboard/brand/${brandUsername}/products`}>
+                      <p>Click here to see</p>
+                    </Link>
+                  </>
+                )}
+                {error && (
+                  <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
+                )}
+                {/* </Form> */}
               </Grid>
-              <Grid item xs={6}>
-                <Button variant='outlined' color='secondary' component='span'>
-                  Delete all
-                </Button>
-              </Grid>
-            </Grid>
-          </>
-        ) : (
-          <List>
-            <ListItem>
-              <ListItemText primary='Each image should be less than 100Kb.'></ListItemText>
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary='Images should be of 4:5 ratio. That is width divided by height and then multiplying by 100 should approximately equal to 80'
-                secondary={'(width/height)x100 ~ 80'}></ListItemText>
-            </ListItem>
-            <ListItem>
-              <InputLabel htmlFor='add-product-images'>
-                <Button variant='contained' component='span'>
-                  Upload
-                </Button>
-              </InputLabel>
-            </ListItem>
-          </List>
-        )}
-      </Grid>
-      <Grid
-        style={{ paddingLeft: 8, paddingRight: 8 }}
-        item
-        xs={12}
-        sm={6}
-        md={6}>
-        <input
-          accept='image/jpeg, image/png'
-          onChange={e => handleFileChange(e.target.files)}
-          style={{ display: 'none' }}
-          id='add-product-images'
-          multiple
-          type='file'
-        />
-        <ListItem style={{ paddingBottom: 1 }}>
-          <TextField
-            id='productTitle'
-            label={
-              values.productTitle.length > 100
-                ? 'Title should not be longer than 100 characters.'
-                : 'Product Title'
-            }
-            // value={values.productTitle}
-            fullWidth
-            error={values.productTitle.length > 100}
-            onChange={handleChange('productTitle')}
-            margin='normal'
-            variant='outlined'
-          />
-        </ListItem>
-        <ListItem style={{ marginTop: 0 }}>
-          By&ensp;
-          <Typography color='primary' variant='body2'>
-            {brandUsername}
-          </Typography>
-        </ListItem>
-        <FormControl className={classes.formControl}>
-          <InputLabel htmlFor='category'>Category</InputLabel>
-
-          <Select
-            value={values.categoryId}
-            onChange={handleChange('categoryId')}
-            inputProps={{
-              name: 'Category',
-              id: 'categoryId'
-            }}>
-            {categoriesData &&
-              categoriesData.categories &&
-              categoriesData.categories.edges.map(categoryObj => {
-                const { id, name } = categoryObj.node;
-                return (
-                  <MenuItem key={id} value={id}>
-                    {name}
-                  </MenuItem>
-                );
-              })}
-          </Select>
-        </FormControl>
-        <FormControl className={classes.formControl}>
-          <InputLabel htmlFor='type'>Type</InputLabel>
-
-          <Select
-            value={values.typeId}
-            onChange={handleChange('typeId')}
-            inputProps={{
-              name: 'Type',
-              id: 'typeId'
-            }}>
-            {values.categoryId &&
-              currentCategoryProductTypes.map(productTypeObj => {
-                const { id, name } = productTypeObj.node;
-                return (
-                  <MenuItem key={id} value={id}>
-                    {name}
-                  </MenuItem>
-                );
-              })}
-          </Select>
-        </FormControl>
-
-        <ListItem>
-          <TextField
-            name='thumbOverlayText'
-            onChange={handleChange('thumbOverlayText')}
-            placeholder='1 kg or 1 dozen'
-            label='Text to be overladed on thumb'
-            fullWidth></TextField>
-        </ListItem>
-        <Divider />
-        <ListItem style={{ paddingBottom: 0 }}>
-          &ensp;&ensp;&ensp;&ensp;&ensp;M.R.P:&ensp;
-          <TextField
-            // defaultValue={values.mrp}
-            onChange={handleChange('mrp')}
-            placeholder='M.R.P'
-            id='mrp'
-            name='mrp'
-            type='number'
-            margin='dense'
-            disabled={
-              currentCategoryUsername === 'raspaaifood' ||
-              currentCategoryUsername === 'raspaaiservices'
-            }
-            variant='outlined'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start' style={{ color: 'green' }}>
-                  &#8377;
-                </InputAdornment>
-              )
-            }}
-            InputLabelProps={{
-              shrink: true
-            }}
-          />
-        </ListItem>
-        <Divider />
-        <ListItem>
-          <TextField
-            id='description'
-            name='description'
-            label={
-              values.description.length > shortDescriptionLengthLimit &&
-              `Short description should not be longer than ${shortDescriptionLengthLimit} characters.`
-            }
-            onChange={handleChange('description')}
-            error={values.description.length > shortDescriptionLengthLimit}
-            placeholder='Short Description'
-            multiline
-            fullWidth></TextField>
-        </ListItem>
-        <ListItem>
-          <TextField
-            id='longDescription'
-            name='longDescription'
-            label={
-              values.longDescription.length > longDescriptionLengthLimit &&
-              `Long Description should not be longer than ${longDescriptionLengthLimit} characters.`
-            }
-            onChange={handleChange('longDescription')}
-            error={values.longDescription.length > longDescriptionLengthLimit}
-            placeholder='Long Descriptions'
-            multiline
-            fullWidth></TextField>
-        </ListItem>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Property</TableCell>
-              <TableCell>Value</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell component='th' scope='row'>
-                Title
-              </TableCell>
-              <TableCell>{values.productTitle}</TableCell>
-            </TableRow>
-            {Object.keys(technicalDetails).map((key, index) => {
-              const value = technicalDetails[key];
-              return (
-                <TableRow key={index}>
-                  <TableCell component='th' scope='row'>
-                    {key}
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      id={key}
-                      name={key}
-                      defaultValue={value}
-                      margin='dense'
-                      onChange={handleTechnicalDetailChanges()}></TextField>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </Grid>
-
-      <Grid item xs={12} sm={12} md={2}>
-        <Button
-          disabled={loading || data || images64.length === 0}
-          color='primary'
-          variant='contained'
-          onClick={handleSubmit}>
-          {loading ? 'Saving' : 'Save Product'}
-        </Button>
-        {data && (
-          <>
-            <p style={{ color: 'green' }}>Saved successfully</p>
-            <Link to={`/dashboard/brand/${brandUsername}/products`}>
-              <p>Click here to see</p>
-            </Link>
-          </>
-        )}
-        {formError && <p style={{ color: 'red' }}>{formError}</p>}
-        {error && <p style={{ color: 'red' }}>{error.message.split(':')[1]}</p>}
-      </Grid>
+            </>
+          );
+        }}
+      </CustomFormik>
     </Grid>
   );
 };

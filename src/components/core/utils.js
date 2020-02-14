@@ -27,6 +27,48 @@ export const SetFormikProps = ({ formikProps, setFormikProps }) => {
 };
 
 /**
+ * Find the detailed differences between two images list
+ * @param  {Array} originalImages The original image list
+ * @param  {Array} updatedImages The updated images
+ * @return {Object} The images that have been changed, deleted or added in the updatedImages
+ */
+export function detailedImagesDiff(originalImages, updatedImages) {
+  // By changed we mean position change of image
+  const detailedDiff = { added: [], changed: [], deleted: [] };
+
+  // check for new and position changed images
+  for (let i = 0; i < updatedImages.length; i++) {
+    const img = updatedImages[i];
+    const imgId = img.node.id;
+    const originalImage = originalImages.find(e => e.node.id === imgId);
+
+    if (!originalImage) {
+      // New added image
+      detailedDiff.added.push(img);
+    } else {
+      // Check for changed position
+      if (originalImage.node.position !== img.node.position) {
+        // position changed
+        detailedDiff.changed.push(img);
+      }
+    }
+  }
+  // check for deleted images
+  for (let i = 0; i < originalImages.length; i++) {
+    const originalImage = originalImages[i];
+    const originalImageId = originalImage.node.id;
+
+    const newImg = updatedImages.find(e => e.node.id === originalImageId);
+    if (!newImg) {
+      // image is deleted
+      detailedDiff.deleted.push(originalImage);
+    }
+  }
+
+  return detailedDiff;
+}
+
+/**
  * Find the differences between two objects and push to a new object
  * @param  {Object} originalObject The original object
  * @param  {Object} updatedObject The updated object which bases original object
