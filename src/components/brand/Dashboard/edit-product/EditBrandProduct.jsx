@@ -167,13 +167,14 @@ export const ModifyBrandProduct = ({
       mrp: yup.lazy(() => {
         const schema = mrpRequired
           ? mrpBaseValidationSchema.required('Required!')
-          : mrpBaseValidationSchema;
+          : yup.string().nullable();
         return schema;
       }),
       thumbOverlayText: yup
         .string()
         .min(1, 'Too small')
-        .max(64, 'Too big'),
+        .max(64, 'Too big')
+        .nullable(),
       description: yup
         .string()
         .min(10, 'Too small')
