@@ -3,16 +3,18 @@ import {
   Container,
   List,
   ListItem,
-  TextField,
   Typography
 } from '@material-ui/core';
-import { GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../../../core/ErrorPage';
 import Link from '../../../core/Link';
 import Loading from '../../../core/Loading';
+import { Formik } from 'formik';
+import * as yup from 'yup';
+import { TextField } from 'formik-material-ui';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 
 const SHOP_RETURN_REFUND_POLICY = gql`
   query($publicShopUsername: String!) {
@@ -41,76 +43,75 @@ const MODIFY_RETURN_REFUND_POLICY = gql`
 `;
 
 const EditPolicy = ({ defaultReturnRefundPolicy }) => {
-  const [returnRefundPolicy, setReturnRefundPolicy] = React.useState(
-    defaultReturnRefundPolicy
-  );
-
   const [modify, { loading, error, data }] = useMutation(
-    MODIFY_RETURN_REFUND_POLICY,
-    {
-      variables: {
-        returnRefundPolicy: JSON.stringify(returnRefundPolicy)
-      }
-    }
+    MODIFY_RETURN_REFUND_POLICY
   );
-
-  const lengthLimit = 200;
-
-  const handleReturnRefundPolicyChange = e => {
-    if (e.target.value > lengthLimit) {
-    } else {
-      returnRefundPolicy[e.target.id] = e.target.value;
-      setReturnRefundPolicy([...returnRefundPolicy]);
-    }
-  };
 
   return (
-    <List>
-      {returnRefundPolicy.map((policy, index) => {
-        const validationError = policy.length > lengthLimit;
-        return (
-          <ListItem key={index}>
-            <TextField
-              key={index}
-              id={`${index}`}
-              value={policy}
-              error={validationError}
-              label={
-                validationError
-                  ? `A policy can not be grater than ${lengthLimit} characters`
-                  : ''
-              }
-              onChange={e => handleReturnRefundPolicyChange(e)}
-              fullWidth
-              margin='normal'
-              placeholder='Return refund policy'
-              multiline
-            />
-          </ListItem>
-        );
+    <Formik
+      initialValues={{ returnRefundPolicy: defaultReturnRefundPolicy }}
+      validationSchema={yup.object().shape({
+        returnRefundPolicy: yup
+          .array()
+          .of(
+            yup
+              .string()
+              .required('Required!')
+              .max(200)
+          )
+          .required('Required!')
       })}
-      {error && (
-        <ListItem>
-          <GraphQLError error={error} critical={true}></GraphQLError>
-        </ListItem>
-      )}
-      {data && (
-        <ListItem>
-          <Typography variant='h6' style={{ color: 'green' }}>
-            Saved successfully
-          </Typography>
-        </ListItem>
-      )}
-      <ListItem>
-        <Button
-          disabled={loading}
-          onClick={() => modify()}
-          variant='contained'
-          color='primary'>
-          Save
-        </Button>
-      </ListItem>
-    </List>
+      onSubmit={(values, { setSubmitting }) => {
+        modify({
+          variables: {
+            returnRefundPolicy: JSON.stringify(values.returnRefundPolicy)
+          }
+        });
+        setSubmitting(false);
+      }}>
+      {formik => {
+        return (
+          <List>
+            {formik.values.returnRefundPolicy.map((policy, index) => {
+              return (
+                <ListItem key={index}>
+                  <TextField
+                    name={`returnRefundPolicy[${index}]`}
+                    fullWidth
+                    margin='normal'
+                    placeholder='Return refund policy'
+                    multiline
+                  />
+                </ListItem>
+              );
+            })}
+            {error && (
+              <ListItem>
+                <GraphqlErrorMessage
+                  error={error}
+                  critical></GraphqlErrorMessage>
+              </ListItem>
+            )}
+            {data && (
+              <ListItem>
+                <Typography variant='h6' style={{ color: 'green' }}>
+                  Saved successfully
+                </Typography>
+              </ListItem>
+            )}
+            <ListItem>
+              <Button
+                disabled={loading || formik.isSubmitting || !formik.dirty}
+                onClick={formik.handleSubmit}
+                variant='contained'
+                color='primary'>
+                Save
+              </Button>
+            </ListItem>
+          </List>
+        );
+      }}
+    </Formik>
   );
 };
 

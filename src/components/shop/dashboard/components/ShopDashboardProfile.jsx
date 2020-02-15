@@ -14,7 +14,6 @@ import {
   ListItem,
   MenuItem,
   Select,
-  TextField,
   Typography
 } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
@@ -34,6 +33,7 @@ import Loading from '../../../core/Loading';
 import { getDayName, getIsStoreOpenNow } from '../../../core/utils';
 import MainFeaturedPost from '../../../templates/MainFeaturedPost';
 import { SHOP } from '../../ShopAboutPage';
+import { TextField } from 'formik-material-ui';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -334,23 +334,6 @@ const ShopAbout = ({ defaultAboutValue }) => {
         });
       }}>
       {formik => {
-        const {
-          values,
-          touched,
-          errors,
-          handleChange,
-          handleBlur,
-          handleSubmit
-        } = formik;
-        const { about } = values;
-
-        function hasError(id, bool) {
-          if (touched[id] && errors[id]) {
-            return bool ? true : errors[id];
-          } else {
-            return false;
-          }
-        }
         return (
           <>
             <ListItem>
@@ -360,15 +343,7 @@ const ShopAbout = ({ defaultAboutValue }) => {
               <TextField
                 id='shop-about'
                 name='about'
-                value={about}
-                error={hasError('about', true)}
-                label={
-                  hasError('about', true)
-                    ? hasError('about')
-                    : 'About your shop'
-                }
-                onChange={handleChange}
-                onBlur={handleBlur}
+                label='About your shop'
                 required
                 fullWidth
                 placeholder='About your shop'
@@ -378,14 +353,8 @@ const ShopAbout = ({ defaultAboutValue }) => {
             </ListItem>
             <ListItem>
               <Button
-                disabled={
-                  loading ||
-                  error ||
-                  data ||
-                  called ||
-                  defaultAboutValue === about
-                }
-                onClick={handleSubmit}>
+                disabled={loading || error || data || called || !formik.dirty}
+                onClick={formik.handleSubmit}>
                 Save
               </Button>
             </ListItem>

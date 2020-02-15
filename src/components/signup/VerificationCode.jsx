@@ -1,19 +1,18 @@
-import React from 'react';
+import { ListItem, ListItemText } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-
-import Grid from '@material-ui/core/Grid';
-
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { ListItem, ListItemText, TextField } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import gql from 'graphql-tag';
-import { useQuery, useMutation } from 'react-apollo';
 import { Formik } from 'formik';
-import * as yup from 'yup';
+import { TextField } from 'formik-material-ui';
 import { navigate } from 'gatsby';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+import * as yup from 'yup';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -97,8 +96,10 @@ const VerificationCode = props => {
               initialValues={{ key: null }}
               validationSchema={yup.object().shape({
                 key: yup
-                  .string('Invalid key')
-                  .length(4, 'key must be 4 digit long')
+                  .number('Invalid key')
+                  .integer('Invalid key')
+                  .min(1000, 'key must be 4 digit long')
+                  .max(9999, 'Key must be 4 digit long')
                   .required('Required')
               })}
               onSubmit={(values, { setSubmitting }) => {
@@ -122,15 +123,7 @@ const VerificationCode = props => {
                   });
               }}>
               {props => {
-                const {
-                  values,
-                  touched,
-                  errors,
-                  isSubmitting,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit
-                } = props;
+                const { isSubmitting, handleSubmit } = props;
                 return (
                   <>
                     <Grid container spacing={2}>
@@ -145,18 +138,10 @@ const VerificationCode = props => {
                           margin='normal'
                           required
                           fullWidth
-                          error={errors.key && touched.key}
                           name='key'
-                          value={values.key}
-                          label={
-                            errors.key && touched.key
-                              ? errors.key
-                              : '4 Digit Key'
-                          }
+                          label='4 Digit Key'
                           type='number'
                           id='key'
-                          onChange={handleChange}
-                          onBlur={handleBlur}
                         />
                       </Grid>
                       <Grid item xs={12}>

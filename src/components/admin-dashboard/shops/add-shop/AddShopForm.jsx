@@ -7,7 +7,6 @@ import {
   Grid,
   InputAdornment,
   InputLabel,
-  TextField,
   Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -16,6 +15,7 @@ import React from 'react';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 import Link from '../../../core/Link';
 import AvailablePlans from '../../../shop/dashboard/components/plans/buy/AvailablePlans';
+import { TextField } from 'formik-material-ui';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -51,29 +51,15 @@ const AddShopForm = ({
   handleBack,
   formik,
   handleFileChange,
-  img,
-
   loading,
   error,
   data
 }) => {
   const {
-    values: {
-      keyCode,
-      shopName,
-      publicUsername,
-      address,
-      contactNumber,
-      latLng,
-      planId
-    },
-    touched,
-    errors,
-    handleChange,
+    values: { planId, heroImage },
     setFieldValue,
     isSubmitting,
-    handleSubmit,
-    handleBlur
+    handleSubmit
   } = formik;
 
   const classes = useStyles();
@@ -95,11 +81,11 @@ const AddShopForm = ({
 
       <InputLabel htmlFor='shop-hero-img'>
         <Card component='span' className={classes.card}>
-          {img ? (
+          {heroImage ? (
             <CardMedia
               className={classes.cardMedia}
-              image={img.base64}
-              title={img.file.name}
+              image={heroImage.base64}
+              title={heroImage.name}
             />
           ) : (
             <Container maxWidth='sm'>
@@ -131,7 +117,7 @@ const AddShopForm = ({
           <Typography component='h1' variant='h5'>
             Shop Registration
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form}>
             <Grid container spacing={2} justify='center'>
               <Grid item xs={12} md={12}>
                 <AvailablePlans
@@ -141,16 +127,8 @@ const AddShopForm = ({
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='keyCode'
-                  defaultValue={keyCode}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  label={
-                    touched.keyCode && errors.keyCode
-                      ? `${errors.keyCode}`
-                      : 'Key'
-                  }
-                  error={touched.keyCode && errors.keyCode && true}
+                  name='keyCode'
+                  label='Key'
                   margin='none'
                   variant='outlined'
                   placeholder='Key'
@@ -158,16 +136,8 @@ const AddShopForm = ({
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='shopName'
-                  defaultValue={shopName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  label={
-                    touched.shopName && errors.shopName
-                      ? `${errors.shopName}`
-                      : 'Your Shop Name'
-                  }
-                  error={touched.shopName && errors.shopName && true}
+                  name='shopName'
+                  label='Your Shop Name'
                   margin='none'
                   variant='outlined'
                   placeholder='Shop Name'
@@ -175,18 +145,8 @@ const AddShopForm = ({
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='publicUsername'
-                  label={
-                    touched.publicUsername && errors.publicUsername
-                      ? `${errors.publicUsername}`
-                      : 'Shop Username'
-                  }
-                  error={
-                    touched.publicUsername && errors.publicUsername && true
-                  }
-                  defaultValue={publicUsername}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  name='publicUsername'
+                  label='Shop Username'
                   margin='none'
                   variant='outlined'
                   placeholder='Shop Username'
@@ -194,35 +154,18 @@ const AddShopForm = ({
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='address'
-                  label={
-                    touched.address && errors.address
-                      ? `${errors.address}`
-                      : 'Shop Address'
-                  }
-                  error={touched.address && errors.address && true}
-                  defaultValue={address}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  name='address'
+                  label='Shop Address'
                   margin='none'
                   variant='outlined'
                   placeholder='Shop Address'
                   fullWidth
-                  // multiline
-                ></TextField>
+                  multiline></TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='contactNumber'
-                  label={
-                    touched.contactNumber && errors.contactNumber
-                      ? `${errors.contactNumber}`
-                      : 'Shop Contact Number'
-                  }
-                  error={touched.contactNumber && errors.contactNumber && true}
-                  defaultValue={contactNumber}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  name='contactNumber'
+                  label='Shop Contact Number'
                   type='number'
                   margin='none'
                   variant='outlined'
@@ -232,49 +175,23 @@ const AddShopForm = ({
                     startAdornment: (
                       <InputAdornment position='start'>+91</InputAdornment>
                     )
-                  }}
-                  // multiline
-                ></TextField>
+                  }}></TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  id='latLng'
-                  defaultValue={latLng}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  label={
-                    touched.latLng && errors.latLng
-                      ? `${errors.latLng}`
-                      : 'Lat, Lng'
-                  }
-                  error={touched.latLng && errors.latLng && true}
+                  name='latLng'
+                  label='Lat, Lng'
                   margin='none'
                   variant='outlined'
                   placeholder='Lat, Lng'
                   fullWidth></TextField>
               </Grid>
               <br></br>
-              {/* <Grid item xs={12} sm={12} md={12}>
-                <Typography variant='h4' align='center'>
-                  Return Refund Policy
-                </Typography>
-                {returnRefundPolicy.map((policy, index) => (
-                  <TextField
-                    key={index}
-                    id={`${index}`}
-                    value={policy}
-                    onChange={e => handleReturnRefundPolicyChange(e)}
-                    fullWidth
-                    margin='normal'
-                    placeholder='Return refund policy'
-                    multiline
-                  />
-                ))}
-              </Grid> */}
-
+              {data && (
+                <p style={{ color: 'green' }}>Shop added successfully</p>
+              )}
               <Button
-                // type="submit"
-                disabled={loading || isSubmitting}
+                disabled={loading || isSubmitting || data}
                 onClick={handleSubmit}
                 fullWidth
                 variant='contained'

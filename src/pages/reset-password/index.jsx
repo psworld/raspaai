@@ -5,21 +5,20 @@ import {
   Grid,
   ListItem,
   ListItemText,
-  TextField,
   Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { Link, navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation } from 'react-apollo';
 import * as yup from 'yup';
 import GraphqlErrorMessage from '../../components/core/GraphqlErrorMessage';
-import EmailInput from '../../components/core/input/EmailInput';
 import Layout from '../../components/layout';
 import SEO from '../../components/seo';
+import { TextField } from 'formik-material-ui';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -88,10 +87,25 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
 
   return (
     <Formik
+      initialValues={{
+        email,
+        password1: '',
+        password2: '',
+        keyCode: '',
+        jwtEncodedStr
+      }}
       validationSchema={yup.object().shape({
+        email: yup
+          .string()
+          .email('Invalid Email')
+          .required('Email required'),
+        jwtEncodedStr: yup.string().required('Required'),
         keyCode: yup
-          .string('Invalid key')
-          .length(4, 'key must be 4 digit long')
+          .number('Invalid key')
+          .integer('Invalid key')
+          .positive('Invalid key')
+          .min(1000, 'Key must be 4 digit long')
+          .max(9999, 'Key must be 4 digit long')
           .required('Key required'),
         password1: yup
           .string()
@@ -105,28 +119,13 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
       })}
       onSubmit={(values, { setSubmitting }) => {
         setNewPassword({
-          variables: { ...values, email, jwtEncodedStr }
+          variables: { ...values, jwtEncodedStr }
         });
         setSubmitting(false);
       }}>
       {formik => {
-        const {
-          values: { password1, password2, keyCode },
-          handleBlur,
-          handleChange,
-          touched,
-          errors,
-          handleSubmit,
-          isSubmitting
-        } = formik;
+        const { handleSubmit, isSubmitting } = formik;
 
-        function hasError(id, bool) {
-          if (touched[id] && errors[id]) {
-            return bool ? true : errors[id];
-          } else {
-            return false;
-          }
-        }
         return (
           <>
             <Grid container spacing={2}>
@@ -141,18 +140,10 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
                   margin='normal'
                   required
                   fullWidth
-                  error={errors.keyCode && touched.keyCode}
                   name='keyCode'
-                  value={keyCode}
-                  label={
-                    errors.keyCode && touched.keyCode
-                      ? errors.keyCode
-                      : '4 Digit Key'
-                  }
+                  label='4 Digit Key'
                   type='number'
-                  id='keyCode'
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  id='key'
                 />
               </Grid>
               <Grid item xs={12}>
@@ -163,17 +154,8 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
                   fullWidth
                   name='password1'
                   type='password'
-                  id='password1'
-                  error={hasError('password1', true)}
-                  label={
-                    hasError('password1', true)
-                      ? hasError('password1')
-                      : 'New Password'
-                  }
+                  label='Password'
                   autoComplete='current-password'
-                  value={password1}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -184,25 +166,14 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
                   fullWidth
                   name='password2'
                   type='password'
-                  id='password2'
-                  error={hasError('password2', true)}
-                  label={
-                    hasError('password2', true)
-                      ? hasError('password2')
-                      : 'New Password Confirm'
-                  }
+                  label={'Password Confirm'}
                   autoComplete='current-password'
-                  value={password2}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
                 />
               </Grid>
             </Grid>
 
             {error && (
-              <GraphqlErrorMessage
-                message={error.message}
-                critical={true}></GraphqlErrorMessage>
+              <GraphqlErrorMessage error={error} critical></GraphqlErrorMessage>
             )}
             <Button
               onClick={handleSubmit}
@@ -221,29 +192,21 @@ const SetNewPasswordForm = ({ classes, email, data: jwtData }) => {
 };
 
 const ForgotPasswordEmailForm = ({ formik, loading, error, classes }) => {
-  const {
-    values: { email },
-    handleBlur,
-    handleChange,
-    touched,
-    errors,
-    handleSubmit,
-    isSubmitting
-  } = formik;
+  const { handleSubmit, isSubmitting } = formik;
   return (
-    <form className={classes.form} noValidate>
-      <EmailInput
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        value={email}
-        touched={touched.email}
-        errors={errors.email}
-        autoFocus={false}></EmailInput>
+    <Form className={classes.form}>
+      <TextField
+        variant='outlined'
+        margin='normal'
+        required
+        fullWidth
+        id='email'
+        placeholder='Email'
+        name='email'
+        autoComplete='email'></TextField>
 
       {error && (
-        <GraphqlErrorMessage
-          message={error.message}
-          critical={true}></GraphqlErrorMessage>
+        <GraphqlErrorMessage error={error} critical></GraphqlErrorMessage>
       )}
       <code>A confirmation email will be sent to your email address.</code>
 
@@ -270,7 +233,7 @@ const ForgotPasswordEmailForm = ({ formik, loading, error, classes }) => {
           </Link>
         </Grid>
       </Grid>
-    </form>
+    </Form>
   );
 };
 
@@ -315,8 +278,7 @@ const ResetPassword = () => {
           </Typography>
           <Formik
             initialValues={{
-              email: '',
-              password: ''
+              email: ''
             }}
             validationSchema={yup.object().shape({
               email: yup

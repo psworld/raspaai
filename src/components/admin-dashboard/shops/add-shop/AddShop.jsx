@@ -1,13 +1,7 @@
-import {
-  Button,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  TextField,
-  Typography
-} from '@material-ui/core';
+import { Button, Container, Typography } from '@material-ui/core';
 import { gql } from 'apollo-boost';
 import { Formik } from 'formik';
+import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { navigate } from 'gatsby';
 import React from 'react';
 import { useMutation } from 'react-apollo';
@@ -42,17 +36,9 @@ const SHOP_OWNER_EMAIL_VERIFICATION = gql`
   }
 `;
 
-const ShopOwnerEmailVerification = ({
-  formik,
-  setJwtEncodedStr,
-  handleNext
-}) => {
+const ShopOwnerEmailVerification = ({ formik, handleNext }) => {
   const {
-    values: { ownerEmail, verifyEmail },
-    touched,
-    errors,
-    handleChange,
-    handleBlur
+    values: { ownerEmail, verifyEmail }
   } = formik;
 
   const [sendEmail, { loading, error }] = useMutation(
@@ -63,7 +49,7 @@ const ShopOwnerEmailVerification = ({
         const {
           adminAddShopVerifyEmail: { jwtEncodedStr }
         } = data;
-        setJwtEncodedStr(jwtEncodedStr);
+        formik.setFieldValue('jwtEncodedStr', jwtEncodedStr);
         handleNext();
       }
     }
@@ -73,33 +59,20 @@ const ShopOwnerEmailVerification = ({
       <br></br>
       <br></br>
       <TextField
-        id='ownerEmail'
-        defaultValue={ownerEmail}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        label={
-          touched.ownerEmail && errors.ownerEmail
-            ? `${errors.ownerEmail}`
-            : 'Owner Email'
-        }
-        error={touched.ownerEmail && errors.ownerEmail && true}
+        name='ownerEmail'
+        label='Owner Email'
         margin='normal'
         variant='outlined'
         placeholder='Owner Email'
         fullWidth></TextField>
       <br></br>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={verifyEmail}
-            name='verifyEmail'
-            id='verifyEmail'
-            onChange={handleChange}
-            color='primary'
-          />
-        }
-        label='Verify email'
-      />
+
+      <CheckboxWithLabel
+        name='verifyEmail'
+        Label={{
+          label: 'Verify email'
+        }}></CheckboxWithLabel>
+
       <br></br>
       <Typography>Owner should be registered raspaai user</Typography>
       <br></br>
@@ -126,29 +99,6 @@ const AddShop = () => {
     setStep(step - 1);
   };
 
-  const [jwtEncodedStr, setJwtEncodedStr] = React.useState();
-
-  // files
-  const [img, setImg] = React.useState(false);
-
-  const handleFileChange = files => {
-    const file = files[0];
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = fileLoadEvent => {
-      const { result } = fileLoadEvent.target;
-      const img = {
-        base64: result,
-        file: file
-      };
-      setImg(img);
-    };
-  };
-
-  // files end
-
   const [addShop, { loading, error, data }] = useMutation(REGISTER_SHOP, {
     onCompleted: data => {
       const {
@@ -162,17 +112,7 @@ const AddShop = () => {
     }
   });
 
-  // const [returnRefundPolicy, setReturnRefundPolicy] = React.useState([
-  //   'Item should be in the same good condition as it was when customer bought it.',
-  //   'The return and refund window will only remain open for 7 days after customer have made the purchase.',
-  //   'There should be no markings, names, ink or anything that was not previously on the product.',
-  //   'Exchange of the product with other similar product will be preferred from our shop.'
-  // ]);
-
-  // const handleReturnRefundPolicyChange = e => {
-  //   returnRefundPolicy[e.target.id] = e.target.value;
-  //   setReturnRefundPolicy([...returnRefundPolicy]);
-  // };
+  let formikValues = {};
 
   return (
     <Formik
@@ -184,7 +124,10 @@ const AddShop = () => {
         contactNumber: '',
         latLng: '',
         keyCode: '',
-        verifyEmail: false
+        verifyEmail: false,
+        heroImage: '',
+        jwtEncodedStr: '',
+        planId: ''
       }}
       validationSchema={yup.object().shape({
         ownerEmail: yup
@@ -218,34 +161,59 @@ const AddShop = () => {
           })
           .required('Contact number required'),
         latLng: yup.string().required('Lat Lng string required'),
-        keyCode: yup
-          .string('Invalid key')
-          .length(4, 'key must be 4 digit long'),
+        keyCode: yup.lazy(() => {
+          return formikValues.verifyEmail
+            ? yup
+                .string('Invalid key')
+                .length(4, 'key must be 4 digit long')
+                .required('Required')
+            : yup.string('Invalid key').length(4, 'key must be 4 digit long');
+        }),
+        jwtEncodedStr: yup.lazy(() => {
+          return formikValues.verifyEmail
+            ? yup.string('Invalid key').required('Required')
+            : yup.string('Invalid key');
+        }),
         planId: yup.string().required('No plan selected'),
-        verifyEmail: yup.boolean('Not a boolean').required('Required')
+        verifyEmail: yup.boolean('Not a boolean').required('Required'),
+        heroImage: yup
+          .object({ name: yup.string(), base64: yup.string() })
+          .required()
       })}
       onSubmit={(values, { setSubmitting }) => {
-        const AdminAddShopInput = {
-          ...values,
-          imgName: img && img.file.name,
-          heroImg64: img && img.base64,
-          jwtEncodedStr
-        };
-
         addShop({
-          variables: { data: AdminAddShopInput }
+          variables: {
+            data: { ...values, heroImage: JSON.stringify(values.heroImage) }
+          }
         });
         setSubmitting(false);
       }}>
-      {props => {
+      {formik => {
+        formikValues = formik.values;
+
+        const handleFileChange = files => {
+          const file = files[0];
+
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+
+          reader.onload = fileLoadEvent => {
+            const { result } = fileLoadEvent.target;
+            const heroImage = {
+              name: file.name,
+              base64: result
+            };
+            formik.setFieldValue('heroImage', heroImage);
+          };
+        };
+
         // eslint-disable-next-line default-case
         switch (step) {
           case 1:
             return (
               <ShopOwnerEmailVerification
-                setJwtEncodedStr={setJwtEncodedStr}
                 handleNext={nextStep}
-                formik={props}></ShopOwnerEmailVerification>
+                formik={formik}></ShopOwnerEmailVerification>
             );
 
           case 2:
@@ -255,23 +223,10 @@ const AddShop = () => {
                 error={error}
                 data={data}
                 handleFileChange={handleFileChange}
-                img={img}
-                formik={props}
+                formik={formik}
                 handleBack={prevStep}
                 handleNext={nextStep}></AddShopForm>
             );
-
-          // case 2:
-          //   return (
-          //     <CreateShopForm
-          //       handleFileChange={handleFileChange}
-          //       img={img}
-          //       formikProps={props}
-          //       handleBack={prevStep}
-          //       localLocation={JSON.parse(
-          //         atob(localSavedLocationData.localSavedLocation)
-          //       )}></CreateShopForm>
-          //   );
         }
       }}
     </Formik>

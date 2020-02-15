@@ -6,15 +6,14 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { Formik } from 'formik';
+import { Form, Formik } from 'formik';
+import { TextField } from 'formik-material-ui';
 import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation } from 'react-apollo';
 import * as yup from 'yup';
 import GraphqlErrorMessage from '../core/GraphqlErrorMessage';
-import EmailInput from '../core/input/EmailInput';
-import PasswordInput from '../core/input/PasswordInput';
 import Link from '../core/Link';
 import { VIEWER } from '../navbar/ToolBarMenu';
 
@@ -112,8 +111,7 @@ export default function SigninForm({ message, redirectUrl }) {
     <Formik
       initialValues={{
         email: '',
-        password: '',
-        rememberMe: true
+        password: ''
       }}
       validationSchema={yup.object().shape({
         email: yup
@@ -124,8 +122,7 @@ export default function SigninForm({ message, redirectUrl }) {
           .string()
           .min(8, 'Too short!')
           .max(16, 'Too long!')
-          .required('Password required'),
-        rememberMe: yup.bool()
+          .required('Password required')
       })}
       onSubmit={(values, { setSubmitting }) => {
         const { email, password } = values;
@@ -137,15 +134,7 @@ export default function SigninForm({ message, redirectUrl }) {
         setSubmitting(false);
       }}>
       {formik => {
-        const {
-          values: { email, password },
-          handleBlur,
-          handleChange,
-          touched,
-          errors,
-          handleSubmit,
-          isSubmitting
-        } = formik;
+        const { handleSubmit, isSubmitting } = formik;
         return (
           <>
             {message && (
@@ -167,38 +156,33 @@ export default function SigninForm({ message, redirectUrl }) {
                 <Typography component='h1' variant='h5'>
                   Sign in
                 </Typography>
-                <form className={classes.form} noValidate>
-                  <EmailInput
-                    handleBlur={handleBlur}
-                    handleChange={handleChange}
-                    value={email}
-                    touched={touched.email}
-                    errors={errors.email}
-                    autoFocus={false}></EmailInput>
-                  <PasswordInput
-                    handleChange={handleChange}
-                    handleBlur={handleBlur}
-                    touched={touched.password}
-                    errors={errors.password}
-                    value={password}></PasswordInput>
+                <Form className={classes.form}>
+                  <TextField
+                    variant='outlined'
+                    margin='normal'
+                    required
+                    fullWidth
+                    id='email'
+                    placeholder='Email'
+                    name='email'
+                    autoComplete='email'></TextField>
+                  <TextField
+                    variant='outlined'
+                    margin='normal'
+                    required
+                    fullWidth
+                    name='password'
+                    label='Password'
+                    type='password'
+                    id='password'
+                    autoComplete='current-password'
+                  />
                   {error && (
                     <GraphqlErrorMessage
                       error={error}
-                      critical={true}></GraphqlErrorMessage>
+                      critical></GraphqlErrorMessage>
                   )}
-                  {/* <FormControlLabel
-                    control={
-                      <Checkbox
-                        value={rememberMe}
-                        checked={rememberMe}
-                        id='rememberMe'
-                        name='rememberMe'
-                        onChange={handleChange}
-                        color='primary'
-                      />
-                    }
-                    label='Remember me'
-                  /> */}
+
                   <Button
                     // type="submit"
                     disabled={loading || isSubmitting}
@@ -217,11 +201,11 @@ export default function SigninForm({ message, redirectUrl }) {
                     </Grid>
                     <Grid item>
                       <Link to='/signup' variant='body2'>
-                        {"Don't have an account? Sign Up"}
+                        Don't have an account? Sign Up
                       </Link>
                     </Grid>
                   </Grid>
-                </form>
+                </Form>
               </div>
             </Container>
           </>
