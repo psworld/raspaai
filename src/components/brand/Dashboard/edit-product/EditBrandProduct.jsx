@@ -152,7 +152,7 @@ export const ModifyBrandProduct = ({
       categoryId,
       typeId,
       thumbOverlayText,
-      mrp,
+      mrp: mrp,
       description,
       longDescription,
       technicalDetails: savedTechnicalDetails,
@@ -167,7 +167,7 @@ export const ModifyBrandProduct = ({
       mrp: yup.lazy(() => {
         const schema = mrpRequired
           ? mrpBaseValidationSchema.required('Required!')
-          : yup.string().nullable();
+          : mrpBaseValidationSchema.nullable(true);
         return schema;
       }),
       thumbOverlayText: yup

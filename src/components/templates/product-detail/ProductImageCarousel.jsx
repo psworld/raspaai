@@ -9,7 +9,7 @@ const ProductImageCarousel = ({ imagesNodeList, alt }) => {
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
-    <Carousel showThumbs={matches} infiniteLoop showArrows={true}>
+    <Carousel showThumbs={matches} showArrows={true}>
       {imagesNodeList
         .sort((a, b) => a.node.position - b.node.position)
         .map(imgObj => {

@@ -120,7 +120,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       thumbOverlayText: '',
       description: '',
       longDescription: '',
-      mrp: '',
       categoryId: '',
       typeId: '',
       technicalDetails: {},
@@ -135,7 +134,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       mrp: yup.lazy(() => {
         return mrpRequired
           ? mrpBaseValidationSchema.required('Required!')
-          : yup.string().nullable();
+          : mrpBaseValidationSchema.nullable(true);
       }),
       thumbOverlayText: yup
         .string()
@@ -177,7 +176,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
       values.base64images.forEach(imgObj => {
         base64images.push(JSON.stringify(imgObj));
       });
-
       const addBrandProductInput = {
         ...values,
         base64images,
@@ -191,7 +189,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
   });
 
   const values = formik.values;
-  console.info(values);
 
   const { data: categoriesData } = useQuery(CATEGORIES);
 
