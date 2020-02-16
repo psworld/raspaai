@@ -47,13 +47,13 @@ export default function Dashboard({ publicUsername, isBrand = false }) {
         </Paper>
       </Grid>
       {/* Recent Orders */}
-      {!isBrand && (
+      {/* {!isBrand && (
         <Grid className={classes.spacing} item xs={12}>
           <Paper className={classes.paper}>
             <Orders />
           </Paper>
         </Grid>
-      )}
+      )} */}
     </Grid>
   );
 }

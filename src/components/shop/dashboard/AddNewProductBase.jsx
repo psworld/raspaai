@@ -11,7 +11,7 @@ import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import ErrorPage from '../../core/ErrorPage';
 import Link from '../../core/Link';
-import { newPageInfo } from '../../core/utils';
+import { newPageInfo, slugGenerator } from '../../core/utils';
 import ProductGridSkeleton from '../../skeletons/ProductGridSkeleton';
 import PaginationWithState from '../../templates/PaginationWithState';
 import ProductThumb from '../../templates/ProductThumb';
@@ -187,10 +187,13 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
     }
   );
 
+  const productSlug = slugGenerator(productName);
+
   return (
     <Grid item xs={6} sm={4} md={3} lg={2}>
       <Box width='100%' px={1} my={2}>
-        <Link to={`/`}>
+        <Link
+          to={`/brand/${brandUsername}/product/${productSlug}/${productId}`}>
           <ProductThumb
             src={thumb}
             title={productName}
@@ -216,7 +219,7 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
           </Typography>
         )}
         <Formik
-          initialValues={{ offeredPrice: null }}
+          initialValues={{ offeredPrice: undefined }}
           validationSchema={Yup.object({
             offeredPrice: mrp
               ? offeredPriceBaseValidationSchema.max(
@@ -259,7 +262,9 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
                 )}
                 <Button
                   onClick={formik.handleSubmit}
-                  disabled={loading || data || formik.isSubmitting || !dirty}
+                  disabled={
+                    loading || Boolean(data) || formik.isSubmitting || !dirty
+                  }
                   fullWidth
                   variant='contained'
                   color='primary'>

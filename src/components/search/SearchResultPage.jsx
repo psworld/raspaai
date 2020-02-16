@@ -12,12 +12,14 @@ import ProductGridSkeleton from '../skeletons/ProductGridSkeleton';
 import ShopProductGrid from '../templates/ShopProductGrid';
 import CombosGrid from '../templates/CombosGrid';
 import PaginationWithState from '../templates/PaginationWithState';
+import Link from '../core/Link';
 
 const COMBOS_SEARCH = gql`
   query(
     $lat: Float!
     $lng: Float!
     $phrase: String!
+    $shopName: String
     $rangeInKm: Int
     $endCursor: String
   ) {
@@ -25,6 +27,7 @@ const COMBOS_SEARCH = gql`
       lat: $lat
       lng: $lng
       phrase: $phrase
+      shopName: $shopName
       rangeInKm: $rangeInKm
       first: 10
       after: $endCursor
@@ -60,6 +63,7 @@ const SHOP_PRODUCT_SEARCH = gql`
     $lat: Float!
     $lng: Float!
     $phrase: String!
+    $shopName: String
     $rangeInKm: Int
     $endCursor: String
   ) {
@@ -67,6 +71,7 @@ const SHOP_PRODUCT_SEARCH = gql`
       lat: $lat
       lng: $lng
       phrase: $phrase
+      shopName: $shopName
       rangeInKm: $rangeInKm
       first: 10
       after: $endCursor
@@ -103,9 +108,9 @@ const SHOP_PRODUCT_SEARCH = gql`
   }
 `;
 
-const ComboSearchResult = ({ lat, lng, phrase }) => {
+const ComboSearchResult = ({ lat, lng, phrase, shopName }) => {
   const { loading, error, data, fetchMore } = useQuery(COMBOS_SEARCH, {
-    variables: { lat, lng, phrase }
+    variables: { lat, lng, phrase, shopName }
   });
 
   if (loading)
@@ -141,9 +146,9 @@ const ComboSearchResult = ({ lat, lng, phrase }) => {
   return <></>;
 };
 
-const ShopProductSearchResult = ({ lat, lng, phrase }) => {
+const ShopProductSearchResult = ({ lat, lng, phrase, shopName }) => {
   const { loading, error, data, fetchMore } = useQuery(SHOP_PRODUCT_SEARCH, {
-    variables: { phrase, lat, lng, rangeInKm: 5 }
+    variables: { phrase, lat, lng, rangeInKm: 5, shopName }
   });
 
   if (loading)
@@ -178,8 +183,21 @@ const ShopProductSearchResult = ({ lat, lng, phrase }) => {
   return (
     <div>
       <Typography align='center' style={{ margin: 4 }} variant='h5'>
-        No results found for - <b>{phrase}</b>
+        No results found for - <b>{phrase}</b>{' '}
+        {shopName && (
+          <>
+            from <b>{shopName}</b>
+          </>
+        )}
       </Typography>
+      <br></br>
+      {shopName && (
+        <Typography align='center' style={{ margin: 4 }} variant='h5'>
+          <Link to={`/search/${phrase}/pg/1`}>
+            Try again search without {shopName}
+          </Link>
+        </Typography>
+      )}
       <br></br>
       <Typography style={{ marginTop: 25 }} align='center'>
         <a
@@ -194,20 +212,26 @@ const ShopProductSearchResult = ({ lat, lng, phrase }) => {
 };
 
 const SearchResultPage = props => {
-  const { phrase, savedLocation } = props;
+  let { phrase, savedLocation } = props;
 
   const { lat, lng } = savedLocation;
+  let phraseComponent = phrase.split('@');
+  phrase = phrase && phraseComponent[0].trim();
+  let shopName = phraseComponent[1];
+  shopName = shopName && shopName.trim();
 
   return (
     <>
       <ComboSearchResult
         lat={lat}
         lng={lng}
-        phrase={phrase}></ComboSearchResult>
+        phrase={phrase}
+        shopName={shopName}></ComboSearchResult>
       <ShopProductSearchResult
         lat={lat}
         lng={lng}
-        phrase={phrase}></ShopProductSearchResult>
+        phrase={phrase}
+        shopName={shopName}></ShopProductSearchResult>
     </>
   );
 };

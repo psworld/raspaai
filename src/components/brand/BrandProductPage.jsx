@@ -25,6 +25,7 @@ export const PRODUCT = gql`
       category {
         id
         name
+        username
       }
       brand {
         id

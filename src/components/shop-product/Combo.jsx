@@ -8,20 +8,16 @@ import {
 } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { gql } from 'apollo-boost';
-import { format } from 'date-fns';
 import { navigate } from 'gatsby';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import { CART_ITEMS } from '../../pages/cart';
 import ErrorPage from '../core/ErrorPage';
-import Link, { MenuItemLink } from '../core/Link';
-import {
-  getDateFromHours,
-  getIsStoreOpenNow,
-  slugGenerator
-} from '../core/utils';
+import Link from '../core/Link';
+import { slugGenerator } from '../core/utils';
 import { VIEWER } from '../navbar/ToolBarMenu';
 import SEO from '../seo';
+import { ShopActiveTime } from '../shop/ShopAboutPage';
 import ShopProductSkeleton from '../skeletons/ShopProductSkeleton';
 import ProductCollage from '../templates/dashboard/ProductCollage';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
@@ -272,12 +268,9 @@ const Combo = ({ comboId, shopUsername }) => {
           address,
           about,
           contactNumber,
-          returnRefundPolicy,
-          openAt,
-          closeAt,
-          offDays,
-          isOpenToday
-        }
+          returnRefundPolicy
+        },
+        properties: shopProperties
       },
       products
     } = data.combo;
@@ -295,15 +288,6 @@ const Combo = ({ comboId, shopUsername }) => {
       totalCost += comboNode.quantity * price;
     });
 
-    // store is open or not
-    const isStoreOpenNow = getIsStoreOpenNow(
-      openAt,
-      closeAt,
-      offDays,
-      isOpenToday
-    );
-    const storeOpenTime = format(getDateFromHours(openAt), 'h:mm a');
-    const storeCloseTime = format(getDateFromHours(closeAt), 'h:mm a');
     return (
       <Grid container>
         <SEO title={`${name} | ${shopName}`} description={description}></SEO>
@@ -367,19 +351,9 @@ const Combo = ({ comboId, shopUsername }) => {
             </Typography>
           </ListItem>
           <Divider />
-          <ListItem>
-            <ListItemText
-              style={{ color: isStoreOpenNow ? 'green' : 'red' }}
-              primary={
-                <MenuItemLink to={`/shop/${shopUsername}/about#active-time`}>
-                  {isStoreOpenNow ? 'Store is open' : 'Store is closed'}
-                </MenuItemLink>
-              }
-            />
-          </ListItem>
-          <ListItem>Opens at {storeOpenTime}</ListItem>
-          <ListItem></ListItem>
-          <ListItem>Closes at {storeCloseTime}</ListItem>
+
+          <ShopActiveTime shopProperties={shopProperties}></ShopActiveTime>
+
           <ListItem>
             <ListItemText
               style={{ color: isAvailable ? 'green' : 'red' }}
