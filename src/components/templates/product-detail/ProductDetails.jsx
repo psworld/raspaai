@@ -12,20 +12,18 @@ import { green } from '@material-ui/core/colors';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import { CART_ITEMS } from '../../../pages/cart';
-import Link, { MenuItemLink } from '../../core/Link';
-import { getIsStoreOpenNow, getDateFromHours } from '../../core/utils';
+import Link from '../../core/Link';
 import { VIEWER } from '../../navbar/ToolBarMenu';
-import ProductImageCarousel from './ProductImageCarousel';
+import { ShopActiveTime } from '../../shop/ShopAboutPage';
 import { InactiveShop } from '../../shop/ShopHomePage';
-import { format } from 'date-fns';
 import MainFeaturedPost from '../MainFeaturedPost';
+import ProductImageCarousel from './ProductImageCarousel';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -119,13 +117,10 @@ const ProductDetails = props => {
           address,
           contactNumber,
           returnRefundPolicy,
-          openAt,
-          closeAt,
           about,
-          offDays,
-          isOpenToday,
           isActive
-        }
+        },
+        properties: shopProperties
       }
     } = shopProduct;
   }
@@ -138,7 +133,7 @@ const ProductDetails = props => {
     mrp,
     description,
     images: { edges: imagesNodeList },
-    category: { name: categoryName },
+    category: { name: categoryName, username: categoryUsername },
     type: { name: typeName },
     brand: { title: brandName },
     longDescription,
@@ -146,21 +141,24 @@ const ProductDetails = props => {
     technicalDetails: technicalDetailsJsonString
   } = product;
 
+  const getProductType = () => {
+    switch (categoryUsername) {
+      case 'raspaaifood':
+        return 'food';
+
+      case 'raspaaiservices':
+        return 'services';
+      default:
+        return 'products';
+    }
+  };
+
   const technicalDetails = JSON.parse(technicalDetailsJsonString);
 
   const AddItemToCartInput = {
     shopProductId,
     quantity: 1
   };
-
-  // store is open or not
-  const isStoreOpenNow =
-    isShopProduct && getIsStoreOpenNow(openAt, closeAt, offDays, isOpenToday);
-
-  const storeOpenTime =
-    isShopProduct && format(getDateFromHours(openAt), 'h:mm a');
-  const storeCloseTime =
-    isShopProduct && format(getDateFromHours(closeAt), 'h:mm a');
 
   const { data: viewerData } = useQuery(VIEWER);
   if (viewerData) {
@@ -283,26 +281,8 @@ const ProductDetails = props => {
               <Divider />
               {isActive ? (
                 <>
-                  <ListItem>
-                    <ListItemText
-                      style={{ color: isStoreOpenNow ? 'green' : 'red' }}
-                      primary={
-                        <MenuItemLink
-                          to={`/shop/${shopPublicUsername}/about#active-time`}>
-                          {isStoreOpenNow ? 'Store is open' : 'Store is closed'}
-                        </MenuItemLink>
-                      }
-                    />
-                  </ListItem>
-                  <ListItem>Opens at {storeOpenTime}</ListItem>
-                  <ListItem></ListItem>
-                  <ListItem>Closes at {storeCloseTime}</ListItem>
-                  <ListItem>
-                    <ListItemText
-                      style={{ color: inStock ? 'green' : 'red' }}
-                      primary={inStock ? 'In stock' : 'Out of stock'}
-                    />
-                  </ListItem>
+                  <ShopActiveTime
+                    shopProperties={shopProperties}></ShopActiveTime>
                 </>
               ) : (
                 <InactiveShop
@@ -428,8 +408,9 @@ const ProductDetails = props => {
             <br></br>
             <Typography variant='h6'>Share on</Typography>
             <a
-              href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}%0aYou save Rs.${mrp -
-                offeredPrice}%0a${window.location.href}`}
+              href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
+                mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
+              }%0a${window.location.href}`}
               target='_blank'
               rel='noopener noreferrer'>
               Whats app
@@ -442,8 +423,27 @@ const ProductDetails = props => {
               returnRefundPolicy={returnRefundPolicy}></ReturnRefundPolicy>
             <br></br>
           </Grid>
+        ) : viewer && viewer.shop && viewer.shop.properties.isActive ? (
+          <Grid
+            style={{ paddingLeft: 8, paddingRight: 8, marginTop: 8 }}
+            item
+            xs={12}
+            sm={12}
+            md={2}>
+            <Button
+              component={Link}
+              to={`/dashboard/shop/${
+                viewer.shop.properties.publicUsername
+              }/${getProductType()}/add/search/${productTitle}`}
+              variant='contained'
+              color='primary'>
+              Add to shop
+            </Button>
+          </Grid>
         ) : (
-          <></>
+          <>
+            Your shop plans have expired. Recharge to continue using the service
+          </>
         )}
       </Grid>
     </>

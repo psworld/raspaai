@@ -39,6 +39,50 @@ export const SHOP = gql`
   }
 `;
 
+export const ShopActiveTime = ({ shopProperties }) => {
+  let { openAt, closeAt, offDays, isOpenToday } = shopProperties;
+
+  const isStoreOpenNow = getIsStoreOpenNow(
+    openAt,
+    closeAt,
+    offDays,
+    isOpenToday
+  );
+
+  openAt = format(new Date(`2002-10-06T${openAt}+05:30`), 'h:mm a');
+  closeAt = format(new Date(`2002-10-06T${closeAt}+05:30`), 'h:mm a');
+  return (
+    <>
+      <ListItem>
+        <Typography
+          style={isStoreOpenNow ? { color: 'green' } : { color: 'red' }}>
+          {isStoreOpenNow ? 'Store is open now' : 'Store is closed now'}
+        </Typography>
+      </ListItem>
+      <ListItem>
+        <Typography>
+          {JSON.parse(offDays).length === 0 ? (
+            <>Open on all days</>
+          ) : (
+            <>
+              Close on{' '}
+              {JSON.parse(offDays).map(day => (
+                <>{getDayName(day)} </>
+              ))}
+            </>
+          )}
+        </Typography>
+      </ListItem>
+      <ListItem>
+        <Typography>Opens at {openAt}</Typography>
+      </ListItem>
+      <ListItem>
+        <Typography>Closes at {closeAt}</Typography>
+      </ListItem>
+    </>
+  );
+};
+
 const ShopAboutPage = ({ shopUsername }) => {
   const { loading, error, data } = useQuery(SHOP, {
     variables: { publicShopUsername: shopUsername }
@@ -48,7 +92,7 @@ const ShopAboutPage = ({ shopUsername }) => {
   if (error) return <ErrorPage></ErrorPage>;
 
   if (data) {
-    let {
+    const {
       shop: {
         geometry: { coordinates },
         properties: {
@@ -57,25 +101,12 @@ const ShopAboutPage = ({ shopUsername }) => {
           address,
           contactNumber,
           returnRefundPolicy,
-          heroImage,
-          openAt,
-          closeAt,
-          offDays,
-          isOpenToday
+          heroImage
         }
       }
     } = data;
     const lat = coordinates[1];
     const lng = coordinates[0];
-    const isStoreOpenNow = getIsStoreOpenNow(
-      openAt,
-      closeAt,
-      offDays,
-      isOpenToday
-    );
-
-    openAt = format(new Date(`2002-10-06T${openAt}+05:30`), 'h:mm a');
-    closeAt = format(new Date(`2002-10-06T${closeAt}+05:30`), 'h:mm a');
 
     return (
       <Container maxWidth='sm'>
@@ -128,32 +159,8 @@ const ShopAboutPage = ({ shopUsername }) => {
                 Active time
               </Typography>
             </ListItem>
-            <ListItem>
-              <Typography
-                style={isStoreOpenNow ? { color: 'green' } : { color: 'red' }}>
-                {isStoreOpenNow ? 'Store is open now' : 'Store is closed now'}
-              </Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>
-                {JSON.parse(offDays).length === 0 ? (
-                  <>Open on all days</>
-                ) : (
-                  <>
-                    Close on{' '}
-                    {JSON.parse(offDays).map(day => (
-                      <>{getDayName(day)} </>
-                    ))}
-                  </>
-                )}
-              </Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>Opens at {openAt}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>Closes at {closeAt}</Typography>
-            </ListItem>
+            <ShopActiveTime
+              shopProperties={data.shop.properties}></ShopActiveTime>
 
             <ListItem>
               <Typography id='contact' variant='h4'>

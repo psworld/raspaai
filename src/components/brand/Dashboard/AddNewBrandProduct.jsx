@@ -446,7 +446,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                         setCurrentImageIndex(currentPosition)
                       }
                       showThumbs={showThumbs}
-                      infiniteLoop
                       showArrows={true}>
                       {values.base64images.map((imgObj, index) => {
                         const { base64: src, name } = imgObj.node;

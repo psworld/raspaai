@@ -6,18 +6,19 @@ import {
   Container,
   Grid,
   InputLabel,
-  TextField,
-  Typography,
-  useMediaQuery
+  Typography
 } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { Formik } from 'formik';
 import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation } from 'react-apollo';
-import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import * as yup from 'yup';
 import AvailablePlans from '../../../brand/Dashboard/plans/buy/AvailablePlans';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
+import { TextField } from 'formik-material-ui';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -26,13 +27,13 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     marginBottom: theme.spacing(2)
   },
-  cardMediaMobile: {
+  cardMedia: {
     // paddingTop: "56.25%", // 16:9
-    paddingTop: '75%' // 4:3
-  },
-  cardMediaTv: {
-    // paddingTop: "56.25%", // 16:9
-    paddingTop: '37.5%' // 4:3
+    paddingTop: '75%', // 4:3
+    backgroundSize: 'contain',
+    [theme.breakpoints.up('md')]: {
+      paddingTop: '45%'
+    }
   },
   '@global': {
     body: {
@@ -77,200 +78,169 @@ const ADMIN_ADD_BRAND = gql`
 
 const AddNewBrand = () => {
   const classes = useStyles();
-  const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('sm'));
-
-  const [img, setImg] = React.useState(false);
-
-  const [values, setValues] = React.useState({
-    brandName: '',
-    brandUsername: '',
-    userEmail: ''
-  });
-  const { brandName, brandUsername, userEmail, planId } = values;
 
   // Mutation for creating brand
-  const [createBrand, { loading, error, data, called }] = useMutation(
-    ADMIN_ADD_BRAND,
-    {
-      variables: {
-        data: {
-          publicUsername: brandUsername,
-          brandName,
-          userEmail,
-          planId,
-          imgName: img ? img.file.name : null,
-          heroImg64: img ? img.base64 : null
-        }
-      },
-      onCompleted(data) {
-        const brandUsername = data.adminAddBrand.brand.publicUsername;
-        navigate(`/brand/${brandUsername}`);
-      }
+  const [createBrand, { loading, error, data }] = useMutation(ADMIN_ADD_BRAND, {
+    onCompleted(data) {
+      const brandUsername = data.adminAddBrand.brand.publicUsername;
+      navigate(`/brand/${brandUsername}`);
     }
-  );
-
-  // Form inputs handleChange
-  const handleChange = event => {
-    setValues({ ...values, [event.target.id]: event.target.value });
-  };
-
-  const handlePlanSelect = (planId, amount) => {
-    setValues({ ...values, planId: planId });
-  };
-
-  // Image handle change
-  const handleFileChange = files => {
-    const file = files[0];
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = fileLoadEvent => {
-      const { result } = fileLoadEvent.target;
-      const img = {
-        base64: result,
-        file: file
-      };
-      setImg(img);
-    };
-  };
+  });
 
   return (
-    <>
-      <input
-        accept='image/jpeg, image/png'
-        onChange={e => handleFileChange(e.target.files)}
-        style={{ display: 'none' }}
-        id='brand-hero-img'
-        aria-label='brand-hero-img'
-        type='file'
-      />
+    <Formik
+      initialValues={{
+        brandName: '',
+        brandUsername: '',
+        ownerEmail: '',
+        planId: ''
+      }}
+      validationSchema={yup.object().shape({
+        brandName: yup.string().required('Required!'),
+        brandUsername: yup.string().required('Required!'),
+        ownerEmail: yup
+          .string()
+          .email('Invalid email')
+          .required('Required!'),
+        heroImg64: yup
+          .string()
+          .min(100)
+          .required('Required!'),
+        planId: yup
+          .string()
+          .min(3)
+          .required('Required!')
+      })}
+      onSubmit={(values, { setSubmitting }) => {
+        createBrand({
+          variables: { ...values, publicUsername: values.brandUsername }
+        });
+      }}>
+      {formik => {
+        const { values } = formik;
 
-      <InputLabel htmlFor='brand-hero-img'>
-        <Card component='span' className={classes.card}>
-          {img ? (
-            <CardMedia
-              className={
-                matches ? classes.cardMediaTv : classes.cardMediaMobile
-              }
-              image={img.base64}
-              title={img.file.name}
+        // Image handle change
+        const handleFileChange = files => {
+          const file = files[0];
+
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+
+          reader.onload = fileLoadEvent => {
+            const { result } = fileLoadEvent.target;
+            formik.setFieldValue('heroImg64', result);
+          };
+        };
+
+        const handlePlanSelect = (planId, amount) => {
+          formik.setFieldValue('planId', planId);
+        };
+
+        return (
+          <>
+            <input
+              accept='image/jpeg, image/png'
+              onChange={e => handleFileChange(e.target.files)}
+              style={{ display: 'none' }}
+              id='brand-hero-img'
+              aria-label='brand-hero-img'
+              type='file'
             />
-          ) : (
-            <Container maxWidth='sm'>
-              <Typography
-                component='h1'
-                variant='h3'
-                align='center'
-                color='textPrimary'
-                gutterBottom>
-                Click here to upload a photo
-              </Typography>
-              <Typography
-                variant='h5'
-                align='center'
-                color='textSecondary'
-                paragraph>
-                Upload a picture of the Brand/company Logo.
-              </Typography>
-            </Container>
-          )}
-        </Card>
-      </InputLabel>
-      <Container maxWidth='md'>
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component='h1' variant='h5'>
-            Brand Registration
-          </Typography>
-          <form className={classes.form}>
-            <Grid container justify='center'>
-              <Grid item xs={12} md={12}>
-                <AvailablePlans
-                  filterFreePlans={false}
-                  handlePlanSelect={handlePlanSelect}
-                  selectedPlan={planId}></AvailablePlans>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id='userEmail'
-                  defaultValue={userEmail}
-                  onChange={handleChange}
-                  margin='none'
-                  variant='outlined'
-                  name='Email'
-                  placeholder='Email'
-                  fullWidth></TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id='brandName'
-                  defaultValue={brandName}
-                  onChange={handleChange}
-                  // onBlur={handleBlur}
-                  // label={
-                  //   touched.brandName && errors.brandName
-                  //     ? `${errors.brandName}`
-                  //     : "Your Brand Name"
-                  // }
-                  // error={touched.brandName && errors.brandName && true}
-                  margin='none'
-                  variant='outlined'
-                  placeholder='Brand Name'
-                  fullWidth></TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id='brandUsername'
-                  // label={
-                  //   touched.brandUsername && errors.brandUsername
-                  //     ? `${errors.brandUsername}`
-                  //     : "Brand Username"
-                  // }
-                  // error={touched.brandUsername && errors.brandUsername && true}
-                  // onBlur={handleBlur}
-                  defaultValue={brandUsername}
-                  onChange={handleChange}
-                  margin='none'
-                  variant='outlined'
-                  placeholder='Brand Username'
-                  fullWidth></TextField>
-              </Grid>
-              <Grid item md={12} xs={12}>
-                {error && (
-                  <GraphqlErrorMessage error={error}></GraphqlErrorMessage>
-                )}
-              </Grid>
-              <Button
-                disabled={loading || data}
-                onClick={createBrand}
-                fullWidth
-                variant='contained'
-                color='secondary'
-                className={classes.submit}>
-                {data ? 'Done' : 'Add brand'}
-              </Button>
-              <br></br>
 
-              <br></br>
-              {/* <Grid item>
-                <Link to='/brand-register' variant='body2'>
-                  Need Help ?
-                </Link>
-              </Grid>
-              <Grid item>
-                <a href='/signup' variant='body2'>
-                  Watch a video on how to register
-                </a>
-              </Grid> */}
-            </Grid>
-          </form>
-        </div>
-      </Container>
-    </>
+            <InputLabel htmlFor='brand-hero-img'>
+              <Card component='span' className={classes.card}>
+                {values.heroImg64 ? (
+                  <CardMedia
+                    className={classes.cardMedia}
+                    image={values.heroImg64}
+                    title='Brand hero image'
+                  />
+                ) : (
+                  <Container maxWidth='sm'>
+                    <Typography
+                      component='h1'
+                      variant='h3'
+                      align='center'
+                      color='textPrimary'
+                      gutterBottom>
+                      Click here to upload a photo
+                    </Typography>
+                    <Typography
+                      variant='h5'
+                      align='center'
+                      color='textSecondary'
+                      paragraph>
+                      Upload a picture of the Brand/company Logo.
+                    </Typography>
+                  </Container>
+                )}
+              </Card>
+            </InputLabel>
+            <Container maxWidth='md'>
+              <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                  <LockOutlinedIcon />
+                </Avatar>
+                <Typography component='h1' variant='h5'>
+                  Brand Registration
+                </Typography>
+                <form className={classes.form}>
+                  <Grid container justify='center'>
+                    <Grid item xs={12} md={12}>
+                      <AvailablePlans
+                        filterFreePlans={false}
+                        handlePlanSelect={handlePlanSelect}
+                        selectedPlan={values.planId}></AvailablePlans>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        name='ownerEmail'
+                        label='Owner email'
+                        margin='none'
+                        variant='outlined'
+                        placeholder='Email'
+                        fullWidth></TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        name='brandName'
+                        margin='none'
+                        variant='outlined'
+                        placeholder='Brand Name'
+                        fullWidth></TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        name='brandUsername'
+                        margin='none'
+                        variant='outlined'
+                        placeholder='Brand Username'
+                        fullWidth></TextField>
+                    </Grid>
+                    <Grid item md={12} xs={12}>
+                      {error && (
+                        <GraphqlErrorMessage
+                          error={error}></GraphqlErrorMessage>
+                      )}
+                    </Grid>
+                    <Button
+                      disabled={loading || data || formik.isSubmitting}
+                      onClick={formik.handleSubmit}
+                      fullWidth
+                      variant='contained'
+                      color='secondary'
+                      className={classes.submit}>
+                      {data ? 'Done' : 'Add brand'}
+                    </Button>
+                    <br></br>
+                  </Grid>
+                </form>
+              </div>
+            </Container>
+          </>
+        );
+      }}
+    </Formik>
   );
 };
 
