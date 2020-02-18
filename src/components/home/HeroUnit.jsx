@@ -1,9 +1,15 @@
-import { Button, Divider, Grid } from '@material-ui/core';
-import Container from '@material-ui/core/Container';
+import {
+  Button,
+  Container,
+  Typography,
+  Grid,
+  Divider
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+import { AutoRotatingCarousel, Slide } from 'material-auto-rotating-carousel';
 import React from 'react';
-import Link from '../core/Link';
+import { red, blue, green } from '@material-ui/core/colors';
+import { Link } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -14,6 +20,78 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(4)
   }
 }));
+
+// const HeroUnit = ({ location }) => {
+//   const [open, setOpen] = React.useState(true);
+//   return (
+//     <div style={{ position: 'relative', width: '100%', height: 500 }}>
+//       <Button onClick={() => setOpen({ open: true })}>Open carousel</Button>
+//       <AutoRotatingCarousel
+//         label='Get started'
+//         open={open}
+//         onClose={() => setOpen({ open: false })}
+//         onStart={() => setOpen({ open: false })}
+//         mobile
+//         autoplay={false}
+//         style={{ position: 'absolute' }}>
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_79394/youtube.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: red[400] }}
+//           style={{ backgroundColor: red[600] }}
+//           title='1 This is a very cool feature'
+//           subtitle='Just using this will blow your mind.'
+//         />
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_80975/GoogleInbox.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: blue[400] }}
+//           style={{ backgroundColor: blue[600] }}
+//           title='2 Ever wanted to be popular?'
+//           subtitle='Well just mix two colors and your are good to go!'
+//         />
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_76704/Google_Settings.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: green[400] }}
+//           style={{ backgroundColor: green[600] }}
+//           title='3 May the force be with you'
+//           subtitle='The Force is a metaphysical and ubiquitous power in the Star Wars fictional universe.'
+//         />
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_76704/Google_Settings.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: green[400] }}
+//           style={{ backgroundColor: green[600] }}
+//           title='4 May the force be with you'
+//           subtitle='The Force is a metaphysical and ubiquitous power in the Star Wars fictional universe.'
+//         />
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_76704/Google_Settings.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: green[400] }}
+//           style={{ backgroundColor: green[600] }}
+//           title='5 May the force be with you'
+//           subtitle='The Force is a metaphysical and ubiquitous power in the Star Wars fictional universe.'
+//         />
+//         <Slide
+//           media={
+//             <img src='http://www.icons101.com/icon_png/size_256/id_76704/Google_Settings.png' />
+//           }
+//           mediaBackgroundStyle={{ backgroundColor: green[400] }}
+//           style={{ backgroundColor: green[600] }}
+//           title='6 May the force be with you'
+//           subtitle='The Force is a metaphysical and ubiquitous power in the Star Wars fictional universe.'
+//         />
+//       </AutoRotatingCarousel>
+//     </div>
+//   );
+// };
 
 const HeroUnit = ({ location }) => {
   const classes = useStyles();
