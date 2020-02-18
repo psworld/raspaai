@@ -336,34 +336,30 @@ const ProductDetails = props => {
             xs={12}
             sm={12}
             md={2}>
-            {mrp && (
-              <>
-                <Button
-                  onClick={() =>
-                    viewer === null
-                      ? navigate(`/signin/?next=${window.location.pathname}`)
-                      : !called
-                      ? addItemToCart()
-                      : null
-                  }
-                  disabled={loading || !inStock}
-                  variant='contained'
-                  color='primary'
-                  style={{ width: '100%' }}>
-                  <Typography align='center'>
-                    {loading ? 'Adding' : 'Add to cart'}
-                  </Typography>
-                </Button>
-                {data && (
-                  <Typography align='center' style={{ color: green[600] }}>
-                    Item added successfully to cart
-                  </Typography>
-                )}
-                <br></br>
-                <Divider></Divider>
-                <br></br>
-              </>
+            <Button
+              onClick={() =>
+                viewer === null
+                  ? navigate(`/signin/?next=${window.location.pathname}`)
+                  : !called
+                  ? addItemToCart()
+                  : null
+              }
+              disabled={loading || !inStock}
+              variant='contained'
+              color='primary'
+              style={{ width: '100%' }}>
+              <Typography align='center'>
+                {loading ? 'Adding' : 'Add to cart'}
+              </Typography>
+            </Button>
+            {data && (
+              <Typography align='center' style={{ color: green[600] }}>
+                Item added successfully to cart
+              </Typography>
             )}
+            <br></br>
+            <Divider></Divider>
+            <br></br>
 
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
               Shop
