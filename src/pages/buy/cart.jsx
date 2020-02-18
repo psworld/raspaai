@@ -10,26 +10,30 @@ import {
   Step,
   StepLabel,
   Stepper,
-  TextField,
   Typography
 } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 import { navigate } from '@reach/router';
+import { format } from 'date-fns';
 import { Formik } from 'formik';
+import { TextField } from 'formik-material-ui';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import * as yup from 'yup';
 import Link from '../../components/core/Link';
 import Loading from '../../components/core/Loading';
-import singularOrPlural from '../../components/core/utils';
+import {
+  decryptText,
+  encryptText,
+  slugGenerator
+} from '../../components/core/utils';
 import Layout from '../../components/layout';
 import { VIEWER } from '../../components/navbar/ToolBarMenu';
 import ProductCollage from '../../components/templates/dashboard/ProductCollage';
 import ProductThumb from '../../components/templates/ProductThumb';
 import { CART_ITEMS } from '../cart';
-import { MY_ORDERS } from '../my-orders';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -63,16 +67,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const UserDetails = ({ formikProps, classes }) => {
-  const {
-    values,
-    touched,
-    errors,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    isSubmitting
-  } = formikProps;
-  const { firstName, lastName, phone } = values;
+  const { handleSubmit, isSubmitting } = formikProps;
 
   return (
     <Container maxWidth='md'>
@@ -83,18 +78,9 @@ const UserDetails = ({ formikProps, classes }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             required
-            id='firstName'
             name='firstName'
             type='text'
-            defaultValue={firstName}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.firstName && errors.firstName && true}
-            label={
-              touched.firstName && errors.firstName
-                ? errors.firstName
-                : 'First name'
-            }
+            label='First name'
             fullWidth
             autoComplete='fname'
           />
@@ -102,18 +88,9 @@ const UserDetails = ({ formikProps, classes }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             required
-            id='lastName'
             name='lastName'
             type='text'
-            value={lastName}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.lastName && errors.lastName && true}
-            label={
-              touched.lastName && errors.lastName
-                ? errors.lastName
-                : 'Last name'
-            }
+            label='Last name'
             fullWidth
             autoComplete='lname'
           />
@@ -122,14 +99,9 @@ const UserDetails = ({ formikProps, classes }) => {
         <Grid item xs={12}>
           <TextField
             required
-            id='phone'
             name='phone'
             type='number'
-            value={phone}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.phone && errors.phone && true}
-            label={touched.phone && errors.phone ? errors.phone : 'Phone'}
+            label='Phone'
             fullWidth
             autoComplete='phone'
           />
@@ -172,35 +144,90 @@ const CHECKOUT_CART = gql`
   }
 `;
 
-const Review = ({ cartLines, classes, values, handleNext, userId }) => {
+const CLEAR_CART = gql`
+  mutation {
+    clearCart(input: {}) {
+      success
+    }
+  }
+`;
+
+const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
+  const { id: userId, email: customerEmail } = viewerData.viewer;
   const { firstName, lastName, phone } = values;
+
+  const orderPlacedOn = format(new Date(), 'd MMM y  h:mm a');
 
   let offeredPriceTotal = 0;
   let mrpTotal = 0;
   let totalNoOfItems = 0;
 
+  // {"cartLineId":"orderMessage"}
+  const whatsappOrderMessages = {};
+
   cartLines.forEach(cartLine => {
+    const trackingId = Math.floor(100000 + Math.random() * 999999);
+    let cartLineMrpTotal = 0;
+    let cartLineOfferedPriceTotal = 0;
+    let whatsappOrderMessage = `--- *Order Info* ---%0aTracking id - *${trackingId}*%0aPlaced on ${orderPlacedOn}%0a%0a`;
+    totalNoOfItems += cartLine.items.edges.length;
     cartLine.items.edges.forEach(cartItem => {
       const cartItemNode = cartItem.node;
-      // const itemKey = cartItemNode.isCombo ? 'combo' : 'shopProduct';
 
+      const isCombo = cartItemNode.isCombo;
+      const productId = isCombo
+        ? cartItemNode.combo.id
+        : cartItemNode.shopProduct.id;
+      const productTitle = isCombo
+        ? cartItemNode.combo.name
+        : cartItemNode.shopProduct.product.title;
+      const baseUnit = isCombo
+        ? false
+        : cartItemNode.shopProduct.product.measurementUnit;
+      const baseUnitOfferedPrice = isCombo
+        ? cartItemNode.combo.offeredPrice
+        : cartItemNode.shopProduct.offeredPrice;
+
+      const productSlug = slugGenerator(productTitle);
+      const shopUsername = cartLine.shop.properties.publicUsername;
+
+      const productLink = `${window.location.origin}/shop/${shopUsername}/${
+        isCombo ? 'combo' : 'product'
+      }/${productSlug}/${productId}`;
+
+      whatsappOrderMessage += `*${productTitle}*%0a${productLink}%0a*Qty: ${
+        cartItemNode.quantity
+      }${
+        cartItemNode.measurementUnit ? cartItemNode.measurementUnit : ''
+      }*     Offered price: ₹${baseUnitOfferedPrice}${
+        baseUnit ? ' per ' + baseUnit : ''
+      }%0a%0a`;
+
+      // For a cart line. Mrp sub total is total cost of all the products at their
+      // mrp including qty
+      // cartLineOfferedPriceTotal is price paid by customer for all the item in
+      // cartLine
+      cartLineOfferedPriceTotal += cartItemNode.offeredPriceTotal;
+      cartLineMrpTotal += cartItemNode.totalCost;
+
+      // These are for whole cart summary. These can include different cart lines
       offeredPriceTotal += cartItemNode.offeredPriceTotal;
-      mrpTotal += cartItemNode.totalCost;
-
-      totalNoOfItems += cartItemNode.quantity;
+      mrpTotal += cartItemNode.totalCost
+        ? cartItemNode.totalCost
+        : cartItemNode.offeredPriceTotal;
     });
+    whatsappOrderMessage += `*--- Buyer information ---*%0a${firstName} ${lastName}%0aEmail ${customerEmail}%0aPhone ${phone}%0a%0a`;
+    whatsappOrderMessage +=
+      cartLineOfferedPriceTotal < cartLineMrpTotal
+        ? `*Amount to pay* ~₹${cartLineMrpTotal}~ *₹${cartLineOfferedPriceTotal}*%0aYou save ₹${cartLineMrpTotal -
+            cartLineOfferedPriceTotal}`
+        : `*Amount to pay ~₹${cartLineMrpTotal}~ ₹${cartLineOfferedPriceTotal}*`;
+    whatsappOrderMessage += `%0a%0aThankyou for using Raspaai. ❤`;
+
+    whatsappOrderMessages[cartLine.id] = whatsappOrderMessage;
   });
 
-  const noOfShops = cartLines && cartLines.length;
-
-  const [checkoutCart, { loading, data }] = useMutation(CHECKOUT_CART, {
-    variables: {
-      data: {
-        fullName: `${firstName} ${lastName}`,
-        phone
-      }
-    },
-    refetchQueries: [{ query: MY_ORDERS, variables: { userId } }],
+  const [clearCart, { loading, error, data }] = useMutation(CLEAR_CART, {
     update(store) {
       store.writeQuery({
         query: CART_ITEMS,
@@ -208,9 +235,28 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
       });
     },
     onCompleted() {
-      navigate('/my-orders');
+      navigate('/');
     }
   });
+
+  // const [checkoutCart, { loading, data }] = useMutation(CHECKOUT_CART, {
+  //   variables: {
+  //     data: {
+  //       fullName: `${firstName} ${lastName}`,
+  //       phone
+  //     }
+  //   },
+  //   refetchQueries: [{ query: MY_ORDERS, variables: { userId } }],
+  //   update(store) {
+  //     store.writeQuery({
+  //       query: CART_ITEMS,
+  //       data: { cartLines: [] }
+  //     });
+  //   },
+  //   onCompleted() {
+  //     navigate('/my-orders');
+  //   }
+  // });
 
   return (
     <>
@@ -221,13 +267,15 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
         </span>{' '}
         <span style={{ color: 'green' }}>&#x20b9;{offeredPriceTotal}</span>
       </Typography>
-      <Typography align='center' variant='h5'>
-        You save{' '}
-        <span style={{ color: 'blue' }}>
-          &#x20b9;{mrpTotal - offeredPriceTotal} (
-          {Math.round(100 - (100 / mrpTotal) * offeredPriceTotal)}%)
-        </span>
-      </Typography>
+      {offeredPriceTotal < mrpTotal && (
+        <Typography align='center' variant='h5'>
+          You save{' '}
+          <span style={{ color: 'blue' }}>
+            &#x20b9;{mrpTotal - offeredPriceTotal} (
+            {Math.round(100 - (100 / mrpTotal) * offeredPriceTotal)}%)
+          </span>
+        </Typography>
+      )}
       <Typography align='center' variant='h5'>
         Total no of items: {totalNoOfItems}
       </Typography>
@@ -241,7 +289,8 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
               properties: {
                 title: shopName,
                 publicUsername: shopUsername,
-                address
+                address,
+                contactNumber: shopContactNumber
               }
             },
             items: { edges: cartItems }
@@ -252,7 +301,7 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
 
           let mrpSubTotal = 0;
           let subTotal = 0;
-          let noOfItems = 0;
+          const noOfItems = cartItems.length;
           return (
             <div key={shopId} className={classes.grey}>
               <ListItem>
@@ -267,11 +316,11 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
                           const cartItemNode = cartItem.node;
 
                           subTotal += cartItemNode.offeredPriceTotal;
-                          noOfItems += cartItemNode.quantity;
                           mrpSubTotal += cartItemNode.totalCost;
 
                           const {
                             id: cartItemId,
+                            measurementUnit,
                             shopProduct,
                             combo,
                             quantity,
@@ -290,7 +339,12 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
                           } else {
                             var {
                               id: shopProductId,
-                              product: { title, thumb, mrp },
+                              product: {
+                                title,
+                                thumb,
+                                mrp,
+                                measurementUnit: baseMeasurementUnit
+                              },
                               offeredPrice,
                               inStock
                             } = shopProduct;
@@ -331,25 +385,32 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
                                     {inStock ? 'In stock' : 'Out of stock'}
                                   </Typography>
                                   <Grid container>
-                                    <Grid item xs={4} md={4}>
+                                    <Grid item xs={7} md={7}>
                                       <Typography>
-                                        Quantity: {quantity}
+                                        Qty: {quantity} {measurementUnit}
                                       </Typography>
                                     </Grid>
-                                    <Grid item xs={4} md={4}></Grid>
-                                    <Grid item xs={4}>
+
+                                    <Grid item xs={5} md={5}>
                                       <Typography
-                                        variant='h6'
+                                        variant='body1'
                                         style={{ color: green[800] }}>
-                                        <Typography variant='caption'>
-                                          <span
-                                            style={{
-                                              textDecoration: 'line-through'
-                                            }}>
-                                            &#x20b9;{mrp}
-                                          </span>{' '}
-                                        </Typography>
-                                        &#x20b9;{offeredPrice}
+                                        {mrp && (
+                                          <Typography variant='caption'>
+                                            <span
+                                              style={{
+                                                textDecoration: 'line-through'
+                                              }}>
+                                              &#x20b9;{mrp}
+                                            </span>{' '}
+                                          </Typography>
+                                        )}
+                                        &#x20b9;{offeredPrice}{' '}
+                                        {baseMeasurementUnit && (
+                                          <span style={{ fontSize: 'small' }}>
+                                            per {baseMeasurementUnit}
+                                          </span>
+                                        )}
                                       </Typography>
                                     </Grid>
                                   </Grid>
@@ -362,14 +423,10 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
                       <Typography variant='h6'>
                         Amount to pay{' '}
                         <span style={{ color: 'green' }}>
-                          &#x20b9; {subTotal}
+                          &#x20b9;{subTotal}
                         </span>
                       </Typography>
-                      <Typography variant='h6'>
-                        Items to collect ({totalNoOfItems} item
-                        {singularOrPlural(totalNoOfItems)})
-                      </Typography>
-                      <Typography variant='h6'>
+                      <Typography variant='body1'>
                         Collect at{' '}
                         <a
                           href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
@@ -381,6 +438,17 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
                     </div>
                   </ListItem>
                 </List>
+              </ListItem>
+              <ListItem>
+                <Button variant='contained' color='primary'>
+                  <a
+                    href={`https://wa.me/91${shopContactNumber}?text=${whatsappOrderMessages[cartLineId]}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    style={{ color: 'inherit' }}>
+                    Place whatsapp order
+                  </a>
+                </Button>
               </ListItem>
               <Divider></Divider>
             </div>
@@ -406,12 +474,12 @@ const Review = ({ cartLines, classes, values, handleNext, userId }) => {
       </Container>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Button
-          onClick={checkoutCart}
+          onClick={clearCart}
           disabled={loading || data}
           className={classes.button}
           variant='contained'
           color='primary'>
-          Place order
+          Done
         </Button>
       </div>
       {data && (
@@ -441,6 +509,10 @@ const CheckoutFromCart = () => {
 
   const steps = ['Your details', 'Review your order'];
 
+  let buyer = localStorage.getItem('BI');
+  buyer = buyer ? decryptText(buyer) : false;
+  buyer = buyer ? JSON.parse(buyer) : {};
+
   return (
     <Layout>
       <Container maxWidth='md'>
@@ -467,9 +539,9 @@ const CheckoutFromCart = () => {
                   ) : (
                     <Formik
                       initialValues={{
-                        firstName: '',
-                        lastName: '',
-                        phone: ''
+                        firstName: buyer.firstName,
+                        lastName: buyer.lastName,
+                        phone: buyer.phone
                       }}
                       validationSchema={yup.object().shape({
                         firstName: yup
@@ -490,9 +562,14 @@ const CheckoutFromCart = () => {
                           })
                           .required('Phone number required')
                       })}
-                      onSubmit={(values, { setSubmitting }) =>
-                        handleNext() & setSubmitting(false)
-                      }>
+                      onSubmit={(values, { setSubmitting }) => {
+                        localStorage.setItem(
+                          'BI',
+                          encryptText(JSON.stringify(values))
+                        );
+                        handleNext();
+                        setSubmitting(false);
+                      }}>
                       {formik => {
                         function getStepContent(step) {
                           switch (step) {
@@ -506,7 +583,7 @@ const CheckoutFromCart = () => {
                             case 1:
                               return (
                                 <Review
-                                  userId={viewerData.viewer.id}
+                                  viewerData={viewerData}
                                   cartLines={data.cartLines}
                                   classes={classes}
                                   values={formik.values}

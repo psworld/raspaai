@@ -388,10 +388,10 @@ const Combo = ({ comboId, shopUsername }) => {
           xs={12}
           sm={12}
           md={2}>
-          {/* <AddComboToCart viewer={viewer} comboId={comboId}></AddComboToCart> */}
-          {/* <br></br>
-          <Divider></Divider> */}
-          {/* <br></br> */}
+          <AddComboToCart viewer={viewer} comboId={comboId}></AddComboToCart>
+          <br></br>
+          <Divider></Divider>
+          <br></br>
           <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
             Shop
           </Typography>

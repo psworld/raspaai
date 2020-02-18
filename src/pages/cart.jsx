@@ -4,27 +4,32 @@ import {
   Container,
   Divider,
   Drawer,
-  FormControl,
   Grid,
   IconButton,
-  InputAdornment,
-  NativeSelect,
+  MenuItem,
   Paper,
-  Typography
+  Typography,
+  TextField as MuiTextField
 } from '@material-ui/core';
 import { blue } from '@material-ui/core/colors';
 import green from '@material-ui/core/colors/green';
 import ListItem from '@material-ui/core/ListItem';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Formik } from 'formik';
+import { TextField } from 'formik-material-ui';
 import { Link, navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
+import * as yup from 'yup';
 import ErrorPage from '../components/core/ErrorPage';
 import Loading from '../components/core/Loading';
 import UserCheck from '../components/core/UserCheck';
-import singularOrPlural, { slugGenerator } from '../components/core/utils';
+import singularOrPlural, {
+  slugGenerator,
+  updatedDiff
+} from '../components/core/utils';
 import Layout from '../components/layout';
 import { VIEWER } from '../components/navbar/ToolBarMenu';
 import SEO from '../components/seo';
@@ -67,6 +72,7 @@ export const CART_ITEMS = gql`
           title
           publicUsername
           address
+          contactNumber
         }
       }
       items {
@@ -75,6 +81,7 @@ export const CART_ITEMS = gql`
             id
             totalCost
             offeredPriceTotal
+            measurementUnit
             combo {
               id
               offeredPrice
@@ -92,6 +99,7 @@ export const CART_ITEMS = gql`
                 title
                 thumb
                 mrp
+                measurementUnit
               }
             }
             quantity
@@ -111,6 +119,7 @@ const CHANGE_CART_ITEM_QTY = gql`
         quantity
         totalCost
         offeredPriceTotal
+        measurementUnit
       }
     }
   }
@@ -124,7 +133,15 @@ const DELETE_CART_ITEM = gql`
   }
 `;
 
-const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
+const CartItem = ({
+  cartItemNode,
+  shopUsername,
+  shopId,
+  cartLineId,
+  formik,
+  changeQtyProps,
+  noSaving
+}) => {
   const {
     id: cartItemId,
     shopProduct,
@@ -147,14 +164,11 @@ const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
   } else {
     var {
       id: shopProductId,
-      product: { title, thumb, mrp },
+      product: { title, thumb, mrp, measurementUnit: baseMeasurementUnit },
       offeredPrice,
       inStock
     } = shopProduct;
   }
-
-  const [qty, setQty] = React.useState(quantity);
-  const [changeQty, { loading }] = useMutation(CHANGE_CART_ITEM_QTY);
 
   const [deleteCartItem, { loading: deleteCartItemLoading }] = useMutation(
     DELETE_CART_ITEM,
@@ -205,25 +219,20 @@ const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
     }
   );
 
-  const handleChange = event => {
-    setQty(event.target.value);
-    changeQty({
-      variables: {
-        data: { cartItemId, newQuantity: event.target.value, shopId }
-      }
-    });
-  };
-
   const productSlug = slugGenerator(title);
 
   const productUrl = isCombo
     ? `/shop/${shopUsername}/combo/${productSlug}/${comboId}`
     : `/shop/${shopUsername}/product/${productSlug}/${shopProductId}`;
 
+  const handleBlur = e => {
+    formik.handleSubmit(e);
+  };
+
   return (
     <>
       <SEO title='Shopping Cart' description='Shopping Cart'></SEO>
-      <Drawer open={loading || deleteCartItemLoading}></Drawer>
+      <Drawer open={changeQtyProps.loading || deleteCartItemLoading}></Drawer>
       <Grid item xs={3} sm={3} md={2} className={classes.thumb}>
         <Link to={productUrl}>
           {isCombo ? (
@@ -246,28 +255,32 @@ const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
             {inStock ? 'In stock' : 'Out of stock'}
           </Typography>
           <Grid container>
-            <Grid item xs={4} md={4}>
-              <FormControl className={classes.formControl}>
-                <NativeSelect
-                  value={qty}
-                  onChange={handleChange}
-                  name='qty'
-                  className={classes.selectEmpty}
-                  inputProps={{
-                    'aria-label': 'qty',
-                    'start-adornment': (
-                      <InputAdornment position='start'>Qty: </InputAdornment>
-                    )
-                  }}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(key => (
-                    <option key={key} value={key}>
-                      {key}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </FormControl>
+            <Grid item xs={2} md={2} style={{ paddingRight: 5 }}>
+              <MuiTextField
+                name='quantity'
+                type='number'
+                value={formik.values.quantity}
+                onChange={formik.handleChange}
+                onBlur={handleBlur}></MuiTextField>
             </Grid>
-            <Grid item xs={4} md={4}>
+            {formik.values.measurementUnit && (
+              <Grid item xs={2} md={2}>
+                <MuiTextField
+                  value={formik.values.measurementUnit}
+                  onChange={e => {
+                    formik.handleChange(e);
+                    formik.handleSubmit(e);
+                  }}
+                  onBlur={formik.handleBlur}
+                  name='measurementUnit'
+                  select>
+                  <MenuItem value={'g'}>g</MenuItem>
+                  <MenuItem value={'kg'}>kg</MenuItem>
+                </MuiTextField>
+              </Grid>
+            )}
+
+            <Grid item xs={2} md={2}>
               <IconButton
                 onClick={() =>
                   deleteCartItem({
@@ -286,17 +299,20 @@ const CartItem = ({ cartItemNode, shopUsername, shopId, cartLineId }) => {
                 <DeleteIcon></DeleteIcon>
               </IconButton>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={6}>
               <ListItem>
                 <Typography variant='h6'>
-                  <Typography variant='caption'>
-                    <span style={{ textDecoration: 'line-through' }}>
-                      &#x20b9;{mrp}
-                    </span>{' '}
-                  </Typography>
+                  {mrp && (
+                    <Typography variant='caption'>
+                      <span style={{ textDecoration: 'line-through' }}>
+                        &#x20b9;{mrp}
+                      </span>{' '}
+                    </Typography>
+                  )}
                   <span style={{ color: green[800] }}>
                     &#x20b9;{offeredPrice}
                   </span>
+                  {baseMeasurementUnit && <> Per {baseMeasurementUnit}</>}
                 </Typography>
               </ListItem>
             </Grid>
@@ -312,6 +328,8 @@ const Cart = () => {
 
   const { loading, error, data } = useQuery(CART_ITEMS);
 
+  const [changeQty, changeQtyProps] = useMutation(CHANGE_CART_ITEM_QTY);
+
   let offeredPriceTotal = 0;
   let mrpTotal = 0;
   let totalNoOfItems = 0;
@@ -320,16 +338,18 @@ const Cart = () => {
 
   data &&
     data.cartLines.forEach(cartLine => {
+      totalNoOfItems += cartLine.items.edges.length;
       cartLine.items.edges.forEach(cartItem => {
         const cartItemNode = cartItem.node;
-        // const itemKey = cartItemNode.isCombo ? 'combo' : 'shopProduct';
 
         offeredPriceTotal += cartItemNode.offeredPriceTotal;
-        mrpTotal += cartItemNode.totalCost;
-
-        totalNoOfItems += cartItemNode.quantity;
+        mrpTotal += cartItemNode.totalCost
+          ? cartItemNode.totalCost
+          : cartItemNode.offeredPriceTotal;
       });
     });
+
+  const noSaving = offeredPriceTotal === mrpTotal;
 
   const noOfShops = data && data.cartLines && data.cartLines.length;
 
@@ -375,7 +395,7 @@ const Cart = () => {
 
                       let mrpSubTotal = 0;
                       let subTotal = 0;
-                      let noOfItems = 0;
+                      let noOfItems = cartItems.length;
                       return (
                         <div key={shopId}>
                           <ListItem>
@@ -404,7 +424,6 @@ const Cart = () => {
 
                               subTotal += cartItemNode.offeredPriceTotal;
                               mrpSubTotal += cartItemNode.totalCost;
-                              noOfItems += cartItemNode.quantity;
 
                               if (
                                 !cartItemNode.isCombo &&
@@ -415,13 +434,60 @@ const Cart = () => {
                                 allItemsInStock = true;
                               }
 
+                              let formikProps = {};
+
                               return (
-                                <CartItem
-                                  key={cartItemNode.id}
-                                  shopId={shopId}
-                                  cartLineId={cartLineId}
-                                  shopUsername={shopUsername}
-                                  cartItemNode={cartItemNode}></CartItem>
+                                <Formik
+                                  initialValues={{
+                                    quantity: cartItemNode.quantity,
+                                    measurementUnit:
+                                      cartItemNode.measurementUnit
+                                  }}
+                                  validationSchema={yup.object().shape({
+                                    quantity: yup
+                                      .number('Invalid number')
+                                      .positive('Invalid quantity')
+                                      .max(1000)
+                                      .required('Required!'),
+                                    measurementUnit: yup
+                                      .string()
+                                      .max(10)
+                                      .nullable()
+                                  })}
+                                  onSubmit={(values, { setSubmitting }) => {
+                                    const changes = updatedDiff(
+                                      formikProps.initialValues,
+                                      values
+                                    );
+                                    if (formikProps.dirty) {
+                                      changeQty({
+                                        variables: {
+                                          data: {
+                                            cartItemId: cartItemNode.id,
+                                            shopId,
+                                            ...changes
+                                          }
+                                        }
+                                      });
+                                    }
+                                    setSubmitting(false);
+                                  }}>
+                                  {formik => {
+                                    formikProps = formik;
+                                    return (
+                                      <CartItem
+                                        key={cartItemNode.id}
+                                        shopId={shopId}
+                                        cartLineId={cartLineId}
+                                        shopUsername={shopUsername}
+                                        formik={formik}
+                                        cartItemNode={cartItemNode}
+                                        changeQtyProps={
+                                          changeQtyProps
+                                        }></CartItem>
+                                    );
+                                  }}
+                                </Formik>
                               );
                             })}
                           </Grid>
@@ -448,12 +514,14 @@ const Cart = () => {
                     <Typography variant='h5'>
                       Total ({totalNoOfItems} item
                       {singularOrPlural(totalNoOfItems)}):{' '}
-                      <Typography
-                        variant='body1'
-                        component='span'
-                        style={{ textDecoration: 'line-through' }}>
-                        &#x20b9;{mrpTotal}
-                      </Typography>{' '}
+                      {!noSaving && (
+                        <Typography
+                          variant='body1'
+                          component='span'
+                          style={{ textDecoration: 'line-through' }}>
+                          &#x20b9;{mrpTotal}
+                        </Typography>
+                      )}{' '}
                       <span style={{ color: 'green' }}>
                         <b>&#x20b9;{offeredPriceTotal}</b>
                       </span>
@@ -462,17 +530,19 @@ const Cart = () => {
                     <Typography variant='h6'>
                       From {noOfShops} shop{singularOrPlural(noOfShops)}
                     </Typography>
-                    <Typography variant='h6'>
-                      You save{' '}
-                      <span style={{ color: blue[600] }}>
-                        &#x20b9;{mrpTotal - offeredPriceTotal}
-                      </span>{' '}
-                      (
-                      {Math.round(
-                        (100 / mrpTotal) * (mrpTotal - offeredPriceTotal)
-                      )}
-                      %)
-                    </Typography>
+                    {!noSaving && (
+                      <Typography variant='h6'>
+                        You save{' '}
+                        <span style={{ color: blue[600] }}>
+                          &#x20b9;{mrpTotal - offeredPriceTotal}
+                        </span>{' '}
+                        (
+                        {Math.round(
+                          (100 / mrpTotal) * (mrpTotal - offeredPriceTotal)
+                        )}
+                        %)
+                      </Typography>
+                    )}
                     <br></br>
                     <Button
                       variant='contained'
