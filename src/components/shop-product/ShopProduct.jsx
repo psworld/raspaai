@@ -77,7 +77,7 @@ const ShopProductPage = props => {
   const { shopProductId, shopUsername } = props;
 
   const { loading, error, data } = useQuery(SHOP_PRODUCT, {
-    variables: { shopProductId }
+    variables: { shopProductId: decodeURIComponent(shopProductId) }
   });
   if (loading) return <ShopProductSkeleton></ShopProductSkeleton>;
   if (error) {

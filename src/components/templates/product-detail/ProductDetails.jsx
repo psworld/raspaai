@@ -39,6 +39,7 @@ const ADD_TO_CART = gql`
             title
             publicUsername
             address
+            contactNumber
           }
         }
         items {
@@ -47,6 +48,7 @@ const ADD_TO_CART = gql`
               id
               totalCost
               offeredPriceTotal
+              measurementUnit
               combo {
                 id
                 offeredPrice
@@ -64,6 +66,7 @@ const ADD_TO_CART = gql`
                   title
                   thumb
                   mrp
+                  measurementUnit
                 }
               }
               quantity
@@ -408,7 +411,7 @@ const ProductDetails = props => {
             <a
               href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
                 mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
-              }%0a${window.location.href}`}
+              }%0a${encodeURI(window.location.href)}`}
               target='_blank'
               rel='noopener noreferrer'>
               Whats app

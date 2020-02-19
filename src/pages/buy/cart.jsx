@@ -193,7 +193,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
 
       const productLink = `${window.location.origin}/shop/${shopUsername}/${
         isCombo ? 'combo' : 'product'
-      }/${productSlug}/${productId}`;
+      }/${productSlug}/${encodeURIComponent(productId)}`;
 
       whatsappOrderMessage += `*${productTitle}*%0a${productLink}%0a*Qty: ${
         cartItemNode.quantity
