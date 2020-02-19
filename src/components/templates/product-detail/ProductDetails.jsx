@@ -411,7 +411,7 @@ const ProductDetails = props => {
             <a
               href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
                 mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
-              }%0a${encodeURI(window.location.href)}/`}
+              }%0a${encodeURI(window.location.href)}/s`}
               target='_blank'
               rel='noopener noreferrer'>
               Whats app

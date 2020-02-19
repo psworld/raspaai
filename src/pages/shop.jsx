@@ -14,6 +14,10 @@ const ShopRouter = () => {
       <Router>
         {/* <ShopApplicationStatus path='/shop/application/:shopUsername'></ShopApplicationStatus>
         <CreateShop path='/shop/create-shop'></CreateShop> */}
+        {/* /s for the links that are shared. Shared in whatsapp order or from share now because whatsapp
+        no detecting url at = */}
+        <Combo path='/shop/:shopUsername/combo/:comboSlug/:comboId/s'></Combo>
+        <ShopProduct path='/shop/:shopUsername/product/:shopProductSlug/:shopProductId/s'></ShopProduct>
         <Combo path='/shop/:shopUsername/combo/:comboSlug/:comboId'></Combo>
         <ShopProduct path='/shop/:shopUsername/product/:shopProductSlug/:shopProductId'></ShopProduct>
         <ShopAboutPage path='/shop/:shopUsername/about'></ShopAboutPage>
