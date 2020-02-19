@@ -19,7 +19,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, useFormik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { TextField, Select as FormikSelect } from 'formik-material-ui';
 import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React, { useEffect } from 'react';
@@ -83,6 +83,7 @@ const MODIFY_BRAND_PRODUCT = gql`
         description
         longDescription
         thumbOverlayText
+        measurementUnit
         technicalDetails
         category {
           id
@@ -109,6 +110,7 @@ export const ModifyBrandProduct = ({
     description,
     longDescription,
     thumbOverlayText,
+    measurementUnit,
     category: { id: categoryId },
     type: { id: typeId },
     // isAvailable,
@@ -154,6 +156,7 @@ export const ModifyBrandProduct = ({
       thumbOverlayText,
       mrp: mrp,
       description,
+      measurementUnit,
       longDescription,
       technicalDetails: savedTechnicalDetails,
       images: imagesListDefault
@@ -174,6 +177,11 @@ export const ModifyBrandProduct = ({
         .string()
         .min(1, 'Too small')
         .max(64, 'Too big')
+        .nullable(),
+      measurementUnit: yup
+        .string()
+        .min(1)
+        .max(10)
         .nullable(),
       description: yup
         .string()
@@ -685,6 +693,17 @@ export const ModifyBrandProduct = ({
                     })}
                 </Select>
               </FormControl>
+
+              <FormControl className={classes.formControl}>
+                <InputLabel id='measurement-unit'>Unit</InputLabel>
+                <FormikSelect labelId='measurement-unit' name='measurementUnit'>
+                  <MenuItem value='g'>Gram</MenuItem>
+                  <MenuItem value='kg'>Kilogram</MenuItem>
+                  <MenuItem value='piece'>Piece</MenuItem>
+                  <MenuItem value='dozen'>Dozen</MenuItem>
+                </FormikSelect>
+              </FormControl>
+
               <Divider />
               <ListItem>
                 <TextField

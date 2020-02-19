@@ -132,6 +132,7 @@ const ProductDetails = props => {
     title: productTitle,
     mrp,
     description,
+    measurementUnit,
     images: { edges: imagesNodeList },
     category: { name: categoryName, username: categoryUsername },
     type: { name: typeName },
@@ -194,7 +195,6 @@ const ProductDetails = props => {
       }
     }
   );
-  const offeredPriceUnit = technicalDetails['Offered Price'];
 
   return (
     <>
@@ -263,7 +263,9 @@ const ProductDetails = props => {
                     {' '}
                     &#x20b9;{offeredPrice}
                   </span>{' '}
-                  <b style={{ fontSize: 'large' }}> {offeredPriceUnit}</b>
+                  {measurementUnit && (
+                    <b style={{ fontSize: 'large' }}>Per {measurementUnit}</b>
+                  )}
                 </Typography>
               </ListItem>
               {mrp && (

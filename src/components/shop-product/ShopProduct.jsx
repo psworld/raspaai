@@ -20,6 +20,7 @@ const SHOP_PRODUCT = gql`
         title
         mrp
         description
+        measurementUnit
         images {
           edges {
             node {

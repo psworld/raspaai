@@ -229,6 +229,19 @@ const CartItem = ({
     formik.handleSubmit(e);
   };
 
+  const measurementUnitPossibilities = unit => {
+    const mass = ['g', 'kg'];
+    const count = ['piece', 'dozen'];
+
+    if (!unit) return undefined;
+
+    return mass.includes(unit)
+      ? mass
+      : count.includes(unit)
+      ? count
+      : undefined;
+  };
+
   return (
     <>
       <SEO title='Shopping Cart' description='Shopping Cart'></SEO>
@@ -274,8 +287,12 @@ const CartItem = ({
                   onBlur={formik.handleBlur}
                   name='measurementUnit'
                   select>
-                  <MenuItem value={'g'}>g</MenuItem>
-                  <MenuItem value={'kg'}>kg</MenuItem>
+                  {measurementUnitPossibilities(
+                    formik.values.measurementUnit
+                  ) &&
+                    measurementUnitPossibilities(
+                      formik.values.measurementUnit
+                    ).map(unit => <MenuItem value={unit}>{unit}</MenuItem>)}
                 </MuiTextField>
               </Grid>
             )}

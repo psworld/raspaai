@@ -221,7 +221,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
       cartLineOfferedPriceTotal < cartLineMrpTotal
         ? `*Amount to pay* ~₹${cartLineMrpTotal}~ *₹${cartLineOfferedPriceTotal}*%0aYou save ₹${cartLineMrpTotal -
             cartLineOfferedPriceTotal}`
-        : `*Amount to pay ~₹${cartLineMrpTotal}~ ₹${cartLineOfferedPriceTotal}*`;
+        : `*Amount to pay ₹${cartLineOfferedPriceTotal}*`;
     whatsappOrderMessage += `%0a%0aThankyou for using Raspaai. ❤`;
 
     whatsappOrderMessages[cartLine.id] = whatsappOrderMessage;
@@ -305,140 +305,129 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
           return (
             <div key={shopId} className={classes.grey}>
               <ListItem>
-                <List>
-                  <ListItem>
-                    <Typography variant='h5'>{shopName}</Typography>
-                  </ListItem>
-                  <ListItem className={classes.nested}>
-                    <div>
-                      <Grid container>
-                        {cartItems.map(cartItem => {
-                          const cartItemNode = cartItem.node;
-
-                          subTotal += cartItemNode.offeredPriceTotal;
-                          mrpSubTotal += cartItemNode.totalCost;
-
-                          const {
-                            id: cartItemId,
-                            measurementUnit,
-                            shopProduct,
-                            combo,
-                            quantity,
-                            isCombo
-                          } = cartItem.node;
-
-                          if (isCombo) {
-                            var {
-                              id: comboId,
-                              offeredPrice,
-                              name: title,
-                              thumbs,
-                              totalCost: mrp,
-                              isAvailable: inStock
-                            } = combo;
-                          } else {
-                            var {
-                              id: shopProductId,
-                              product: {
-                                title,
-                                thumb,
-                                mrp,
-                                measurementUnit: baseMeasurementUnit
-                              },
-                              offeredPrice,
-                              inStock
-                            } = shopProduct;
-                          }
-
-                          return (
-                            <>
-                              <Grid
-                                item
-                                xs={3}
-                                sm={3}
-                                md={3}
-                                className={classes.thumb}>
-                                {isCombo ? (
-                                  <ProductCollage
-                                    thumbs={thumbs}
-                                    title={title}></ProductCollage>
-                                ) : (
-                                  <ProductThumb
-                                    src={thumb}
-                                    title={title}></ProductThumb>
-                                )}
-                              </Grid>
-                              <Grid item xs={9} sm={9} md={9}>
-                                <div style={{ paddingLeft: 6 }}>
-                                  <Typography variant='h6'>
-                                    {title.substring(0, 60)}
-                                    {title.length > 60 && '...'}
-                                  </Typography>
-                                  <Typography
-                                    style={
-                                      inStock
-                                        ? { color: green[900] }
-                                        : { color: 'red' }
-                                    }
-                                    // component={"p"}
-                                    variant='subtitle2'>
-                                    {inStock ? 'In stock' : 'Out of stock'}
-                                  </Typography>
-                                  <Grid container>
-                                    <Grid item xs={7} md={7}>
-                                      <Typography>
-                                        Qty: {quantity} {measurementUnit}
-                                      </Typography>
-                                    </Grid>
-
-                                    <Grid item xs={5} md={5}>
-                                      <Typography
-                                        variant='body1'
-                                        style={{ color: green[800] }}>
-                                        {mrp && (
-                                          <Typography variant='caption'>
-                                            <span
-                                              style={{
-                                                textDecoration: 'line-through'
-                                              }}>
-                                              &#x20b9;{mrp}
-                                            </span>{' '}
-                                          </Typography>
-                                        )}
-                                        &#x20b9;{offeredPrice}{' '}
-                                        {baseMeasurementUnit && (
-                                          <span style={{ fontSize: 'small' }}>
-                                            per {baseMeasurementUnit}
-                                          </span>
-                                        )}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </div>
-                              </Grid>
-                            </>
-                          );
-                        })}
-                      </Grid>
-                      <Typography variant='h6'>
-                        Amount to pay{' '}
-                        <span style={{ color: 'green' }}>
-                          &#x20b9;{subTotal}
-                        </span>
-                      </Typography>
-                      <Typography variant='body1'>
-                        Collect at{' '}
-                        <a
-                          href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
-                          target='_blank'
-                          rel='noopener noreferrer'>
-                          {address}
-                        </a>
-                      </Typography>
-                    </div>
-                  </ListItem>
-                </List>
+                <Typography variant='h5'>{shopName}</Typography>
               </ListItem>
+
+              <Grid container>
+                {cartItems.map(cartItem => {
+                  const cartItemNode = cartItem.node;
+
+                  subTotal += cartItemNode.offeredPriceTotal;
+                  mrpSubTotal += cartItemNode.totalCost;
+
+                  const {
+                    id: cartItemId,
+                    measurementUnit,
+                    shopProduct,
+                    combo,
+                    quantity,
+                    isCombo
+                  } = cartItem.node;
+
+                  if (isCombo) {
+                    var {
+                      id: comboId,
+                      offeredPrice,
+                      name: title,
+                      thumbs,
+                      totalCost: mrp,
+                      isAvailable: inStock
+                    } = combo;
+                  } else {
+                    var {
+                      id: shopProductId,
+                      product: {
+                        title,
+                        thumb,
+                        mrp,
+                        measurementUnit: baseMeasurementUnit
+                      },
+                      offeredPrice,
+                      inStock
+                    } = shopProduct;
+                  }
+
+                  return (
+                    <>
+                      <Grid item xs={3} sm={3} md={2} className={classes.thumb}>
+                        {isCombo ? (
+                          <ProductCollage
+                            thumbs={thumbs}
+                            title={title}></ProductCollage>
+                        ) : (
+                          <ProductThumb
+                            src={thumb}
+                            title={title}></ProductThumb>
+                        )}
+                      </Grid>
+                      <Grid item xs={9} sm={9} md={9}>
+                        <div style={{ paddingLeft: 6 }}>
+                          <Typography variant='h6'>
+                            {title.substring(0, 60)}
+                            {title.length > 60 && '...'}
+                          </Typography>
+                          <Typography
+                            style={
+                              inStock ? { color: green[900] } : { color: 'red' }
+                            }
+                            // component={"p"}
+                            variant='subtitle2'>
+                            {inStock ? 'In stock' : 'Out of stock'}
+                          </Typography>
+
+                          <Grid container>
+                            <Grid item xs={12} md={6}>
+                              <Typography>
+                                Qty: {quantity} {measurementUnit}
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <Typography
+                                variant='body1'
+                                style={{ color: green[800] }}>
+                                {mrp && (
+                                  <Typography variant='caption'>
+                                    <span
+                                      style={{
+                                        textDecoration: 'line-through'
+                                      }}>
+                                      &#x20b9;{mrp}
+                                    </span>{' '}
+                                  </Typography>
+                                )}
+                                &#x20b9;{offeredPrice}{' '}
+                                {baseMeasurementUnit && (
+                                  <span style={{ fontSize: 'small' }}>
+                                    per {baseMeasurementUnit}
+                                  </span>
+                                )}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </div>
+                      </Grid>
+                    </>
+                  );
+                })}
+              </Grid>
+              <ListItem>
+                <Typography variant='h6'>
+                  Amount to pay{' '}
+                  <span style={{ color: 'green' }}>&#x20b9;{subTotal}</span>
+                </Typography>
+              </ListItem>
+              <ListItem>
+                <Typography variant='body1'>
+                  Collect at{' '}
+                  <a
+                    href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
+                    target='_blank'
+                    rel='noopener noreferrer'>
+                    {address}
+                  </a>
+                </Typography>
+              </ListItem>
+
               <ListItem>
                 <Button variant='contained' color='primary'>
                   <a
