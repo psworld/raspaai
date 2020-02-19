@@ -498,7 +498,8 @@ const CheckoutFromCart = () => {
 
   const steps = ['Your details', 'Review your order'];
 
-  let buyer = localStorage.getItem('BI');
+  let buyer =
+    typeof window !== 'undefined' ? localStorage.getItem('BI') : false;
   buyer = buyer ? decryptText(buyer) : false;
   buyer = buyer ? JSON.parse(buyer) : {};
 
