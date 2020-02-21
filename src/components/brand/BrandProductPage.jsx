@@ -13,6 +13,7 @@ export const PRODUCT = gql`
       title
       mrp
       description
+      measurementUnit
       images {
         edges {
           node {

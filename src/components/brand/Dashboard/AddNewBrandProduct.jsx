@@ -15,12 +15,11 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField as MuiTextField,
   Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, useFormik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { TextField, Select as FormikSelect } from 'formik-material-ui';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
@@ -141,6 +140,11 @@ const AddNewBrandProduct = ({ brandUsername }) => {
         .min(1, 'Too small')
         .max(64, 'Too big')
         .nullable(),
+      measurementUnit: yup
+        .string()
+        .min(1)
+        .max(10)
+        .nullable(),
       description: yup
         .string()
         .min(10, 'Too small')
@@ -220,11 +224,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
     currentCategoryUsername === 'raspaaifood' ||
     currentCategoryUsername === 'raspaaiservices'
   );
-
-  const handleTechnicalDetailChanges = e => {
-    const name = e.target.name;
-    formik.setFieldValue(`technicalDetails.${name}`, e.target.value);
-  };
 
   const handleImageDelete = () => {
     const imgNode = values.base64images[currentImageIndex].node;
@@ -626,6 +625,18 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                   </Select>
                 </FormControl>
 
+                <FormControl className={classes.formControl}>
+                  <InputLabel id='measurement-unit'>Unit</InputLabel>
+                  <FormikSelect
+                    labelId='measurement-unit'
+                    name='measurementUnit'>
+                    <MenuItem value='g'>Gram</MenuItem>
+                    <MenuItem value='kg'>Kilogram</MenuItem>
+                    <MenuItem value='pc'>Piece</MenuItem>
+                    <MenuItem value='dozen'>Dozen</MenuItem>
+                  </FormikSelect>
+                </FormControl>
+
                 <ListItem>
                   <TextField
                     name='thumbOverlayText'
@@ -633,6 +644,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                     label='Text to be overladed on thumb'
                     fullWidth></TextField>
                 </ListItem>
+
                 <Divider />
                 <ListItem style={{ paddingBottom: 0 }}>
                   &ensp;&ensp;&ensp;&ensp;&ensp;M.R.P:&ensp;

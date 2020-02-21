@@ -39,6 +39,7 @@ const ADD_TO_CART = gql`
             title
             publicUsername
             address
+            contactNumber
           }
         }
         items {
@@ -47,6 +48,7 @@ const ADD_TO_CART = gql`
               id
               totalCost
               offeredPriceTotal
+              measurementUnit
               combo {
                 id
                 offeredPrice
@@ -64,6 +66,7 @@ const ADD_TO_CART = gql`
                   title
                   thumb
                   mrp
+                  measurementUnit
                 }
               }
               quantity
@@ -132,6 +135,7 @@ const ProductDetails = props => {
     title: productTitle,
     mrp,
     description,
+    measurementUnit,
     images: { edges: imagesNodeList },
     category: { name: categoryName, username: categoryUsername },
     type: { name: typeName },
@@ -194,7 +198,6 @@ const ProductDetails = props => {
       }
     }
   );
-  const offeredPriceUnit = technicalDetails['Offered Price'];
 
   return (
     <>
@@ -263,7 +266,9 @@ const ProductDetails = props => {
                     {' '}
                     &#x20b9;{offeredPrice}
                   </span>{' '}
-                  <b style={{ fontSize: 'large' }}> {offeredPriceUnit}</b>
+                  {measurementUnit && (
+                    <b style={{ fontSize: 'large' }}>Per {measurementUnit}</b>
+                  )}
                 </Typography>
               </ListItem>
               {mrp && (
@@ -406,7 +411,7 @@ const ProductDetails = props => {
             <a
               href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
                 mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
-              }%0a${window.location.href}`}
+              }%0a${encodeURI(window.location.href)}/s`}
               target='_blank'
               rel='noopener noreferrer'>
               Whats app

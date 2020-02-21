@@ -30,7 +30,7 @@ export const BRAND_PRODUCTS = gql`
     brandProducts(
       publicBrandUsername: $publicBrandUsername
       phrase: $phrase
-      first: 10
+      first: 20
       after: $endCursor
     )
       @connection(
