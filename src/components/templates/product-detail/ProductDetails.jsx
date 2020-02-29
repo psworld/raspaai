@@ -424,27 +424,27 @@ const ProductDetails = props => {
               returnRefundPolicy={returnRefundPolicy}></ReturnRefundPolicy>
             <br></br>
           </Grid>
-        ) : viewer && viewer.shop && viewer.shop.properties.isActive ? (
-          <Grid
-            style={{ paddingLeft: 8, paddingRight: 8, marginTop: 8 }}
-            item
-            xs={12}
-            sm={12}
-            md={2}>
-            <Button
-              component={Link}
-              to={`/dashboard/shop/${
-                viewer.shop.properties.publicUsername
-              }/${getProductType()}/add/search/${productTitle}`}
-              variant='contained'
-              color='primary'>
-              Add to shop
-            </Button>
-          </Grid>
         ) : (
-          <>
-            Your shop plans have expired. Recharge to continue using the service
-          </>
+          viewer &&
+          viewer.shop &&
+          viewer.shop.properties.isActive && (
+            <Grid
+              style={{ paddingLeft: 8, paddingRight: 8, marginTop: 8 }}
+              item
+              xs={12}
+              sm={12}
+              md={2}>
+              <Button
+                component={Link}
+                to={`/dashboard/shop/${
+                  viewer.shop.properties.publicUsername
+                }/${getProductType()}/add/search/${productTitle}`}
+                variant='contained'
+                color='primary'>
+                Add to shop
+              </Button>
+            </Grid>
+          )
         )}
       </Grid>
     </>

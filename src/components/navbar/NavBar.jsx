@@ -191,14 +191,13 @@ export default function NavBar({ searchPhrase }) {
       onClick={toggleDrawer(side, false)}
       onKeyDown={toggleDrawer(side, false)}>
       <List>
-        {['Raspaai'].map((text, index) => (
-          <ListItem component={MenuItemLink} to='/' key={text}>
-            {/* <ListItemIcon>
-              <MailIcon />
-            </ListItemIcon> */}
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        <ListItem component={MenuItemLink} to='/'>
+          <ListItemText primary='Raspaai' />
+        </ListItem>
+        <ListItem component={MenuItemLink} to='/set-location'>
+          <ListItemText primary='Set Location'></ListItemText>
+        </ListItem>
+
         <Divider></Divider>
         <ListItem component={MenuItemLink} to='/cart'>
           <ListItemText primary='My Cart' />

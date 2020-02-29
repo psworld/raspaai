@@ -65,8 +65,9 @@ const ContactUs = () => {
               <Typography>
                 Email:{' '}
                 <a
-                  href='malito:raspaai.in@gmail.com?Subject=Query'
-                  target='_top'>
+                  id='email'
+                  href='mailto:raspaai.in@gmail.com?Subject=Query'
+                  target='_blank'>
                   raspaai.in@gmail.com
                 </a>
               </Typography>
@@ -92,7 +93,7 @@ const ContactUs = () => {
               <Typography>
                 Email:{' '}
                 <a
-                  href='malito:raspaai.in@gmail.com?Subject=Registration'
+                  href='mailto:raspaai.in@gmail.com?Subject=Registration'
                   target='_top'>
                   raspaai.in@gmail.com
                 </a>

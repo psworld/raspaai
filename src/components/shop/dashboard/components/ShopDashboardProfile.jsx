@@ -344,8 +344,8 @@ const ShopAbout = ({ defaultAboutValue }) => {
                 id='shop-about'
                 name='about'
                 label='About your shop'
-                required
                 fullWidth
+                required
                 placeholder='About your shop'
                 multiline
                 variant='outlined'
