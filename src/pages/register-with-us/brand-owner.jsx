@@ -24,7 +24,7 @@ const BrandOwner = () => {
           align='center'
           // color='textSecondary'
           component='p'>
-          Register with us and get reach for you products.<br></br>
+          Register with us and get reach for your products.<br></br>
           Get your brand online and make it easy for your customers to discover
           your great products.
         </Typography>
@@ -47,7 +47,7 @@ const BrandOwner = () => {
             <Typography>
               Email:{' '}
               <a
-                href='malito:raspaai.in@gmail.com?Subject=Registration'
+                href='mailto:raspaai.in@gmail.com?Subject=Registration'
                 target='_top'>
                 raspaai.in@gmail.com
               </a>

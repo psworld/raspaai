@@ -46,7 +46,7 @@ const ShopOwner = () => {
             <Typography>
               Email:{' '}
               <a
-                href='malito:raspaai.in@gmail.com?Subject=Registration'
+                href='mailto:raspaai.in@gmail.com?Subject=Registration'
                 target='_top'>
                 raspaai.in@gmail.com
               </a>

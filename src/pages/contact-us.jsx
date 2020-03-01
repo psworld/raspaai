@@ -65,9 +65,8 @@ const ContactUs = () => {
               <Typography>
                 Email:{' '}
                 <a
-                  id='email'
                   href='mailto:raspaai.in@gmail.com?Subject=Query'
-                  target='_blank'>
+                  target='_top'>
                   raspaai.in@gmail.com
                 </a>
               </Typography>
