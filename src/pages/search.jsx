@@ -8,6 +8,7 @@ import Loading from '../components/core/Loading';
 import ErrorPage from '../components/core/ErrorPage';
 import { Typography } from '@material-ui/core';
 import { decryptText } from '../components/core/utils';
+import SEO from '../components/seo';
 
 const Search = () => {
   const { data, loading, error } = useQuery(LOCAL_SAVED_LOCATION);
@@ -20,6 +21,9 @@ const Search = () => {
 
   return (
     <Layout searchPhrase={decodeURI(pathname.split('/')[2])}>
+      <SEO
+        title={searchPhrase}
+        description={`Nearby search result for ${searchPhrase}`}></SEO>
       {data && data.localSavedLocation && (
         <Router>
           <SearchResultPage

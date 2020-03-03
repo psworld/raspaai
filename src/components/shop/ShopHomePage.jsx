@@ -191,6 +191,7 @@ const SHOP = gql`
 
 const sections = [
   { id: 'About', url: '' },
+  { id: 'Share', url: '#share' },
   { id: 'Address', url: '#address' },
   { id: 'Active time', url: '#active-time' },
   { id: 'Contact', url: '#contact' },

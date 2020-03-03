@@ -3,7 +3,8 @@ import {
   List,
   ListItem,
   Paper,
-  Typography
+  Typography,
+  Grid
 } from '@material-ui/core';
 import { format } from 'date-fns';
 import gql from 'graphql-tag';
@@ -14,6 +15,9 @@ import { MenuItemLink } from '../core/Link';
 import Loading from '../core/Loading';
 import { getDayName, getIsStoreOpenNow } from '../core/utils';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import WhatsAppIcon from '@material-ui/icons/WhatsApp';
+import FacebookIcon from '@material-ui/icons/Facebook';
 
 export const SHOP = gql`
   query($publicShopUsername: String!) {
@@ -108,6 +112,11 @@ const ShopAboutPage = ({ shopUsername }) => {
     const lat = coordinates[1];
     const lng = coordinates[0];
 
+    const SHOP_URL = encodeURI(
+      `${window.location.origin}/shop/${shopUsername}`
+    );
+    const THANKYOU_TEXT = `Raspaai ❤`;
+
     return (
       <Container maxWidth='sm'>
         <Paper style={{ marginTop: 10 }}>
@@ -171,6 +180,45 @@ const ShopAboutPage = ({ shopUsername }) => {
               <Typography>
                 <a href={`tel:${contactNumber}`}>+91{contactNumber}</a>
               </Typography>
+            </ListItem>
+
+            <ListItem>
+              <Typography id='share' variant='h4'>
+                Share on
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Grid container spacing={1}>
+                <Grid item xs={3} md={3}>
+                  <a
+                    href={`https://wa.me/?text=${shopName}%0a${about}%0a%0aCheckout this shop at%0a${SHOP_URL}%0a%0a${THANKYOU_TEXT}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    style={{ color: 'green' }}>
+                    <WhatsAppIcon></WhatsAppIcon>
+                  </a>
+                </Grid>
+
+                <Grid item xs={3} md={3}>
+                  <a
+                    style={{ color: '#38A1F3' }}
+                    href={`https://twitter.com/intent/tweet?text=${shopName}%0a${about}%0a%0aCheckout this shop at &url=${SHOP_URL}&text=%0a${THANKYOU_TEXT}`}
+                    target='_blank'
+                    rel='noopener noreferrer'>
+                    <TwitterIcon></TwitterIcon>
+                  </a>
+                </Grid>
+
+                <Grid item xs={3} md={3}>
+                  <a
+                    style={{ color: '#3b5998' }}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${SHOP_URL}`}
+                    target='_blank'
+                    rel='noopener noreferrer'>
+                    <FacebookIcon></FacebookIcon>
+                  </a>
+                </Grid>
+              </Grid>
             </ListItem>
 
             <ListItem>

@@ -20,13 +20,13 @@ const useStyles = makeStyles(theme => ({
   overlay: {
     position: 'absolute',
     top: '5px',
-    left: '-30px',
+    // left: '-30px',
     color: 'black',
-    width: '100px',
-    backgroundColor: 'white',
+    // width: '100px',
+    backgroundColor: 'white'
     //   msTransform: rotate(45deg),
     // -webkit-transform: rotate(45deg),
-    transform: `rotate(-45deg)`
+    // transform: `rotate(-45deg)`
   },
   overlayQuantity: {
     position: 'absolute',

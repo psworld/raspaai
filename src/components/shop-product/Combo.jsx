@@ -23,6 +23,9 @@ import ProductCollage from '../templates/dashboard/ProductCollage';
 import MainFeaturedPost from '../templates/MainFeaturedPost';
 import { ReturnRefundPolicy } from '../templates/product-detail/ProductDetails';
 import ProductThumb from '../templates/ProductThumb';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import WhatsAppIcon from '@material-ui/icons/WhatsApp';
+import FacebookIcon from '@material-ui/icons/Facebook';
 
 const COMBO = gql`
   query($comboId: ID!) {
@@ -288,6 +291,8 @@ const Combo = ({ comboId, shopUsername }) => {
       totalCost += comboNode.quantity * price;
     });
 
+    const SHARE_URL = window.location.href;
+
     return (
       <Grid container>
         <SEO title={`${name} | ${shopName}`} description={description}></SEO>
@@ -393,8 +398,9 @@ const Combo = ({ comboId, shopUsername }) => {
           <Divider></Divider>
           <br></br>
           <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
-            Shop
+            <Link to={`/shop/${shopUsername}`}>{shopName}</Link>
           </Typography>
+          <br></br>
           <MainFeaturedPost
             img={heroImage}
             title={shopUsername}></MainFeaturedPost>
@@ -432,14 +438,46 @@ const Combo = ({ comboId, shopUsername }) => {
           </Typography>
 
           <br></br>
+          <Divider></Divider>
           <Typography variant='h6'>Share on</Typography>
-          <a
-            href={`https://wa.me/?text=${name}%0aFor Rs.${offeredPrice}%0aYou save Rs.${totalCost -
-              offeredPrice}%0a${window.location.href}`}
-            target='_blank'
-            rel='noopener noreferrer'>
-            Whats app
-          </a>
+          <Grid container spacing={1}>
+            <Grid item xs={3} md={3}>
+              <a
+                href={`https://wa.me/?text=${name}%0aFor Rs.${offeredPrice}%0aYou save Rs.${totalCost -
+                  offeredPrice}%0aSold by ${shopName}%0a%0a${encodeURI(
+                  SHARE_URL
+                )}/s`}
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{ color: 'green' }}>
+                <WhatsAppIcon></WhatsAppIcon>
+              </a>
+            </Grid>
+
+            <Grid item xs={3} md={3}>
+              <a
+                style={{ color: '#38A1F3' }}
+                href={`https://twitter.com/intent/tweet?text=${name}%0aFor Rs.${offeredPrice}%0aSold by ${shopName}%0a&url=${encodeURI(
+                  SHARE_URL
+                )}/s&text=%0a&hashtags=raspaai`}
+                target='_blank'
+                rel='noopener noreferrer'>
+                <TwitterIcon></TwitterIcon>
+              </a>
+            </Grid>
+
+            <Grid item xs={3} md={3}>
+              <a
+                style={{ color: '#3b5998' }}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURI(
+                  SHARE_URL
+                )}/s`}
+                target='_blank'
+                rel='noopener noreferrer'>
+                <FacebookIcon></FacebookIcon>
+              </a>
+            </Grid>
+          </Grid>
           <br></br>
           <br></br>
           <Divider></Divider>

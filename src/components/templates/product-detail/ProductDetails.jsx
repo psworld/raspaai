@@ -24,6 +24,9 @@ import { ShopActiveTime } from '../../shop/ShopAboutPage';
 import { InactiveShop } from '../../shop/ShopHomePage';
 import MainFeaturedPost from '../MainFeaturedPost';
 import ProductImageCarousel from './ProductImageCarousel';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import WhatsAppIcon from '@material-ui/icons/WhatsApp';
+import FacebookIcon from '@material-ui/icons/Facebook';
 
 const ADD_TO_CART = gql`
   mutation($data: AddItemToCartInput!) {
@@ -367,8 +370,9 @@ const ProductDetails = props => {
             <br></br>
 
             <Typography style={{ marginTop: 10 }} align='center' variant='h5'>
-              Shop
+              <Link to={`/shop/${shopPublicUsername}`}>{shopName}</Link>
             </Typography>
+            <br></br>
             <MainFeaturedPost
               img={heroImageThumb}
               title={shopName}
@@ -407,17 +411,48 @@ const ProductDetails = props => {
             </Typography>
 
             <br></br>
+            <Divider></Divider>
             <Typography variant='h6'>Share on</Typography>
-            <a
-              href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
-                mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
-              }%0aSold by ${shopName}%0a%0a${encodeURI(
-                window.location.href
-              )}/s`}
-              target='_blank'
-              rel='noopener noreferrer'>
-              Whats app
-            </a>
+            <Grid container spacing={1}>
+              <Grid item xs={3} md={3}>
+                <a
+                  href={`https://wa.me/?text=${productTitle}%0aFor Rs.${offeredPrice}${
+                    mrp ? `%0aYou save Rs.${mrp - offeredPrice}` : ``
+                  }%0aSold by ${shopName}%0a%0a${encodeURI(
+                    window.location.href
+                  )}/s`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  style={{ color: 'green' }}>
+                  <WhatsAppIcon></WhatsAppIcon>
+                </a>
+              </Grid>
+
+              <Grid item xs={3} md={3}>
+                <a
+                  style={{ color: '#38A1F3' }}
+                  href={`https://twitter.com/intent/tweet?text=${productTitle}%0aFor Rs.${offeredPrice}%0aSold by ${shopName}%0a&url=${encodeURI(
+                    window.location.href
+                  )}/s&text=%0a&hashtags=raspaai`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  <TwitterIcon></TwitterIcon>
+                </a>
+              </Grid>
+
+              <Grid item xs={3} md={3}>
+                <a
+                  style={{ color: '#3b5998' }}
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURI(
+                    window.location.href
+                  )}/s`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  <FacebookIcon></FacebookIcon>
+                </a>
+              </Grid>
+            </Grid>
+
             <br></br>
             <br></br>
             <Divider></Divider>
