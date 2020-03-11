@@ -294,7 +294,8 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                   size: file.size
                 };
 
-                if (image.ratio !== 80 || Math.round(image.size / 1000) > 101) {
+                // if (image.ratio !== 80 || Math.round(image.size / 1000) > 101) {
+                if (Math.round(image.size / 1000) > 101) {
                   resolveInvalidImg(image);
                 } else {
                   newImageFiles.push(image);
@@ -449,7 +450,12 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                       {values.base64images.map((imgObj, index) => {
                         const { base64: src, name } = imgObj.node;
                         return (
-                          <div key={index}>
+                          <div
+                            style={{
+                              backgroundColor: 'white',
+                              backgroundSize: 'contain'
+                            }}
+                            key={index}>
                             <img
                               src={src}
                               style={{
