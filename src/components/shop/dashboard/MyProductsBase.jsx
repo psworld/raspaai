@@ -58,10 +58,7 @@ export const DASHBOARD_SHOP_PRODUCTS = gql`
           occupiedSpace
           activePlan {
             id
-            plan {
-              id
-              productSpace
-            }
+            productSpace
           }
         }
       }
@@ -407,9 +404,7 @@ export const getTypeName = type => {
 const RemainingProductSpace = ({ shop }) => {
   const {
     occupiedSpace,
-    activePlan: {
-      plan: { productSpace }
-    }
+    activePlan: { productSpace }
   } = shop.properties;
   return (
     <Typography align='center' variant='h6'>

@@ -96,6 +96,7 @@ const SHOP_PRODUCT_SEARCH = gql`
             id
             title
             thumb
+            thumbOverlayText
             mrp
             description
           }

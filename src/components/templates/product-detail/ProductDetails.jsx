@@ -70,6 +70,7 @@ const ADD_TO_CART = gql`
                   thumb
                   mrp
                   measurementUnit
+                  thumbOverlayText
                 }
               }
               quantity
@@ -139,6 +140,7 @@ const ProductDetails = props => {
     mrp,
     description,
     measurementUnit,
+    thumbOverlayText,
     images: { edges: imagesNodeList },
     category: { name: categoryName, username: categoryUsername },
     type: { name: typeName },
@@ -209,7 +211,8 @@ const ProductDetails = props => {
         <Grid item xs={12} sm={6} md={4}>
           <ProductImageCarousel
             imagesNodeList={imagesNodeList}
-            alt={productTitle}></ProductImageCarousel>
+            alt={productTitle}
+            thumbOverlayText={thumbOverlayText}></ProductImageCarousel>
         </Grid>
         <Grid
           item

@@ -22,12 +22,12 @@ const BRAND_PLAN_INFO = gql`
         dateStart
         dateEnd
         isValid
+        productSpace
         plan {
           id
           planId
           name
           price
-          productSpace
           validityDuration
         }
       }
@@ -46,12 +46,12 @@ const PLAN_INFO = gql`
           addedAt
           dateStart
           dateEnd
+          productSpace
           plan {
             id
             planId
             name
             price
-            productSpace
             validityDuration
           }
         }
@@ -110,7 +110,8 @@ const BrandPlanInfo = ({ publicUsername }) => {
       const {
         dateEnd,
         isValid,
-        plan: { price, productSpace, name: planName }
+        productSpace,
+        plan: { price, name: planName }
       } = activePlan;
 
       const planExpiryDate = new Date(dateEnd);
@@ -160,7 +161,8 @@ const ShopPlanInfo = ({ publicUsername }) => {
         occupiedSpace,
         activePlan: {
           dateEnd,
-          plan: { price, name: planName, productSpace }
+          productSpace,
+          plan: { price, name: planName }
         }
       }
     } = data.shop;

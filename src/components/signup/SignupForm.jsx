@@ -75,13 +75,13 @@ export default function SignupForm({ formik, loading, error }) {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                variant='outlined'
-                margin='normal'
-                required
-                fullWidth
-                id='email'
-                placeholder='Email'
                 name='email'
+                label='Email'
+                variant='outlined'
+                required
+                margin='normal'
+                fullWidth
+                placeholder='Email'
                 autoComplete='email'></TextField>
             </Grid>
             <Grid item xs={12}>

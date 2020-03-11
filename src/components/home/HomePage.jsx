@@ -11,8 +11,8 @@ export default function HomePage(props) {
   return (
     <React.Fragment>
       <SEO
-        title='Raspaai | Shop online for nearby products, services from various categories like Electronics, food, books etc'
-        description='Shop or search for nearby services, products, shops. Buy electronics, books, food items, etc'></SEO>
+        title='Raspaai | Shop online for nearby products or services.'
+        description='Raspaai: Shop or search for nearby services, nearby stores, local shops, products. Buy electronics, books, food items at local best price. Register with us and make free website of your shop.'></SEO>
       <HeroUnit location={location}></HeroUnit>
       <Grid container>
         <CombosGrid comboNodeEdges={comboNodeEdges}></CombosGrid>

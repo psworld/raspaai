@@ -21,6 +21,7 @@ const SHOP_PRODUCT = gql`
         mrp
         description
         measurementUnit
+        thumbOverlayText
         images {
           edges {
             node {

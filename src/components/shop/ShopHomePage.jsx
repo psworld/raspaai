@@ -248,7 +248,7 @@ const ShopHomePage = props => {
     }
   };
 
-  if (data && data.shop) {
+  if (data && data.shop && data.shop.geometry) {
     let {
       geometry: { coordinates },
       properties: {

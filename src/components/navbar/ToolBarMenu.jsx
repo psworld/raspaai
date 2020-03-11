@@ -32,6 +32,9 @@ export const VIEWER = gql`
         properties {
           publicUsername
           isActive
+          application {
+            id
+          }
         }
       }
     }

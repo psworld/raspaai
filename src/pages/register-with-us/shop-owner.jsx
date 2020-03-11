@@ -1,7 +1,14 @@
 import React from 'react';
-import { Container, Typography, List, ListItem } from '@material-ui/core';
+import {
+  Container,
+  Typography,
+  List,
+  ListItem,
+  Button
+} from '@material-ui/core';
 import Layout from '../../components/layout';
 import SEO from '../../components/seo';
+import Link from '../../components/core/Link';
 
 const ShopOwner = () => {
   return (
@@ -29,8 +36,17 @@ const ShopOwner = () => {
           your great products.
         </Typography>
         <br></br>
-        <Typography variant='h6'>Contact us</Typography>
-        <List>
+        <center>
+          <Button
+            component={Link}
+            to='/shop/create-shop'
+            variant='contained'
+            color='primary'>
+            Register here
+          </Button>
+        </center>
+        {/* <List>
+          <Typography variant='h6'>Contact us</Typography>
           <ListItem>
             <Typography>
               Whats app:{' '}
@@ -52,7 +68,7 @@ const ShopOwner = () => {
               </a>
             </Typography>
           </ListItem>
-        </List>
+        </List> */}
       </Container>
     </Layout>
   );

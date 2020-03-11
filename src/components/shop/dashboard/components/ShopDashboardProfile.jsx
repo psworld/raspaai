@@ -57,6 +57,7 @@ const MODIFY_SHOP = gql`
         id
         properties {
           about
+          website
           isOpenToday
           openAt
           closeAt
@@ -323,13 +324,15 @@ const ShopAbout = ({ defaultAboutValue }) => {
           .string()
           .min(10, 'Too short!')
           .max(1000, 'Not more that 1000 characters')
-          .required('About required')
+          .required('About required'),
+        website: yup
+          .string()
+          .url('Invalid url. Example url: https://www.raspaai.tk')
       })}
       onSubmit={(values, { setSubmitting }) => {
-        const { about } = values;
         modifyShopAbout({
           variables: {
-            data: { about }
+            data: { ...values }
           }
         });
       }}>
@@ -348,6 +351,15 @@ const ShopAbout = ({ defaultAboutValue }) => {
                 required
                 placeholder='About your shop'
                 multiline
+                variant='outlined'
+              />
+            </ListItem>
+            <ListItem>
+              <TextField
+                name='website'
+                label='Shop website'
+                fullWidth
+                placeholder='Your shop website | optional'
                 variant='outlined'
               />
             </ListItem>

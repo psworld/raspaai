@@ -1,13 +1,22 @@
-import React from 'react';
-
-import CreateShopPage from './CreateShopPage';
-import CreateShopForm from './CreateShopForm';
-
-import * as yup from 'yup';
-import { Formik } from 'formik';
 import { gql } from 'apollo-boost';
-import { useQuery } from 'react-apollo';
-import { decryptText } from '../../core/utils';
+import { Formik } from 'formik';
+import React from 'react';
+import { useMutation } from 'react-apollo';
+import * as yup from 'yup';
+import CreateShopForm from './CreateShopForm';
+import CreateShopPage from './CreateShopPage';
+import { navigate } from 'gatsby';
+import SEO from '../../seo';
+
+const REGISTER_SHOP = gql`
+  mutation($data: ShopRegistrationApplicationInput!) {
+    shopRegistrationApplication(input: $data) {
+      shopApplication {
+        id
+      }
+    }
+  }
+`;
 
 const CreateShop = () => {
   const [step, setStep] = React.useState(1);
@@ -19,87 +28,103 @@ const CreateShop = () => {
   const prevStep = () => {
     setStep(step - 1);
   };
-  const LOCAL_SAVED_LOCATION = gql`
-    {
-      localSavedLocation @client
-    }
-  `;
 
-  const { data: localSavedLocationData } = useQuery(LOCAL_SAVED_LOCATION);
   // files
-  const [img, setImg] = React.useState(false);
-
-  const handleFileChange = files => {
-    const file = files[0];
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = fileLoadEvent => {
-      const { result } = fileLoadEvent.target;
-      const img = {
-        base64: result,
-        file: file
-      };
-      setImg(img);
-    };
-  };
 
   // files end
 
-  return (
-    <Formik
-      initialValues={{
-        shopName: '',
-        shopUsername: '',
-        shopAddress: '',
-        shopContactNumber: ''
-      }}
-      validationSchema={yup.object().shape({
-        shopName: yup
-          .string()
-          .required('Required')
-          .max(100, 'Shop name can not be longer than 100 characters')
-          .min(3, 'Shop name must be at least 3 character long'),
-        shopUsername: yup
-          .string()
-          .matches(/^[a-zA-Z0-9_.]+$/, {
-            message: 'Only letters numbers _ . are allowed. No empty spaces.',
-            excludeEmptyString: true
-          })
-          .required('Required')
-          .min(5, 'Username must be 5 characters long')
-          .max(30, 'Username can be max 30 characters long'),
-        shopAddress: yup
-          .string()
-          .required('Required')
-          .min(10, 'Too short')
-          .max(150, 'Too long'),
-        shopContactNumber: yup.string().matches(/^[1-9]\d{9}$/, {
-          message: 'Please enter valid number.',
-          excludeEmptyString: false
-        })
-      })}>
-      {props => {
-        // eslint-disable-next-line default-case
-        switch (step) {
-          case 1:
-            return <CreateShopPage handleNext={nextStep}></CreateShopPage>;
+  const [sendApplication, mutationProps] = useMutation(REGISTER_SHOP, {
+    onCompleted(data) {
+      navigate(
+        `/shop/application/${data.shopRegistrationApplication.shopApplication.id}`
+      );
+    }
+  });
 
-          case 2:
-            return (
-              <CreateShopForm
-                handleFileChange={handleFileChange}
-                img={img}
-                formikProps={props}
-                handleBack={prevStep}
-                localLocation={JSON.parse(
-                  decryptText(localSavedLocationData.localSavedLocation)
-                )}></CreateShopForm>
-            );
-        }
-      }}
-    </Formik>
+  return (
+    <>
+      <SEO
+        title='Register your shop and get online'
+        description='Register your shop with raspaai and get a free online website for your shop.'></SEO>
+      <Formik
+        initialValues={{
+          shopName: '',
+          shopUsername: '',
+          address: '',
+          contactNumber: '',
+          heroImg64: ''
+        }}
+        validationSchema={yup.object().shape({
+          shopName: yup
+            .string()
+            .required('Required')
+            .max(100, 'Shop name can not be longer than 100 characters')
+            .min(3, 'Shop name must be at least 3 character long'),
+          shopUsername: yup
+            .string()
+            .matches(/^[a-zA-Z0-9_.]+$/, {
+              message: 'Only letters numbers _ . are allowed. No empty spaces.',
+              excludeEmptyString: true
+            })
+            .required('Required')
+            .min(5, 'Username must be 5 characters long')
+            .max(30, 'Username can be max 30 characters long'),
+          address: yup
+            .string()
+            .required('Required')
+            .min(10, 'Too short')
+            .max(255, 'Too long'),
+          contactNumber: yup
+            .string()
+            .matches(/^[1-9]\d{9}$/, {
+              message: 'Please enter valid number.',
+              excludeEmptyString: false
+            })
+            .required('Required'),
+          website: yup.string().url('Invalid url'),
+          heroImg64: yup
+            .string()
+            .min(100)
+            .required('Shop image is required')
+        })}
+        onSubmit={(values, { setSubmitting }) => {
+          sendApplication({
+            variables: {
+              data: { ...values }
+            }
+          });
+          setSubmitting(false);
+        }}>
+        {formik => {
+          const handleFileChange = files => {
+            const file = files[0];
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = fileLoadEvent => {
+              const { result } = fileLoadEvent.target;
+              formik.setFieldValue('heroImg64', result);
+            };
+          };
+
+          // eslint-disable-next-line default-case
+          switch (step) {
+            case 1:
+              return <CreateShopPage handleNext={nextStep}></CreateShopPage>;
+
+            case 2:
+              return (
+                <CreateShopForm
+                  handleFileChange={handleFileChange}
+                  mutationProps={mutationProps}
+                  formik={formik}
+                  handleBack={prevStep}></CreateShopForm>
+              );
+          }
+        }}
+      </Formik>
+    </>
   );
 };
 

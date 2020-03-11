@@ -82,14 +82,14 @@ const HeroUnit = ({ location }) => {
               align='center'
               color='textSecondary'
               paragraph>
-              Register with us and take your shop online !
+              Register with us and take your shop online for absolutely free !
             </Typography>
             <div className={classes.heroButtons}>
               <Button
-                onClick={() => navigate('/contact-us')}
+                onClick={() => navigate('/shop/create-shop')}
                 variant='contained'
                 color='primary'>
-                Contact us
+                Register
               </Button>
             </div>
           </Container>

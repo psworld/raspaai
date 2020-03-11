@@ -239,26 +239,27 @@ export default function NavBar({ searchPhrase }) {
           </MenuItem>
         )}
 
-        {viewer.shop && (
-          <>
-            <MenuItem
-              component={MenuItemLink}
-              to={
-                viewer.shop
-                  ? viewer.shop.properties.application
-                    ? `/shop/application/${viewer.shop.properties.publicUsername}`
-                    : `/shop/${viewer.shop.properties.publicUsername}`
-                  : '/shop/create-shop'
-              }>
-              My Shop
-            </MenuItem>
+        <MenuItem
+          component={MenuItemLink}
+          to={
+            viewer.shop
+              ? viewer.shop.properties.application
+                ? `/shop/application/${viewer.shop.properties.application.id}`
+                : `/shop/${viewer.shop.properties.publicUsername}`
+              : '/shop/create-shop'
+          }>
+          My Shop
+        </MenuItem>
+        {viewer.shop &&
+          viewer.shop.properties &&
+          !viewer.shop.properties.application && (
             <MenuItem
               component={MenuItemLink}
               to={`/dashboard/shop/${viewer.shop.properties.publicUsername}`}>
               Shop Dashboard
             </MenuItem>
-          </>
-        )}
+          )}
+
         {viewer.brand &&
           [
             {

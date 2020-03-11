@@ -37,13 +37,13 @@ const SHOP_PLANS = gql`
               dateStart
               dateEnd
               addedAt
+              productSpace
               plan {
                 id
                 planId
                 name
                 price
                 validityDuration
-                productSpace
               }
             }
           }
@@ -84,12 +84,8 @@ const MyShopPlans = ({ shopUsername }) => {
   const ActivePlan = ({ activePlan, occupiedSpace }) => {
     const {
       dateEnd: expiryDateStr,
-      plan: {
-        price,
-        name: planName,
-        productSpace: totalProductSpace,
-        validityDuration
-      }
+      productSpace: totalProductSpace,
+      plan: { price, name: planName, validityDuration }
     } = activePlan.node;
     const expiryDateObj = new Date(expiryDateStr);
     let timeLeft = differenceInDays(expiryDateObj, new Date());

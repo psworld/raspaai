@@ -1,324 +1,240 @@
-import React from "react"
 import {
+  Avatar,
   Button,
   Card,
   CardMedia,
-  InputLabel,
-  Typography,
   Container,
   Grid,
-  TextField,
-  Avatar,
   InputAdornment,
-  useMediaQuery,
-} from "@material-ui/core"
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined"
-import { useTheme } from "@material-ui/core/styles"
-import { makeStyles } from "@material-ui/core/styles"
-
-import Link from "../../core/Link"
-import Map from "../../map/Map"
-import gql from "graphql-tag"
-import { useMutation } from "react-apollo"
+  InputLabel,
+  Typography
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { TextField } from 'formik-material-ui';
+import React from 'react';
+import Link from '../../core/Link';
+import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
+import { useQuery } from 'react-apollo';
+import { VIEWER } from '../../navbar/ToolBarMenu';
+import Loading from '../../core/Loading';
+import ErrorPage from '../../core/ErrorPage';
+import { navigate } from 'gatsby';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(2),
+    // height: "100%",
+    display: 'flex',
+    flexDirection: 'column',
+    marginBottom: theme.spacing(2)
   },
-  cardMediaMobile: {
+  cardMedia: {
     // paddingTop: "56.25%", // 16:9
-    paddingTop: "75%", // 4:3
-  },
-  cardMediaTv: {
-    // paddingTop: "56.25%", // 16:9
-    paddingTop: "37.5%", // 4:3
-  },
-  "@global": {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
+    paddingTop: '75%', // 4:3
+    backgroundSize: 'contain',
+    [theme.breakpoints.up('md')]: {
+      paddingTop: '45%'
+    }
   },
   paper: {
     marginTop: theme.spacing(2),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.main
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-}))
-
-const REGISTER_SHOP = gql`
-  mutation($data: ShopRegistrationApplicationInput!) {
-    shopRegistrationApplication(input: $data) {
-      shop {
-        properties {
-          publicUsername
-        }
-      }
-    }
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1)
   }
-`
+}));
 
-function hasError(errors) {
-    if (Object.keys(errors).length === 0 && errors.constructor === Object) {
-      return false;
-    } else return true;
-  }
-  
-
-const CreateShopForm = ({ handleBack, formikProps, handleFileChange, img, localLocation }) => {
+const CreateShopForm = ({
+  handleBack,
+  formik,
+  mutationProps,
+  handleFileChange,
+  localLocation
+}) => {
+  const { loading } = mutationProps;
   const {
-    values: { shopName, shopUsername, shopAddress, shopContactNumber },
-    touched,
-    errors,
-    handleChange,
-    handleBlur,
-  } = formikProps
+    handleSubmit,
+    dirty,
+    values: { heroImg64 }
+  } = formik;
 
-  const [location, setLocation] = React.useState(localLocation)
+  const classes = useStyles();
 
-  const shopRegisterApplicationInput = {
-    publicUsername: shopUsername,
-    shopName: shopName,
-    address: shopAddress,
-    contactNumber: shopContactNumber,
-    imgName: img && img.file.name,
-    heroImg64: img && img.base64,
-    lat: location.lat,
-    lng: location.lng,
-  }
+  const { loading: userLoading, error, data } = useQuery(VIEWER);
 
-  const [sendApplication, { loading, error, data }] = useMutation(
-    REGISTER_SHOP,
-    {
-      variables: { data: shopRegisterApplicationInput },
-    }
-  )
+  if (userLoading) return <Loading></Loading>;
+  if (error) return <ErrorPage></ErrorPage>;
 
-  const classes = useStyles()
-  const theme = useTheme()
-  const matches = useMediaQuery(theme.breakpoints.up("sm"))
-  const [map, setMap] = React.useState(false)
+  if (data && data.viewer !== null) {
+    return (
+      <>
+        <input
+          accept='image/jpeg, image/png'
+          onChange={e => handleFileChange(e.target.files)}
+          style={{ display: 'none' }}
+          id='shop-hero-img'
+          aria-label='shop-hero-img'
+          type='file'
+        />
 
-  return (
-    <>
-      <input
-        accept="image/jpeg, image/png"
-        onChange={e => handleFileChange(e.target.files)}
-        style={{ display: "none" }}
-        id="shop-hero-img"
-        aria-label="shop-hero-img"
-        type="file"
-      />
-
-      <InputLabel htmlFor="shop-hero-img">
-        <Card component="span" className={classes.card}>
-          {img ? (
-            <CardMedia
-              className={
-                matches ? classes.cardMediaTv : classes.cardMediaMobile
-              }
-              image={img.base64}
-              title={img.file.name}
-            />
-          ) : (
-            <Container maxWidth="sm">
-              <Typography
-                component="h1"
-                variant="h3"
-                align="center"
-                color="textPrimary"
-                gutterBottom
-              >
-                Click here to upload a photo
-              </Typography>
-              <Typography
-                variant="h5"
-                align="center"
-                color="textSecondary"
-                paragraph
-              >
-                Upload a picture of the shop owner(s)/manager in front of the
-                store.
-              </Typography>
-            </Container>
-          )}
-        </Card>
-      </InputLabel>
-      <Container maxWidth="md">
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Shop Registration
-          </Typography>
-          <form className={classes.form} noValidate>
-            <Grid container spacing={2} justify="center">
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id="shopName"
-                  defaultValue={shopName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  label={
-                    touched.shopName && errors.shopName
-                      ? `${errors.shopName}`
-                      : "Your Shop Name"
-                  }
-                  error={touched.shopName && errors.shopName && true}
-                  margin="none"
-                  variant="outlined"
-                  placeholder="Shop Name"
-                  fullWidth
-                ></TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id="shopUsername"
-                  label={
-                    touched.shopUsername && errors.shopUsername
-                      ? `${errors.shopUsername}`
-                      : "Shop Username"
-                  }
-                  error={touched.shopUsername && errors.shopUsername && true}
-                  defaultValue={shopUsername}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  margin="none"
-                  variant="outlined"
-                  placeholder="Shop Username"
-                  fullWidth
-                ></TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id="shopAddress"
-                  label={
-                    touched.shopAddress && errors.shopAddress
-                      ? `${errors.shopAddress}`
-                      : "Shop Address"
-                  }
-                  error={touched.shopAddress && errors.shopAddress && true}
-                  defaultValue={shopAddress}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  margin="none"
-                  variant="outlined"
-                  placeholder="Shop Address"
-                  fullWidth
-                  // multiline
-                ></TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  id="shopContactNumber"
-                  label={
-                    touched.shopContactNumber && errors.shopContactNumber
-                      ? `${errors.shopContactNumber}`
-                      : "Shop Contact Number"
-                  }
-                  error={
-                    touched.shopContactNumber &&
-                    errors.shopContactNumber &&
-                    true
-                  }
-                  defaultValue={shopContactNumber}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  type="number"
-                  margin="none"
-                  variant="outlined"
-                  placeholder="Shop Contact Number"
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">+91</InputAdornment>
-                    ),
-                  }}
-                  // multiline
-                ></TextField>
-              </Grid>
-              <Grid item xs={12} justify="center">
-                {/* Location setting */}
-
+        <InputLabel htmlFor='shop-hero-img'>
+          <Card component='span' className={classes.card}>
+            {heroImg64 ? (
+              <CardMedia
+                className={classes.cardMedia}
+                image={heroImg64}
+                title='Shop owner(s) image in front of store.'
+              />
+            ) : (
+              <Container maxWidth='sm'>
                 <Typography
-                  variant="h6"
-                  align="center"
-                  color="textSecondary"
-                  paragraph
-                >
-                  Set exact location of your shop. Click the button below to
-                  load map and place the marker at your shop location by
-                  clicking on it.
+                  component='h1'
+                  variant='h3'
+                  align='center'
+                  color='textPrimary'
+                  gutterBottom>
+                  Click here to upload a photo
                 </Typography>
-              </Grid>
-              <Grid item justify="center">
-                <Button
-                  onClick={() => setMap(!map)}
-                  variant="contained"
-                  color="primary"
-                >
-                  Set Location
-                </Button>
-              </Grid>
+                <Typography
+                  variant='h5'
+                  align='center'
+                  color='textSecondary'
+                  paragraph>
+                  Upload a picture of the shop owner(s)/manager in front of the
+                  store.
+                </Typography>
+              </Container>
+            )}
+          </Card>
+        </InputLabel>
+        {formik.touched.heroImg64 && formik.errors.heroImg64 && (
+          <Typography style={{ color: 'red' }} align='center'>
+            {formik.errors.heroImg64}
+          </Typography>
+        )}
+        <Container maxWidth='md'>
+          <div className={classes.paper}>
+            <Avatar className={classes.avatar}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component='h1' variant='h5'>
+              Shop Registration
+            </Typography>
+            <form className={classes.form}>
+              <Grid container spacing={2} justify='center'>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name='shopName'
+                    label='Your Shop Name'
+                    margin='none'
+                    variant='outlined'
+                    required
+                    placeholder='Shop Name'
+                    fullWidth></TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name='shopUsername'
+                    label='Shop Username'
+                    margin='none'
+                    variant='outlined'
+                    required
+                    placeholder='Shop Username'
+                    fullWidth></TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name='address'
+                    label='Shop Address'
+                    margin='none'
+                    variant='outlined'
+                    required
+                    placeholder='Shop Address'
+                    fullWidth></TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name='contactNumber'
+                    label='Shop Contact Number'
+                    type='number'
+                    margin='none'
+                    variant='outlined'
+                    placeholder='Shop Contact Number'
+                    required
+                    fullWidth
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>+91</InputAdornment>
+                      )
+                    }}></TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name='website'
+                    label='Shop Website'
+                    margin='none'
+                    variant='outlined'
+                    placeholder='eg. https://www.raspaai.tk or http://www.raspaai.tk'
+                    fullWidth></TextField>
+                </Grid>
 
-              {/* End Location Setting */}
-              <Grid item xs={12}>
-                {map && (
-                  <Map
-                    center={{ lat: 31.818543, lng: 76.936076 }}
-                    setLocation={setLocation}
-                    noSave={true}
-                  ></Map>
+                {mutationProps.error && (
+                  <GraphqlErrorMessage
+                    error={mutationProps.error}></GraphqlErrorMessage>
                 )}
-              </Grid>
 
-              <Button
-                // type="submit"
-                disabled={hasError(errors) || !location}
-                onClick={sendApplication}
-                fullWidth
-                variant="contained"
-                color="secondary"
-                className={classes.submit}
-              >
-                Submit Application
-              </Button>
-              <Grid item xs>
-                <Link to="/shop-register" variant="body2">
-                  Need Help ?
-                </Link>
+                <Grid item xs={12} md={12}>
+                  <Button
+                    disabled={!dirty || loading}
+                    onClick={handleSubmit}
+                    fullWidth
+                    variant='contained'
+                    color='secondary'>
+                    Submit Application
+                  </Button>
+                </Grid>
+                {/* <Grid item xs>
+                  <Link to='/shop-register' variant='body2'>
+                    Need Help ?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <a href='/signup' variant='body2'>
+                    Watch a video on how to register
+                  </a>
+                </Grid> */}
+                <Grid item xs={12} md={12}>
+                  <center>
+                    <Button
+                      style={{ marginTop: '10' }}
+                      onClick={handleBack}
+                      variant='contained'
+                      color='primary'>
+                      Back
+                    </Button>
+                  </center>
+                </Grid>
               </Grid>
-              <Grid item>
-                <a href="/signup" variant="body2">
-                  Watch a video on how to register
-                </a>
-              </Grid>
-            </Grid>
-          </form>
-          <Button
-            style={{ marginTop: theme.spacing(1) }}
-            onClick={handleBack}
-            variant="contained"
-            color="primary"
-          >
-            Back
-          </Button>
-        </div>
-      </Container>
-    </>
-  )
-}
+            </form>
+          </div>
+        </Container>
+      </>
+    );
+  }
+  navigate(`/signin/?next=${window.location.pathname}`);
+  return (
+    <Typography variant='h5' style={{ color: 'green' }} align='center'>
+      You need to signin first
+    </Typography>
+  );
+};
 
-export default CreateShopForm
+export default CreateShopForm;

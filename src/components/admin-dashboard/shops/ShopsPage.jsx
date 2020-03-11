@@ -6,7 +6,8 @@ export default function ShopsPage() {
   const shopActionList = [
     { title: 'Add shop', url: 'add' },
     { title: 'Add plan to shop', url: 'add-plan' },
-    { title: 'Search shops', url: 'search' }
+    { title: 'Search shops', url: 'search' },
+    { title: 'Review Shop Application', url: 'review' }
   ];
 
   return (

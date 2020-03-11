@@ -7,7 +7,7 @@ import HomePage from './HomePage';
 
 const NEARBY_COMBOS_AND_SHOP_PRODUCTS = gql`
   query($lat: Float!, $lng: Float!) {
-    nearbyShopProducts(lat: $lat, lng: $lng, first: 10) {
+    nearbyShopProducts(lat: $lat, lng: $lng, first: 20) {
       pageInfo {
         hasNextPage
         hasPreviousPage

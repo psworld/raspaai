@@ -158,13 +158,13 @@ export default function SigninForm({ message, redirectUrl }) {
                 </Typography>
                 <Form className={classes.form}>
                   <TextField
+                    name='email'
+                    label='Email'
                     variant='outlined'
                     margin='normal'
                     required
                     fullWidth
-                    id='email'
                     placeholder='Email'
-                    name='email'
                     autoComplete='email'></TextField>
                   <TextField
                     variant='outlined'

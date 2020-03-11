@@ -32,6 +32,7 @@ export const SHOP = gql`
         about
         address
         contactNumber
+        website
         returnRefundPolicy
         isOpenToday
         heroImage
@@ -105,7 +106,8 @@ const ShopAboutPage = ({ shopUsername }) => {
           address,
           contactNumber,
           returnRefundPolicy,
-          heroImage
+          heroImage,
+          website
         }
       }
     } = data;
@@ -138,6 +140,16 @@ const ShopAboutPage = ({ shopUsername }) => {
             <ListItem>
               <Typography variant='h6'>{about}</Typography>
             </ListItem>
+            {website && (
+              <ListItem>
+                <Typography variant='body2'>
+                  Checkout more at our website{' '}
+                  <a href={website} rel='noopener noreferrer' target='_blank'>
+                    {website}
+                  </a>
+                </Typography>
+              </ListItem>
+            )}
 
             <ListItem>
               <Typography id='address' variant='h4'>
