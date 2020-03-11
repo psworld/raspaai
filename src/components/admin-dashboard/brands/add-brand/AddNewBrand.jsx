@@ -113,8 +113,11 @@ const AddNewBrand = () => {
       })}
       onSubmit={(values, { setSubmitting }) => {
         createBrand({
-          variables: { ...values, publicUsername: values.brandUsername }
+          variables: {
+            data: { ...values }
+          }
         });
+        setSubmitting(false);
       }}>
       {formik => {
         const { values } = formik;
@@ -224,7 +227,7 @@ const AddNewBrand = () => {
                       )}
                     </Grid>
                     <Button
-                      disabled={loading || data || formik.isSubmitting}
+                      disabled={loading || data}
                       onClick={formik.handleSubmit}
                       fullWidth
                       variant='contained'
