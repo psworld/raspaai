@@ -85,11 +85,21 @@ const MODIFY_BRAND_PRODUCT = gql`
         thumbOverlayText
         measurementUnit
         technicalDetails
+        thumb
         category {
           id
         }
         type {
           id
+        }
+        images {
+          edges {
+            node {
+              id
+              image
+              position
+            }
+          }
         }
       }
     }
@@ -792,7 +802,7 @@ export const ModifyBrandProduct = ({
                   <Button
                     color='primary'
                     variant='contained'
-                    disabled={loading || data}
+                    disabled={loading}
                     onClick={formik.handleSubmit}>
                     {loading ? 'Saving' : 'Save'}
                   </Button>
