@@ -395,7 +395,7 @@ export const ModifyBrandProduct = ({
                   size: file.size
                 };
 
-                if (image.ratio !== 80 || Math.round(image.size / 1000) > 101) {
+                if (Math.round(image.size / 1000) > 101) {
                   resolveInvalidImg(image);
                 } else {
                   newImageFiles.push(image);
