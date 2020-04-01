@@ -162,10 +162,13 @@ const AddNewShopProductItem = ({ productNode, shopUsername, productType }) => {
             }
           });
         } else {
-          const newEdges = dashboardShopProducts.edges.concat({
-            node: newShopProduct,
-            __typename: dashboardShopProducts.edges[0]['__typename']
-          });
+          const newEdges = [
+            {
+              node: newShopProduct,
+              __typename: dashboardShopProducts.edges[0]['__typename']
+            },
+            ...dashboardShopProducts.edges
+          ];
 
           store.writeQuery({
             query: DASHBOARD_SHOP_PRODUCTS,
@@ -349,7 +352,7 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
               </center>
               <Typography align='center'>
                 <a
-                  href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add brand product *${phrase}* to raspaai%0aOther information about product:-%0a`}
+                  href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add *${phrase}* to raspaai%0aOther information about product:-%0a`}
                   target='_blank'
                   rel='noopener noreferrer'>
                   Click here to send a request to add <b>{phrase}</b> to
@@ -370,7 +373,7 @@ const AddNewProductBase = ({ shopUsername, phrase, productType }) => {
           <br></br>
           <Typography style={{ marginTop: 25 }} align='center'>
             <a
-              href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add service *${phrase}* to raspaai%0aOther information:-%0a`}
+              href={`${process.env.GATSBY_WHATSAPP_RASPAAI_URL}text=Add *${phrase}* to raspaai%0aOther information about product:-%0a`}
               target='_blank'
               rel='noopener noreferrer'>
               Click here to send a request to add <b>{phrase}</b> to raspaai.

@@ -29,6 +29,7 @@ import Loading from '../core/Loading';
 import { updatedDiff } from '../core/utils';
 import GraphqlErrorMessage from '../core/GraphqlErrorMessage';
 import SEO from '../seo';
+import { VIEWER } from '../navbar/ToolBarMenu';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -133,10 +134,17 @@ const ShopApplicationStatus = ({ applicationId }) => {
     variables: { applicationId }
   });
   const [saveChanges, mutationProps] = useMutation(MODIFY_SHOP_APPLICATION);
-  const [
-    deleteApplication,
-    deleteApplicationProps
-  ] = useMutation(DELETE_SHOP_APPLICATION, { variables: { applicationId } });
+  const [deleteApplication, deleteApplicationProps] = useMutation(
+    DELETE_SHOP_APPLICATION,
+    {
+      variables: { applicationId },
+      update(store, { data }) {
+        const { viewer } = store.readQuery({ query: VIEWER });
+        viewer.shop = null;
+        store.writeQuery({ query: VIEWER, data: { viewer } });
+      }
+    }
+  );
 
   if (loading) return <Loading></Loading>;
   if (error) return <ErrorPage></ErrorPage>;

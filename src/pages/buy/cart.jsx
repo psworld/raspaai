@@ -82,7 +82,7 @@ const UserDetails = ({ formikProps, classes }) => {
             type='text'
             label='First name'
             fullWidth
-            autoComplete='fname'
+            autoComplete='firstName'
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -92,11 +92,11 @@ const UserDetails = ({ formikProps, classes }) => {
             type='text'
             label='Last name'
             fullWidth
-            autoComplete='lname'
+            autoComplete='lastName'
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item xs={12} md={6}>
           <TextField
             required
             name='phone'
@@ -104,6 +104,17 @@ const UserDetails = ({ formikProps, classes }) => {
             label='Phone'
             fullWidth
             autoComplete='phone'
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            required
+            name='address'
+            type='text'
+            label='Address'
+            fullWidth
+            autoComplete='address'
           />
         </Grid>
       </Grid>
@@ -154,7 +165,7 @@ const CLEAR_CART = gql`
 
 const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
   const { id: userId, email: customerEmail } = viewerData.viewer;
-  const { firstName, lastName, phone } = values;
+  const { firstName, lastName, phone, address: customerAddress } = values;
 
   const orderPlacedOn = format(new Date(), 'd MMM y  h:mm a');
 
@@ -169,7 +180,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
     const trackingId = Math.floor(100000 + Math.random() * 999999);
     let cartLineMrpTotal = 0;
     let cartLineOfferedPriceTotal = 0;
-    let whatsappOrderMessage = `--- *Order Info* ---%0aTracking id - *${trackingId}*%0aPlaced on ${orderPlacedOn}%0a%0a`;
+    let whatsappOrderMessage = `--- *Order Info* ---%0aTracking id - *${trackingId}*%0aPlaced on ${orderPlacedOn}%0a%0a%0a`;
     totalNoOfItems += cartLine.items.edges.length;
     cartLine.items.edges.forEach(cartItem => {
       const cartItemNode = cartItem.node;
@@ -216,7 +227,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
         ? cartItemNode.totalCost
         : cartItemNode.offeredPriceTotal;
     });
-    whatsappOrderMessage += `*--- Buyer information ---*%0a${firstName} ${lastName}%0aEmail ${customerEmail}%0aPhone ${phone}%0a%0a`;
+    whatsappOrderMessage += `%0a*--- Buyer information ---*%0aName : ${firstName} ${lastName}%0aEmail : ${customerEmail}%0aPhone : ${phone}%0aAddress : ${customerAddress}%0a%0a%0a`;
     whatsappOrderMessage +=
       cartLineOfferedPriceTotal < cartLineMrpTotal
         ? `*Amount to pay* ~₹${cartLineMrpTotal}~ *₹${cartLineOfferedPriceTotal}*%0aYou save ₹${cartLineMrpTotal -
@@ -418,7 +429,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
               </ListItem>
               <ListItem>
                 <Typography variant='body1'>
-                  Collect at{' '}
+                  Shop Address{' '}
                   <a
                     href={`${process.env.GATSBY_G_MAP_URL}${lat},${lng}`}
                     target='_blank'
@@ -457,6 +468,11 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
           <Grid item xs={12}>
             <Typography align='center' variant='h6'>
               +91 {phone}
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography align='center' variant='h6'>
+              {customerAddress}
             </Typography>
           </Grid>
         </Grid>
@@ -531,7 +547,8 @@ const CheckoutFromCart = () => {
                       initialValues={{
                         firstName: buyer.firstName,
                         lastName: buyer.lastName,
-                        phone: buyer.phone
+                        phone: buyer.phone,
+                        address: buyer.address
                       }}
                       validationSchema={yup.object().shape({
                         firstName: yup
@@ -550,7 +567,12 @@ const CheckoutFromCart = () => {
                             message: 'Please enter valid number.',
                             excludeEmptyString: false
                           })
-                          .required('Phone number required')
+                          .required('Phone number required'),
+                        address: yup
+                          .string()
+                          .min(10, 'Too Short!')
+                          .max(500, 'Too Long!')
+                          .required('Address Required !')
                       })}
                       onSubmit={(values, { setSubmitting }) => {
                         localStorage.setItem(

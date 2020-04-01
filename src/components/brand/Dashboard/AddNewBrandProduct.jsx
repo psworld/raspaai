@@ -74,6 +74,11 @@ const ADD_BRAND_PRODUCT = gql`
     addBrandProduct(input: $data) {
       product {
         id
+        title
+        mrp
+        thumb
+        thumbOverlayText
+        description
       }
     }
   }
@@ -103,13 +108,32 @@ const AddNewBrandProduct = ({ brandUsername }) => {
   const [addProduct, { loading, error, data }] = useMutation(
     ADD_BRAND_PRODUCT,
     {
-      refetchQueries: [
-        {
+      // refetchQueries: [
+      //   {
+      //     query: BRAND_PRODUCTS,
+      //     variables: { publicBrandUsername: brandUsername, withBrand: false }
+      //   }
+      // ],
+      update(store, { data }) {
+        const { brandProducts } = store.readQuery({
           query: BRAND_PRODUCTS,
           variables: { publicBrandUsername: brandUsername, withBrand: false }
+        });
+        if (brandProducts.pageInfo.startCursor) {
+          const addedBrandProductsNode = data.addBrandProduct.product;
+          const newEdges = [
+            { ...brandProducts.edges[0], node: addedBrandProductsNode },
+            ...brandProducts.edges
+          ];
+          store.writeQuery({
+            query: BRAND_PRODUCTS,
+            variables: { publicBrandUsername: brandUsername, withBrand: false },
+            data: { brandProducts: { ...brandProducts, edges: newEdges } }
+          });
+        } else {
+          // This is when first brand product is added.
         }
-      ],
-      awaitRefetchQueries: true
+      }
     }
   );
 

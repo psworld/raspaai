@@ -7,6 +7,7 @@ import CreateShopForm from './CreateShopForm';
 import CreateShopPage from './CreateShopPage';
 import { navigate } from 'gatsby';
 import SEO from '../../seo';
+import { VIEWER } from '../../navbar/ToolBarMenu';
 
 const REGISTER_SHOP = gql`
   mutation($data: ShopRegistrationApplicationInput!) {
@@ -34,6 +35,7 @@ const CreateShop = () => {
   // files end
 
   const [sendApplication, mutationProps] = useMutation(REGISTER_SHOP, {
+    refetchQueries: [{ query: VIEWER }],
     onCompleted(data) {
       navigate(
         `/shop/application/${data.shopRegistrationApplication.shopApplication.id}`

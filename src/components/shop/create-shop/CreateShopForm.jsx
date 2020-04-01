@@ -205,12 +205,16 @@ const CreateShopForm = ({
                   <Link to='/shop-register' variant='body2'>
                     Need Help ?
                   </Link>
-                </Grid>
-                <Grid item>
-                  <a href='/signup' variant='body2'>
-                    Watch a video on how to register
-                  </a>
                 </Grid> */}
+                <Grid item>
+                  <a
+                    href='https://raspaai.page.link/how-to-register-shop-with-raspaai'
+                    target='_blank'
+                    rel='noopener noreferrer'>
+                    Need help ? Watch a video on how to register
+                  </a>
+                </Grid>
+
                 <Grid item xs={12} md={12}>
                   <center>
                     <Button

@@ -147,6 +147,18 @@ const CreateShopPage = ({ handleNext }) => {
           color='primary'>
           Continue
         </Button>
+
+        <ListItem>
+          <ListItemText
+            primary={
+              <a
+                href='https://raspaai.page.link/how-to-register-shop-with-raspaai'
+                target='_blank'
+                rel='noopener noreferrer'>
+                Need help ? Watch a video on how to register
+              </a>
+            }></ListItemText>
+        </ListItem>
       </Container>
     </>
   );
