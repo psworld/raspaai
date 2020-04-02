@@ -6,7 +6,8 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
+  ListItemText
 } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import Divider from '@material-ui/core/Divider';
@@ -289,6 +290,13 @@ const ProductDetails = props => {
                   </Typography>
                 </ListItem>
               )}
+              <Divider />
+              <ListItem>
+                <ListItemText
+                  style={{ color: inStock ? 'green' : 'red' }}
+                  primary={inStock ? 'In stock' : 'Out of stock'}
+                />
+              </ListItem>
               <Divider />
               {isActive ? (
                 <>

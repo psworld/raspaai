@@ -180,7 +180,7 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
     const trackingId = Math.floor(100000 + Math.random() * 999999);
     let cartLineMrpTotal = 0;
     let cartLineOfferedPriceTotal = 0;
-    let whatsappOrderMessage = `--- *Order Info* ---%0aTracking id - *${trackingId}*%0aPlaced on ${orderPlacedOn}%0a%0a%0a`;
+    let whatsappOrderMessage = `--- *Order Info* ---%0aTracking id - *${trackingId}*%0aPlaced on ${orderPlacedOn}%0a%0a`;
     totalNoOfItems += cartLine.items.edges.length;
     cartLine.items.edges.forEach(cartItem => {
       const cartItemNode = cartItem.node;
@@ -201,18 +201,21 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
 
       const productSlug = slugGenerator(productTitle);
       const shopUsername = cartLine.shop.properties.publicUsername;
+      const fontize = str => {
+        return '```' + str + '```';
+      };
 
       const productLink = `${window.location.origin}/shop/${shopUsername}/${
         isCombo ? 'combo' : 'product'
       }/${productSlug}/${encodeURIComponent(productId)}/s`;
 
-      whatsappOrderMessage += `*${productTitle}*%0a${productLink}%0a*Qty: ${
-        cartItemNode.quantity
-      }${
-        cartItemNode.measurementUnit ? cartItemNode.measurementUnit : ''
-      }*     Offered price: ₹${baseUnitOfferedPrice}${
-        baseUnit ? ' per ' + baseUnit : ''
-      }%0a%0a`;
+      whatsappOrderMessage += fontize(
+        `${productTitle}%0aQty: ${cartItemNode.quantity} ${
+          cartItemNode.measurementUnit ? cartItemNode.measurementUnit : ''
+        }%0aOffered price: ₹${baseUnitOfferedPrice}${
+          baseUnit ? ' per ' + baseUnit : ''
+        }%0a%0a`
+      );
 
       // For a cart line. Mrp sub total is total cost of all the products at their
       // mrp including qty
@@ -227,12 +230,12 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
         ? cartItemNode.totalCost
         : cartItemNode.offeredPriceTotal;
     });
-    whatsappOrderMessage += `%0a*--- Buyer information ---*%0aName : ${firstName} ${lastName}%0aEmail : ${customerEmail}%0aPhone : ${phone}%0aAddress : ${customerAddress}%0a%0a%0a`;
+    whatsappOrderMessage += `%0a*--- Buyer information ---*%0aName    : ${firstName} ${lastName}%0aEmail     : ${customerEmail}%0aPhone   : ${phone}%0aAddress : ${customerAddress}%0a%0a%0a`;
     whatsappOrderMessage +=
       cartLineOfferedPriceTotal < cartLineMrpTotal
         ? `*Amount to pay* ~₹${cartLineMrpTotal}~ *₹${cartLineOfferedPriceTotal}*%0aYou save ₹${cartLineMrpTotal -
             cartLineOfferedPriceTotal}`
-        : `*Amount to pay ₹${cartLineOfferedPriceTotal}*`;
+        : `*Amount to pay  ₹${cartLineOfferedPriceTotal}*`;
     whatsappOrderMessage += `%0a%0aThankyou for using Raspaai. ❤`;
 
     whatsappOrderMessages[cartLine.id] = whatsappOrderMessage;
@@ -273,9 +276,11 @@ const Review = ({ cartLines, classes, values, handleNext, viewerData }) => {
     <>
       <Typography align='center' variant='h4'>
         Total amount to pay:{' '}
-        <span style={{ textDecorationLine: 'line-through', fontSize: 20 }}>
-          &#x20b9;{mrpTotal}
-        </span>{' '}
+        {offeredPriceTotal < mrpTotal && (
+          <span style={{ textDecorationLine: 'line-through', fontSize: 20 }}>
+            &#x20b9;{mrpTotal}
+          </span>
+        )}{' '}
         <span style={{ color: 'green' }}>&#x20b9;{offeredPriceTotal}</span>
       </Typography>
       {offeredPriceTotal < mrpTotal && (

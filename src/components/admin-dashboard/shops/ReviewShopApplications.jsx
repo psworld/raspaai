@@ -71,6 +71,7 @@ const SHOP_APPLICATION = gql`
     shopApplication(id: $applicationId) {
       id
       status {
+        id
         statusCode
         title
         description
@@ -627,7 +628,10 @@ export const ShopApplicationList = ({ applicationStatus }) => {
 
   return (
     <>
-      <Button variant='outlined' color='primary' onClick={refetch}>
+      <Button
+        variant='outlined'
+        color='primary'
+        onClick={() => refetch()}>
         Refresh
       </Button>
       <Typography variant='h5' align='center'>

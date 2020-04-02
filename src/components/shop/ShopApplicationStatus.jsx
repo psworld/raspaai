@@ -142,6 +142,9 @@ const ShopApplicationStatus = ({ applicationId }) => {
         const { viewer } = store.readQuery({ query: VIEWER });
         viewer.shop = null;
         store.writeQuery({ query: VIEWER, data: { viewer } });
+      },
+      onCompleted() {
+        window.scrollTo(0, 0);
       }
     }
   );
@@ -445,7 +448,7 @@ const ShopApplicationStatus = ({ applicationId }) => {
                           Delete Application
                         </Button>
                       </Grid>
-                      <Grid item xs>
+                      {/* <Grid item xs>
                         <Link to='/shop-register' variant='body2'>
                           Need Help ?
                         </Link>
@@ -454,7 +457,7 @@ const ShopApplicationStatus = ({ applicationId }) => {
                         <a href='/signup' variant='body2'>
                           Watch a video on how to register
                         </a>
-                      </Grid>
+                      </Grid> */}
                     </Grid>
                   </form>
                 </div>
