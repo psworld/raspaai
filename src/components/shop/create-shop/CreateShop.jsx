@@ -7,6 +7,7 @@ import CreateShopForm from './CreateShopForm';
 import CreateShopPage from './CreateShopPage';
 import { navigate } from 'gatsby';
 import SEO from '../../seo';
+import Resizer from 'react-image-file-resizer';
 import { VIEWER } from '../../navbar/ToolBarMenu';
 
 const REGISTER_SHOP = gql`
@@ -101,13 +102,17 @@ const CreateShop = () => {
           const handleFileChange = files => {
             const file = files[0];
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
+            Resizer.imageFileResizer(file, 720, 700, 'JPEG', 100, 0, base64 => {
+              formik.setFieldValue('heroImg64', base64);
+            });
 
-            reader.onload = fileLoadEvent => {
-              const { result } = fileLoadEvent.target;
-              formik.setFieldValue('heroImg64', result);
-            };
+            // const reader = new FileReader();
+            // reader.readAsDataURL(file);
+
+            // reader.onload = fileLoadEvent => {
+            //   const { result } = fileLoadEvent.target;
+            //   formik.setFieldValue('heroImg64', result);
+            // };
           };
 
           // eslint-disable-next-line default-case

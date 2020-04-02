@@ -32,6 +32,7 @@ import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 import Loading from '../../../core/Loading';
 import { detailedImagesDiff, updatedDiff } from '../../../core/utils';
 import { BRAND_PRODUCTS } from '../../BrandHomePage';
+import Resizer from 'react-image-file-resizer';
 import { PRODUCT } from '../../BrandProductPage';
 import { updatedDiff as deepUpdatedDiff } from 'deep-object-diff';
 
@@ -390,7 +391,6 @@ export const ModifyBrandProduct = ({
           reader.readAsDataURL(file);
           const invalidImage = new Promise(resolveInvalidImg => {
             reader.onload = e => {
-              const { result: base64 } = e.target;
               img.onload = () => {
                 const { naturalWidth: width, naturalHeight: height } = img;
 
@@ -399,18 +399,31 @@ export const ModifyBrandProduct = ({
                   position: imagesListLength + index,
                   width,
                   height,
-                  base64,
                   ratio: Math.round((width / height) * 100),
                   name: file.name,
                   size: file.size
                 };
 
-                if (Math.round(image.size / 1000) > 101) {
-                  resolveInvalidImg(image);
-                } else {
-                  newImageFiles.push(image);
-                  resolveInvalidImg(false);
-                }
+                Resizer.imageFileResizer(
+                  file,
+                  480,
+                  700,
+                  'JPEG',
+                  100,
+                  0,
+                  base64 => {
+                    image.base64 = base64;
+                    newImageFiles.push(image);
+                    resolveInvalidImg(false);
+                  }
+                );
+
+                // if (Math.round(image.size / 1000) > 101) {
+                //   resolveInvalidImg(image);
+                // } else {
+                //   newImageFiles.push(image);
+                //   resolveInvalidImg(false);
+                // }
                 i++;
               };
             };

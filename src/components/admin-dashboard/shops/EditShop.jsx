@@ -16,6 +16,7 @@ import { useMutation, useQuery } from 'react-apollo';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import Loading from '../../core/Loading';
 import * as yup from 'yup';
+import Resizer from 'react-image-file-resizer';
 import { makeStyles } from '@material-ui/core/styles';
 import { updatedDiff } from 'deep-object-diff';
 
@@ -184,14 +185,18 @@ const EditShop = ({ shopUsername }) => {
             const files = e.target.files;
             const file = files[0];
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
+            Resizer.imageFileResizer(file, 720, 700, 'JPEG', 100, 0, base64 => {
+              formik.setFieldValue('heroImage', base64);
+            });
 
-            reader.onload = fileLoadEvent => {
-              const { result } = fileLoadEvent.target;
-              const heroImage = result;
-              formik.setFieldValue('heroImage', heroImage);
-            };
+            // const reader = new FileReader();
+            // reader.readAsDataURL(file);
+
+            // reader.onload = fileLoadEvent => {
+            //   const { result } = fileLoadEvent.target;
+            //   const heroImage = result;
+            //   formik.setFieldValue('heroImage', heroImage);
+            // };
           };
 
           return (

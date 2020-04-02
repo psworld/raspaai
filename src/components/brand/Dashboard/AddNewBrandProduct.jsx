@@ -27,6 +27,7 @@ import { Carousel } from 'react-responsive-carousel';
 import * as yup from 'yup';
 import CustomFormik from '../../core/CustomFormik';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
+import Resizer from 'react-image-file-resizer';
 import Link from '../../core/Link';
 import { BRAND_PRODUCTS } from '../BrandHomePage';
 
@@ -192,7 +193,7 @@ const AddNewBrandProduct = ({ brandUsername }) => {
         Object.keys(obj).forEach(key => {
           technicalDetailsShape[key] = yup
             .string()
-            .max(30, 'Too long!')
+            .max(50, 'Too long!')
             .required('Required');
         });
         return yup.object().shape({ ...technicalDetailsShape });
@@ -303,7 +304,6 @@ const AddNewBrandProduct = ({ brandUsername }) => {
           reader.readAsDataURL(file);
           const invalidImage = new Promise(resolveInvalidImg => {
             reader.onload = e => {
-              const { result: base64 } = e.target;
               img.onload = () => {
                 const { naturalWidth: width, naturalHeight: height } = img;
 
@@ -312,19 +312,32 @@ const AddNewBrandProduct = ({ brandUsername }) => {
                   position: imagesListLength + index,
                   width,
                   height,
-                  base64,
                   ratio: Math.round((width / height) * 100),
                   name: file.name,
                   size: file.size
                 };
 
+                Resizer.imageFileResizer(
+                  file,
+                  480,
+                  700,
+                  'JPEG',
+                  100,
+                  0,
+                  base64 => {
+                    image.base64 = base64;
+                    newImageFiles.push(image);
+                    resolveInvalidImg(false);
+                  }
+                );
+
                 // if (image.ratio !== 80 || Math.round(image.size / 1000) > 101) {
-                if (Math.round(image.size / 1000) > 101) {
-                  resolveInvalidImg(image);
-                } else {
-                  newImageFiles.push(image);
-                  resolveInvalidImg(false);
-                }
+                // if (Math.round(image.size / 1000) > 101) {
+                //   resolveInvalidImg(image);
+                // } else {
+                //   newImageFiles.push(image);
+                //   resolveInvalidImg(false);
+                // }
                 i++;
               };
             };
