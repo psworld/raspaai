@@ -4,17 +4,17 @@ import { decryptText, encryptText } from './src/components/core/utils';
 export { wrapRootElement } from './src/components/apollo/wrap-root-element';
 
 // Pali location
-const location = {
-  name: 'Pali',
-  lat: 31.819878,
-  lng: 76.93857
-};
-
 // const location = {
-//   name: 'Mandi',
-//   lat: 31.707914,
-//   lng: 76.932244
+//   name: 'Pali',
+//   lat: 31.819878,
+//   lng: 76.93857
 // };
+// 31.707915, 76.932202
+const location = {
+  name: 'Mandi',
+  lat: 31.707915,
+  lng: 76.932202
+};
 
 const defaultEncLocation = encryptText(JSON.stringify(location));
 

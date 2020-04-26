@@ -2,14 +2,7 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 
 import * as yup from 'yup';
-import {
-  Container,
-  Avatar,
-  Typography,
-  Grid,
-  Button,
-  Link
-} from '@material-ui/core';
+import { Container, Avatar, Typography, Grid, Button } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
@@ -17,6 +10,7 @@ import { TextField } from 'formik-material-ui';
 import GraphqlErrorMessage from '../../core/GraphqlErrorMessage';
 import { gql } from 'apollo-boost';
 import { useMutation } from 'react-apollo';
+import Link from '../../core/Link';
 
 const useStyles = makeStyles(theme => ({
   '@global': {

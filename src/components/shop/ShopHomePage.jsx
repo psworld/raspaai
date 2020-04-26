@@ -159,11 +159,11 @@ const ShopProducts = ({ shopUsername, phrase, shop }) => {
     );
   }
   return (
-    <>
+    <div style={{ marginBottom: '10vh' }}>
       <Typography variant='h5' style={{ marginTop: 20 }} align='center'>
-        This shop do not have any product right now.
+        This shop do not have any products right now.
       </Typography>
-    </>
+    </div>
   );
 };
 

@@ -8,8 +8,8 @@ import styles from 'react-responsive-carousel/lib/styles/carousel.min.css';
 const useStyles = makeStyles(theme => ({
   heroContent: {
     backgroundColor: theme.palette.background.paper,
-    background:
-      'linear-gradient(180deg, #E0E0E0, rgba(250, 250, 250, 0.8) 90%)',
+    // background:
+    //   'linear-gradient(180deg, #E0E0E0, rgba(250, 250, 250, 0.8) 90%)',
     padding: theme.spacing(8, 0, 6),
     paddingBottom: 'auto',
     height: '100%'

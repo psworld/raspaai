@@ -8,6 +8,7 @@ import { useMutation } from 'react-apollo';
 import * as yup from 'yup';
 import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 import AddShopForm from './AddShopForm';
+import Resizer from 'react-image-file-resizer';
 
 const REGISTER_SHOP = gql`
   mutation($data: AdminAddShopInput!) {
@@ -194,17 +195,9 @@ const AddShop = () => {
         const handleFileChange = files => {
           const file = files[0];
 
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-
-          reader.onload = fileLoadEvent => {
-            const { result } = fileLoadEvent.target;
-            const heroImage = {
-              name: file.name,
-              base64: result
-            };
-            formik.setFieldValue('heroImage', heroImage);
-          };
+          Resizer.imageFileResizer(file, 720, 700, 'JPEG', 100, 0, base64 => {
+            formik.setFieldValue('heroImage', base64);
+          });
         };
 
         // eslint-disable-next-line default-case
