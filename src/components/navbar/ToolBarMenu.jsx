@@ -27,6 +27,11 @@ export const VIEWER = gql`
         publicUsername
         isActive
       }
+      wholesaler {
+        id
+        name
+        isActive
+      }
       shop {
         id
         properties {

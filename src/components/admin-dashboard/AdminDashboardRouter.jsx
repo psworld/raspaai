@@ -22,6 +22,7 @@ import ReviewShopApplications, {
   ShopApplicationList,
   ShopApplication
 } from './shops/ReviewShopApplications';
+import AddWholesaler from './supply-chain/AddWholesaler';
 
 const AdminDashboardRouter = () => {
   const { loading, error, data } = useQuery(VIEWER);
@@ -34,6 +35,7 @@ const AdminDashboardRouter = () => {
         <Router>
           <AdminDashboardHomePage path='/'></AdminDashboardHomePage>
           <AddUser path='add-user'></AddUser>
+          <AddWholesaler path='supply-chain/add/wholesaler'></AddWholesaler>
           <AddPopularPlace path='add-popular-place'></AddPopularPlace>
           <PopularPlaces
             path='popular-places'

@@ -27,7 +27,8 @@ module.exports = {
           `/brand/*`,
           `/search/*`,
           `/shop/*`,
-          `/images/*`
+          `/images/*`,
+          `/supply-chain/*`
         ]
       }
     },

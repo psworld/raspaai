@@ -177,6 +177,7 @@ const SHOP = gql`
       properties {
         publicUsername
         title
+        about
         heroImage
         openAt
         closeAt
@@ -259,7 +260,8 @@ const ShopHomePage = props => {
         isOpenToday,
         offDays,
         isActive,
-        contactNumber
+        contactNumber,
+        about
       }
     } = data.shop;
     const lat = coordinates[1];
@@ -274,7 +276,7 @@ const ShopHomePage = props => {
 
     return (
       <>
-        <SEO title={title}></SEO>
+        <SEO title={title} description={about}></SEO>
         <MainFeaturedPost img={heroImage} title={title}></MainFeaturedPost>
         <TitleAndSearchToolbar
           title={title}

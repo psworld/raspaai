@@ -1,27 +1,35 @@
-import { Button, Typography, Badge } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
+import { yellow } from '@material-ui/core/colors';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
+import LayersIcon from '@material-ui/icons/Layers';
 import MenuIcon from '@material-ui/icons/Menu';
+import RemoveShoppingCartIcon from '@material-ui/icons/RemoveShoppingCart';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import StoreIcon from '@material-ui/icons/Store';
 import clsx from 'clsx';
 import { navigate } from 'gatsby';
 import React from 'react';
 import { useQuery } from 'react-apollo';
+import RaspaaiIcon from '../../../../images/raspaai.svg';
 import ErrorPage from '../../../core/ErrorPage';
+import { MenuItemLink } from '../../../core/Link';
 import Loading from '../../../core/Loading';
 import { VIEWER } from '../../../navbar/ToolBarMenu';
-import SearchBar from '../../../templates/dashboard/SearchBar';
-import { mainListItems } from './listItems';
-import { MenuItemLink } from '../../../core/Link';
-import routes from '../../../core/routes';
 import { reverse } from 'named-urls';
+import routes from '../../../core/routes';
 
 const drawerWidth = 240;
 
@@ -104,7 +112,95 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const DashboardLayout = ({ children, publicUsername }) => {
+const SideBarItems = wholesalerId => {
+  const wholesaler = `/dashboard/wholesaler/${wholesalerId}`;
+  const baseUrl = wholesaler;
+  return (
+    <div>
+      <ListItem
+        component={MenuItemLink}
+        to={reverse(`${routes.wholesaler.dashboard.home}`, { wholesalerId })}
+        button>
+        <ListItemIcon>
+          <DashboardIcon />
+        </ListItemIcon>
+        <ListItemText primary='Dashboard' />
+      </ListItem>
+      <ListItem component={MenuItemLink} to={'/'} button>
+        <ListItemIcon>
+          <img alt='Raspaai' height='24' width='24' src={RaspaaiIcon}></img>
+        </ListItemIcon>
+        <ListItemText primary='Raspaai' />
+      </ListItem>
+
+      <ListItem
+        component={MenuItemLink}
+        to={reverse(`${routes.wholesaler.home}`, { wholesalerId })}
+        button>
+        <ListItemIcon>
+          <StoreIcon></StoreIcon>
+        </ListItemIcon>
+        <ListItemText primary={'My Wholesale Shop'} />
+      </ListItem>
+
+      <ListItem
+        component={MenuItemLink}
+        to={reverse(`${routes.wholesaler.dashboard.products}`, {
+          wholesalerId
+        })}
+        button>
+        <ListItemIcon>
+          <LayersIcon />
+        </ListItemIcon>
+        <ListItemText primary='Products' />
+      </ListItem>
+
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/pending`}>
+        <ListItemIcon>
+          <HourglassEmptyIcon style={{ color: yellow[900] }} />
+        </ListItemIcon>
+        <ListItemText primary='Pending Orders' />
+      </ListItem>
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/fulfilled`}>
+        <ListItemIcon>
+          <ShoppingCartIcon style={{ color: 'green' }} />
+        </ListItemIcon>
+        <ListItemText primary='Successful Orders' />
+      </ListItem>
+      <ListItem
+        button
+        component={MenuItemLink}
+        to={`${baseUrl}/orders/cancelled`}>
+        <ListItemIcon>
+          <RemoveShoppingCartIcon color='secondary' />
+        </ListItemIcon>
+        <ListItemText primary='Unsuccessful Orders' />
+      </ListItem>
+
+      {/*
+      <ListItem button>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Customers" />
+      </ListItem>
+      <ListItem button>
+        <ListItemIcon>
+          <BarChartIcon />
+        </ListItemIcon>
+        <ListItemText primary="Reports" />
+      </ListItem> */}
+    </div>
+  );
+};
+
+const DashboardLayout = ({ children, wholesalerId }) => {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(false);
@@ -123,12 +219,12 @@ const DashboardLayout = ({ children, publicUsername }) => {
   if (data && data.viewer) {
     const { viewer } = data;
 
-    const userRegisteredPublicUsername =
-      viewer.isShopOwner && viewer.shop.properties.publicUsername;
+    const userRegisteredWholesalerId =
+      viewer.wholesaler && viewer.wholesaler.id;
 
-    const isShopActive = viewer.shop.properties.isActive;
+    const isWholesalerActive = viewer.wholesaler.isActive;
 
-    if (userRegisteredPublicUsername === publicUsername || viewer.isSuperuser) {
+    if (userRegisteredWholesalerId === wholesalerId || viewer.isSuperuser) {
       return (
         <div className={classes.root}>
           <CssBaseline />
@@ -136,7 +232,7 @@ const DashboardLayout = ({ children, publicUsername }) => {
             position='absolute'
             className={clsx(classes.appBar, open && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>
-              {isShopActive && (
+              {isWholesalerActive && (
                 <>
                   <IconButton
                     edge='start'
@@ -150,23 +246,11 @@ const DashboardLayout = ({ children, publicUsername }) => {
                     <MenuIcon />
                   </IconButton>
                   {/* <SearchBar publicUsername={publicUsername}></SearchBar> */}
-                  <IconButton
-                    edge='end'
-                    component={MenuItemLink}
-                    to={reverse(`${routes.shop.dashboard.cart}`, {
-                      shopUsername: publicUsername
-                    })}
-                    aria-label='cart items'
-                    color='inherit'>
-                    <Badge variant='dot' invisible color='secondary'>
-                      <ShoppingCartIcon />
-                    </Badge>
-                  </IconButton>
                 </>
               )}
             </Toolbar>
           </AppBar>
-          {isShopActive && (
+          {isWholesalerActive && (
             <Drawer
               variant='permanent'
               classes={{
@@ -182,26 +266,27 @@ const DashboardLayout = ({ children, publicUsername }) => {
                 </IconButton>
               </div>
               <Divider />
-              <List>{mainListItems(publicUsername)}</List>
+              <List>{SideBarItems(wholesalerId)}</List>
               <Divider />
               {/* <List>{secondaryListItems}</List> */}
             </Drawer>
           )}
-
           <main className={classes.content}>
             <div className={classes.appBarSpacer} />
-            {isShopActive ? (
+            {isWholesalerActive ? (
               <>{children}</>
             ) : (
               <div style={{ marginTop: 20 }}>
                 <Typography variant='h5' align='center'>
-                  Your shop plans have expired. Recharge to continue the service
+                  Your plans have expired. Recharge to continue the service
                 </Typography>
                 <br></br>
                 <center>
                   <Button
                     onClick={() =>
-                      navigate(`/dashboard/shop/${publicUsername}/plans/buy`)
+                      navigate(
+                        `/dashboard/wholesaler/${wholesalerId}/plans/buy`
+                      )
                     }
                     variant='contained'
                     color='secondary'>

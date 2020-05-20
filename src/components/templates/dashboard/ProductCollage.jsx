@@ -1,13 +1,7 @@
-import React from 'react';
-
-import { Grid, Typography } from '@material-ui/core';
-
-import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
-
+import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import React from 'react';
 import ProductThumb from '../ProductThumb';
-import { getXQuantity } from '../../core/utils';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -63,14 +57,14 @@ const ProductCollage = ({
           const shopProduct = selectedShopProducts[key];
           const src = shopProduct.thumb;
           const thumbOverlayText = shopProduct.thumbOverlayText;
-          const quantityOverlayText = shopProduct.quantity;
+          const quantity = shopProduct.quantity;
 
           return (
             <Grid key={key} item xs={colSize} md={colSize}>
               <ProductThumb
                 src={src}
                 thumbOverlayText={thumbOverlayText}
-                quantityOverlayText={quantityOverlayText}></ProductThumb>
+                quantity={quantity}></ProductThumb>
             </Grid>
           );
         })}
@@ -90,13 +84,13 @@ const ProductCollage = ({
         {thumbs.map(thumb => {
           const src = thumb.src;
           const overlayText = thumb.overlayText;
-          const quantityOverlayText = thumb.quantity;
+          const quantity = thumb.quantity;
           return (
             <Grid key={src} item xs={colSize} md={colSize}>
               <ProductThumb
                 src={src}
                 thumbOverlayText={overlayText}
-                quantityOverlayText={quantityOverlayText}></ProductThumb>
+                quantity={quantity}></ProductThumb>
             </Grid>
           );
         })}

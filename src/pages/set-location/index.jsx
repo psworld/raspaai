@@ -6,7 +6,9 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import PopularPlaces from '../../components/map/PopularPlaces';
+import PopularPlaces, {
+  PopularPlace
+} from '../../components/map/PopularPlaces';
 import { useQuery } from 'react-apollo';
 import { LOCAL_SAVED_LOCATION } from '..';
 import { decryptText } from '../../components/core/utils';
@@ -14,7 +16,7 @@ import { decryptText } from '../../components/core/utils';
 const useStyles = makeStyles(theme => ({
   heroContent: {
     backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6)
+    padding: theme.spacing(4, 0, 6)
   },
   heroButtons: {
     marginTop: theme.spacing(4)
@@ -40,14 +42,14 @@ const HeroUnit = () => {
       <Container maxWidth='sm'>
         <Typography
           component='h1'
-          variant='h2'
+          variant='h4'
           align='center'
           color='textPrimary'
           gutterBottom>
-          Raspaai
+          Click on one of the places below to see what's available there !
         </Typography>
         <Typography variant='h5' align='center' color='textSecondary' paragraph>
-          You can also get location automatically.
+          You can also use your current location.
         </Typography>
 
         <Typography
@@ -55,7 +57,7 @@ const HeroUnit = () => {
           align='center'
           color='textSecondary'
           paragraph>
-          * Getting accurate location automatically requires GPS.
+          * Getting your current accurate location requires GPS.
         </Typography>
         <div className={classes.heroButtons}>
           <Grid container spacing={2} justify='center'>
@@ -65,7 +67,7 @@ const HeroUnit = () => {
                 to='/set-location/automatic'
                 variant='outlined'
                 color='primary'>
-                automatic
+                Use My Current Location
               </Button>
             </Grid>
           </Grid>
@@ -76,19 +78,29 @@ const HeroUnit = () => {
 };
 
 const SetLocation = () => {
-  const { data } = useQuery(LOCAL_SAVED_LOCATION);
+  const { data, client } = useQuery(LOCAL_SAVED_LOCATION);
 
   const currentLocation =
     data && JSON.parse(decryptText(data.localSavedLocation));
 
   return (
     <Layout>
-      {/* <HeroUnit></HeroUnit> */}
-      <Typography variant='h5' align='center'>
-        Click on one of the places below to see what's available there !
-      </Typography>
+      <HeroUnit></HeroUnit>
+      <Typography variant='h5'>Current Location</Typography>
+
       {data && data.localSavedLocation && (
-        <PopularPlaces currentLocation={currentLocation}></PopularPlaces>
+        <>
+          <PopularPlace
+            title={currentLocation.name}
+            coordinates={[currentLocation.lng, currentLocation.lat]}
+            image={currentLocation.image}
+            client={client}></PopularPlace>
+          <br></br>
+          <Typography variant='h5'>Other Locations</Typography>
+          <div id='places'>
+            <PopularPlaces currentLocation={currentLocation}></PopularPlaces>
+          </div>
+        </>
       )}
     </Layout>
   );

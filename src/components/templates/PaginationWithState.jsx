@@ -2,6 +2,38 @@ import React from 'react';
 
 import Button from '@material-ui/core/Button';
 
+export const FetchMore = (fetchMore, pageInfo, setLoading, ...props) => {
+  fetchMore({
+    variables: {
+      endCursor: pageInfo.endCursor,
+      ...props
+    },
+    updateQuery: (previousResults, { loading, fetchMoreResult }) => {
+      if (loading) {
+        setLoading(true);
+      }
+      if (fetchMoreResult) {
+        const newData = Object.values(fetchMoreResult)[0];
+        const key = Object.keys(fetchMoreResult)[0];
+
+        const newEdges = newData.edges;
+
+        const prevEdges = Object.values(previousResults)[0].edges;
+
+        setLoading(false);
+        return newEdges.length
+          ? {
+              [key]: {
+                ...newData,
+                edges: [...prevEdges, ...newEdges]
+              }
+            }
+          : previousResults;
+      }
+    }
+  });
+};
+
 const PaginationWithState = props => {
   const { fetchMore, pageInfo, ...other } = props;
   const [loading, setLoading] = React.useState(false);
@@ -10,37 +42,7 @@ const PaginationWithState = props => {
       {pageInfo.hasNextPage ? (
         <Button
           disabled={!pageInfo.hasNextPage || loading}
-          onClick={() =>
-            fetchMore({
-              variables: {
-                endCursor: pageInfo.endCursor,
-                ...other
-              },
-              updateQuery: (previousResults, { loading, fetchMoreResult }) => {
-                if (loading) {
-                  setLoading(true);
-                }
-                if (fetchMoreResult) {
-                  const newData = Object.values(fetchMoreResult)[0];
-                  const key = Object.keys(fetchMoreResult)[0];
-
-                  const newEdges = newData.edges;
-
-                  const prevEdges = Object.values(previousResults)[0].edges;
-
-                  setLoading(false);
-                  return newEdges.length
-                    ? {
-                        [key]: {
-                          ...newData,
-                          edges: [...prevEdges, ...newEdges]
-                        }
-                      }
-                    : previousResults;
-                }
-              }
-            })
-          }
+          onClick={() => FetchMore(fetchMore, pageInfo, setLoading, other)}
           variant='contained'
           color='secondary'>
           Load more

@@ -102,6 +102,57 @@ export const ReturnRefundPolicy = ({ returnRefundPolicy }) => (
   </List>
 );
 
+export const InOutStock = ({ inStock }) => (
+  <ListItem>
+    <ListItemText
+      style={{ color: inStock ? 'green' : 'red' }}
+      primary={inStock ? 'In stock' : 'Out of stock'}
+    />
+  </ListItem>
+);
+
+export const ProductDescriptions = ({ description, longDescription }) => (
+  <>
+    <ListItem>
+      <Typography>{description}</Typography>
+    </ListItem>
+    <ListItem>
+      <Typography>{longDescription}</Typography>
+    </ListItem>
+  </>
+);
+
+export const ProductTechnicalDetails = ({ productTitle, technicalDetails }) => (
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell>Technical</TableCell>
+        <TableCell>Details</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <TableRow>
+        <TableCell component='th' scope='row'>
+          Title
+        </TableCell>
+        <TableCell>{productTitle}</TableCell>
+      </TableRow>
+      {Object.keys(technicalDetails).map((key, index) => {
+        const value = technicalDetails[key];
+
+        return (
+          <TableRow key={index}>
+            <TableCell component='th' scope='row'>
+              {key}
+            </TableCell>
+            <TableCell>{value}</TableCell>
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  </Table>
+);
+
 const ProductDetails = props => {
   const {
     product,
@@ -291,12 +342,7 @@ const ProductDetails = props => {
                 </ListItem>
               )}
               <Divider />
-              <ListItem>
-                <ListItemText
-                  style={{ color: inStock ? 'green' : 'red' }}
-                  primary={inStock ? 'In stock' : 'Out of stock'}
-                />
-              </ListItem>
+              <InOutStock inStock={inStock}></InOutStock>
               <Divider />
               {isActive ? (
                 <>
@@ -312,41 +358,13 @@ const ProductDetails = props => {
             </>
           )}
           <Divider />
-          <ListItem>
-            <Typography>{description}</Typography>
-          </ListItem>
-          <ListItem>
-            <Typography>{longDescription}</Typography>
-          </ListItem>
+          <ProductDescriptions
+            description={description}
+            longDescription={longDescription}></ProductDescriptions>
 
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Technical</TableCell>
-                <TableCell>Details</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell component='th' scope='row'>
-                  Title
-                </TableCell>
-                <TableCell>{productTitle}</TableCell>
-              </TableRow>
-              {Object.keys(technicalDetails).map((key, index) => {
-                const value = technicalDetails[key];
-
-                return (
-                  <TableRow key={index}>
-                    <TableCell component='th' scope='row'>
-                      {key}
-                    </TableCell>
-                    <TableCell>{value}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <ProductTechnicalDetails
+            productTitle={productTitle}
+            technicalDetails={technicalDetails}></ProductTechnicalDetails>
         </Grid>
         {shopProduct && isActive ? (
           <Grid

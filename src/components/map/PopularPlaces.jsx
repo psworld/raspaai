@@ -5,7 +5,7 @@ import { navigate } from 'gatsby';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useApolloClient, useQuery } from 'react-apollo';
-import sq1 from '../../images/raspaai.svg';
+import sq1 from '../../images/raspaai-sq.svg';
 import ErrorPage from '../core/ErrorPage';
 import SquareElementGridSkeleton from '../skeletons/SquareElementSkeleton';
 import Link from '../core/Link';
@@ -30,11 +30,15 @@ export const POPULAR_PLACES = gql`
   }
 `;
 
-const PopularPlace = props => {
-  const { popularPlaceId, title, coordinates, image, adminDashboard } = props;
-
-  const client = useApolloClient();
-
+export const PopularPlace = ({
+  popularPlaceId,
+  title,
+  coordinates,
+  image,
+  adminDashboard,
+  client,
+  ...props
+}) => {
   const lat = coordinates[1];
   const lng = coordinates[0];
   let imgSrc = image ? `${process.env.GATSBY_IMG_URL_PRE}/${image}` : sq1;
@@ -44,6 +48,8 @@ const PopularPlace = props => {
     lat,
     lng
   };
+
+  if (image) savedLocation['image'] = image;
   const encSavedLocation = encryptText(JSON.stringify(savedLocation));
   return (
     <Grid item xs={4} sm={3} md={2} lg={2}>
@@ -89,7 +95,8 @@ const PopularPlace = props => {
 };
 
 const PopularPlaces = ({ currentLocation, adminDashboard = false }) => {
-  const { loading, error, data, client } = useQuery(
+  const client = useApolloClient();
+  const { loading, error, data } = useQuery(
     POPULAR_PLACES
     // {
     // variables: {

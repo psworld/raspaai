@@ -7,6 +7,7 @@ import AcUnitIcon from '@material-ui/icons/AcUnit';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import FastFoodIcon from '@material-ui/icons/Fastfood';
+import ShopIcon from '@material-ui/icons/Shop';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 import LayersIcon from '@material-ui/icons/Layers';
 // import PeopleIcon from "@material-ui/icons/People"
@@ -18,6 +19,8 @@ import ViewQuiltIcon from '@material-ui/icons/ViewQuilt';
 import React from 'react';
 import RaspaaiIcon from '../../../../images/raspaai.svg';
 import { MenuItemLink } from '../../../core/Link';
+import { reverse } from 'named-urls';
+import routes from '../../../core/routes';
 
 export const mainListItems = publicUsername => {
   const shopDashboard = `/dashboard/shop/${publicUsername}`;
@@ -42,6 +45,18 @@ export const mainListItems = publicUsername => {
           <StoreIcon></StoreIcon>
         </ListItemIcon>
         <ListItemText primary={'My Shop'} />
+      </ListItem>
+
+      <ListItem
+        component={MenuItemLink}
+        to={reverse(`${routes.shop.dashboard.shopOrders}`, {
+          shopUsername: publicUsername
+        })}
+        button>
+        <ListItemIcon>
+          <ShopIcon />
+        </ListItemIcon>
+        <ListItemText primary='My Shop Orders' />
       </ListItem>
 
       <ListItem component={MenuItemLink} to={`${baseUrl}/products`} button>

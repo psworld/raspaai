@@ -260,6 +260,14 @@ export default function NavBar({ searchPhrase }) {
             </MenuItem>
           )}
 
+        {viewer.wholesaler && (
+          <MenuItem
+            component={MenuItemLink}
+            to={`/dashboard/wholesaler/${viewer.wholesaler.id}`}>
+            Wholesaler Dashboard
+          </MenuItem>
+        )}
+
         {viewer.brand &&
           [
             {

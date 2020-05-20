@@ -4,6 +4,7 @@ import ShopDashboardRouter from '../components/shop/dashboard/ShopDashboardRoute
 import BrandDashboardRouter from '../components/brand/Dashboard/BrandDashboardRouter';
 import BuyPlans from '../components/shop/dashboard/components/plans/buy/BuyPlans';
 import PaymentResponse from '../components/shop/dashboard/components/plans/buy/PaymentResponse';
+import WholesalerDashboardRouter from '../components/supply-chain/wholesaler/WholesalerDashboardRouter';
 
 const Dashboard = () => {
   return (
@@ -13,6 +14,7 @@ const Dashboard = () => {
 
       <ShopDashboardRouter path='/dashboard/shop/:shopUsername/*'></ShopDashboardRouter>
       <BrandDashboardRouter path='/dashboard/brand/:brandUsername/*'></BrandDashboardRouter>
+      <WholesalerDashboardRouter path='/dashboard/wholesaler/:wholesalerId/*'></WholesalerDashboardRouter>
     </Router>
   );
 };

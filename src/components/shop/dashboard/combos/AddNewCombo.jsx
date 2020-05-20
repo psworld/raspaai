@@ -21,6 +21,7 @@ import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import * as yup from 'yup';
 import ErrorPage from '../../../core/ErrorPage';
+import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 import Link from '../../../core/Link';
 import { newPageInfo, slugGenerator } from '../../../core/utils';
 import SEO from '../../../seo';
@@ -30,7 +31,6 @@ import PaginationWithState from '../../../templates/PaginationWithState';
 import ProductThumb from '../../../templates/ProductThumb';
 import { SHOP_PRODUCTS } from '../../ShopHomePage';
 import { SHOP_COMBOS } from './MyCombos';
-import GraphqlErrorMessage from '../../../core/GraphqlErrorMessage';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -122,8 +122,6 @@ const ComboProduct = ({
           } = formik;
           const { quantity } = values;
 
-          const quantityOverlayText = quantity;
-
           function hasError(id, bool) {
             if (touched[id] && errors[id]) {
               return bool ? true : errors[id];
@@ -139,7 +137,7 @@ const ComboProduct = ({
                   src={thumb}
                   title={title}
                   thumbOverlayText={thumbOverlayText}
-                  quantityOverlayText={quantityOverlayText}></ProductThumb>
+                  quantity={quantity}></ProductThumb>
                 <Typography variant='body2'>{title}</Typography>
               </Link>
 
