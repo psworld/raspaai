@@ -198,7 +198,7 @@ const CreateShopForm = ({
                     fullWidth
                     variant='contained'
                     color='secondary'>
-                    Submit Application
+                    {loading ? 'Submitting' : 'Submit Application'}
                   </Button>
                 </Grid>
                 {/* <Grid item xs>

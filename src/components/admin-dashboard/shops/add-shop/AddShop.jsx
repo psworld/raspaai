@@ -196,7 +196,7 @@ const AddShop = () => {
           const file = files[0];
 
           Resizer.imageFileResizer(file, 720, 700, 'JPEG', 100, 0, base64 => {
-            formik.setFieldValue('heroImage', base64);
+            formik.setFieldValue('heroImage', { name: file.name, base64 });
           });
         };
 
